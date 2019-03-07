@@ -6,16 +6,18 @@ import java.util.*
 import kotlin.random.Random
 
 fun main() {
-    print(LevelGenerator.generate(1, 15, 20))
+    print(LevelGenerator.generate(1, 30, 40))
 }
 
-class LevelGenerator(private val depth: Int, private val height: Int, val width: Int) {
-    private val level = Level(depth, height, width)
+class LevelGenerator(private val depth: Int, private var height: Int, var width: Int) {
+    private var level = Level(depth, height, width)
     fun generate(): Level {
+        height /= 2
+        width /= 2
         if (height * width * depth < 100) {
             throw Exception("To small field size...")
         }
-        val roomsCount = Random.nextInt(height * width * depth / 100, height * width * depth / 50)
+        val roomsCount = Random.nextInt(height * width * depth / 50, height * width * depth / 30)
         val roomCells = Array<LinkedList<Floor>>(roomsCount) {
             LinkedList()
         }
@@ -36,7 +38,41 @@ class LevelGenerator(private val depth: Int, private val height: Int, val width:
             }
         }
         expandRooms(roomCells)
+        buildWalls()
+        height *= 2
+        width *= 2
         return level
+    }
+
+    private fun buildWalls() {
+        val bigLevel = Level(depth, height * 2, width * 2)
+        for (h in 0 until depth) {
+            for (i in 0 until height) {
+                for (j in 0 until width) {
+                    val cell = level.getCell(i + 1, j + 1, h) as Floor
+                    val right = level.getCell(i + 1, j + 2, h)
+                    val down = level.getCell(i + 2, j + 1, h)
+                    val cell1 = bigLevel.getCell(1 + 2 * i, 1 + 2 * j, h) as Floor
+                    val cell2 = bigLevel.getCell(1 + 2 * i, 1 + 2 * j + 1, h) as Floor
+                    val cell3 = bigLevel.getCell(1 + 2 * i + 1, 1 + 2 * j, h) as Floor
+                    val cell4 = bigLevel.getCell(1 + 2 * i + 1, 1 + 2 * j + 1, h) as Floor
+                    cell1.roomNumber = cell.roomNumber
+                    cell2.roomNumber = cell.roomNumber
+                    cell3.roomNumber = cell.roomNumber
+                    cell4.roomNumber = cell.roomNumber
+                    if (right is Floor && right.roomNumber != cell.roomNumber) {
+                        cell2.toWall()
+                        cell4.toWall()
+                    }
+                    if (down is Floor && down.roomNumber != cell.roomNumber) {
+                        cell3.toWall()
+                        cell4.toWall()
+                    }
+                }
+            }
+        }
+        print(level)
+        level = bigLevel
     }
 
     private fun expandRooms(roomCells: Array<LinkedList<Floor>>) {
@@ -49,18 +85,19 @@ class LevelGenerator(private val depth: Int, private val height: Int, val width:
                     val c = startCell.coordinates
                     for (direction in Direction.values()) {
                         for (r in 1..Random.nextInt(1, maxExpand + 1)) {
-                            if (checkCanExpand(c, direction, r, startCell.roomNumber)) {
-                                val nextCell = level.getCell(c, direction, r) as Floor
-                                nextCell.roomNumber = startCell.roomNumber
-                                room.push(nextCell)
-                                fulledCells++
-                                if (fulledCells == height * width) {
-                                    return
+                            val nextCell = level.getCell(c, direction, r)
+                            if (nextCell is Floor) {
+                                if (checkCanExpand(c, direction, r, startCell.roomNumber)) {
+                                    nextCell.roomNumber = startCell.roomNumber
+                                    room.push(nextCell)
+                                    fulledCells++
+                                    if (fulledCells == height * width) {
+                                        return
+                                    }
+                                } else {
+                                    break
                                 }
                             } else {
-//                                if (nextCell.roomNumber != startCell.roomNumber) {
-//                                    //nextCell.toWall()
-//                                }
                                 break
                             }
                         }
@@ -76,17 +113,16 @@ class LevelGenerator(private val depth: Int, private val height: Int, val width:
             return false
         }
         if (nextCell is Floor && nextCell.roomNumber == -1) {
-            return if (direction == Direction.UP || direction == Direction.DOWN) {
-                checkLeftRight(nextCell.coordinates, Direction.RIGHT, Direction.LEFT, roomNumber)
-            } else {
-                checkLeftRight(nextCell.coordinates, Direction.UP, Direction.DOWN, roomNumber)
-            }
+            return true
         }
 
         return false
     }
 
-    private fun checkLeftRight(c: Coordinates, direction1: Direction, direction2: Direction, roomNumber: Int): Boolean {
+    private fun checkLeftRight(
+        c: Coordinates, direction1: Direction, direction2: Direction,
+        roomNumber: Int
+    ): Boolean {
         val right = level.getCell(c, direction1, 1)
         val left = level.getCell(c, direction2, 1)
         val isOurRoomRight = right is Floor && (right.roomNumber == roomNumber || right.roomNumber == -1)

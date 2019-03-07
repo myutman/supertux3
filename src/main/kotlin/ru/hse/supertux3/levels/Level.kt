@@ -26,8 +26,16 @@ class Level(val depth: Int, val height: Int, val width: Int) {
         field[c.h][c.i][c.j] = cell
     }
 
+    fun setCell(i: Int, j: Int, h: Int, cell: Cell) {
+        field[h][i][j] = cell
+    }
+
     fun getCell(c: Coordinates): Cell {
         return field[c.h][c.i][c.j]
+    }
+
+    fun getCell(i: Int, j: Int, h: Int): Cell {
+        return field[h][i][j]
     }
 
     fun getCell(c: Coordinates, direction: Direction, r: Int): Cell {

@@ -27,12 +27,13 @@ abstract class Floor(coordinates: Coordinates,
     }
 
     companion object {
-        fun empty(coordinates: Coordinates): Cell = object: Floor(coordinates) {
+        fun empty(coordinates: Coordinates): Floor = object: Floor(coordinates) {
             override fun interact() {
                 // do nothing
             }
 
-            override fun toString() = if (roomNumber == -1) "." else roomNumber.toString()
+            //override fun toString() = if (roomNumber == -1) "." else roomNumber.toString()
+            override fun toString() = "."
         }
 
         private var nextRoomNumber = 0
