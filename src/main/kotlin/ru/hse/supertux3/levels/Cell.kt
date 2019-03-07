@@ -1,12 +1,8 @@
 package ru.hse.supertux3.levels
 
-open class Cell(val coordinates: Coordinates) {
-    fun toWall(): Wall {
-        val newWall = Wall(coordinates)
-        coordinates.level.setCell(coordinates, newWall)
-        return newWall
-    }
-}
+import javax.print.attribute.standard.Destination
+
+open class Cell(val coordinates: Coordinates)
 
 abstract class Floor(coordinates: Coordinates,
                      private val items: MutableList<Int> = emptyList<Int>().toMutableList()): Cell(coordinates) {
@@ -36,7 +32,7 @@ abstract class Floor(coordinates: Coordinates,
             override fun toString() = "."
         }
 
-        private var nextRoomNumber = 0
+        var nextRoomNumber = 0
     }
 }
 
@@ -51,4 +47,22 @@ class Wall(coordinates: Coordinates): Cell(coordinates) {
     }
 
     override fun toString() = "#"
+}
+
+class Door(coordinates: Coordinates): Floor(coordinates) {
+    override fun interact() {
+        // pass
+    }
+
+    override fun toString() = "O"
+
+}
+
+class Ladder(coordinates: Coordinates, destination: Int): Floor(coordinates) {
+    override fun interact() {
+        // pass
+    }
+
+    override fun toString() = "X"
+
 }

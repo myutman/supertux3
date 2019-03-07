@@ -22,6 +22,11 @@ class Level(val depth: Int, val height: Int, val width: Int) {
 
     }
 
+    fun buildWall(c: Coordinates) {
+        val newWall = Wall(c)
+        setCell(c, newWall)
+    }
+
     fun setCell(c: Coordinates, cell: Cell) {
         field[c.h][c.i][c.j] = cell
     }
@@ -78,4 +83,5 @@ class Level(val depth: Int, val height: Int, val width: Int) {
         }
         return stringBuilder.toString()
     }
+
 }
