@@ -4,6 +4,7 @@ import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Attributes
 import org.jline.terminal.TerminalBuilder
 import ru.hse.supertux3.levels.LevelGenerator
+import ru.hse.supertux3.logic.Model
 
 
 fun main() {
@@ -20,9 +21,10 @@ fun main() {
     terminal.enterRawMode()
     val reader = terminal.reader()
 
-    val level = LevelGenerator.generate(4, 30, 40)
+    val model = Model(4, 30, 40)
     println("Generated")
-    val view = View(level, visual)
+    val view = View(model.state, visual)
+    model.view = view
 
     visual.run {
 
@@ -37,11 +39,11 @@ fun main() {
             var quit = false
             when (buffer[0]) {
                 'q' -> quit = true
-                'w' -> view.moveUp()
-                'a' -> view.moveLeft()
-                'd' -> view.moveRight()
-                's' -> view.moveDown()
-                ' ' -> view.moveLadder()
+                'w' -> model.moveUp()
+                'a' -> model.moveLeft()
+                'd' -> model.moveRight()
+                's' -> model.moveDown()
+                ' ' -> model.moveLadder()
             }
 
             if (quit) {

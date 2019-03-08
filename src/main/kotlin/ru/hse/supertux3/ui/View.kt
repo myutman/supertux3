@@ -1,10 +1,9 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
-import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.GameState
 
-class View(val level: Level, val visual: TermColors) {
-    private var position: Coordinates = level.randomCell().coordinates
+class View(val state: GameState, val visual: TermColors) {
 
     init {
         redraw()
@@ -12,6 +11,9 @@ class View(val level: Level, val visual: TermColors) {
 
     fun redraw() {
         print("\u001Bc")
+
+        val level = state.level
+        val position = state.player.position
 
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
@@ -36,87 +38,81 @@ class View(val level: Level, val visual: TermColors) {
         printPos()
     }
 
-    fun check(position: Coordinates): Boolean {
-        return level.canGo(position, Direction.UP, 0)
-                && level.getCell(position) !is Wall
-    }
-
     fun moveUp() {
-        if (check(position.copy(i = position.i - 1))) {
-            val symb = level.getCell(position).toString()
-            position = position.copy(i = position.i - 1)
+        val level = state.level
+        val position = state.player.position
 
-            visual.run {
-                print(symb)
-                print(cursorLeft(1))
-                print(cursorUp(1))
-                print(red("@"))
-                print(cursorLeft(1))
-            }
+        val symb = level.getCell(position).toString()
+
+        visual.run {
+            print(symb)
+            print(cursorLeft(1))
+            print(cursorUp(1))
+            print(red("@"))
+            print(cursorLeft(1))
         }
+
         printPos()
     }
 
     fun moveDown() {
-        if (check(position.copy(i = position.i + 1))) {
-            val symb = level.getCell(position).toString()
-            position = position.copy(i = position.i + 1)
+        val level = state.level
+        val position = state.player.position
 
-            visual.run {
-                print(symb)
-                print(cursorLeft(1))
-                print(cursorDown(1))
-                print(red("@"))
-                print(cursorLeft(1))
-            }
+        val symb = level.getCell(position).toString()
+
+        visual.run {
+            print(symb)
+            print(cursorLeft(1))
+            print(cursorDown(1))
+            print(red("@"))
+            print(cursorLeft(1))
         }
+
         printPos()
     }
 
     fun moveLeft() {
-        if (check(position.copy(j = position.j - 1))) {
-            val symb = level.getCell(position).toString()
-            position = position.copy(j = position.j - 1)
+        val level = state.level
+        val position = state.player.position
 
+        val symb = level.getCell(position).toString()
 
-            visual.run {
-                print(symb)
-                print(cursorLeft(1))
-                print(cursorLeft(1))
-                print(red("@"))
-                print(cursorLeft(1))
-            }
-
+        visual.run {
+            print(symb)
+            print(cursorLeft(1))
+            print(cursorLeft(1))
+            print(red("@"))
+            print(cursorLeft(1))
         }
+
         printPos()
     }
 
     fun moveRight() {
-        if (check(position.copy(j = position.j + 1))) {
-            val symb = level.getCell(position).toString()
-            position = position.copy(j = position.j + 1)
+        val level = state.level
+        val position = state.player.position
 
+        val symb = level.getCell(position).toString()
 
-            visual.run {
-                print(symb)
-                print(cursorLeft(1))
-                print(cursorRight(1))
-                print(red("@"))
-                print(cursorLeft(1))
-            }
+        visual.run {
+            print(symb)
+            print(cursorLeft(1))
+            print(cursorRight(1))
+            print(red("@"))
+            print(cursorLeft(1))
         }
+
         printPos()
     }
 
     fun moveLadder() {
-        val cell = level.getCell(position)
-        if (cell is Ladder) run {
-            position = position.copy(h = cell.destination)
-            redraw()
-        }
+        redraw()
     }
 
     fun printPos() {
+        val level = state.level
+        val position = state.player.position
 
         val up = level.height - position.i
         val right = position.j
