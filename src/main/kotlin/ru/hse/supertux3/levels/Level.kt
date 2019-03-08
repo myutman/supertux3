@@ -10,9 +10,9 @@ enum class Direction {
 
 class Level(val depth: Int, val height: Int, val width: Int) {
     private val field: Array<Array<Array<Cell>>> = Array(depth) { h ->
-        Array(height + 2) { i ->
-            Array(width + 2) { j ->
-                    if (i == 0 || j == 0 || i == height + 1 || j == width + 1){
+        Array(height) { i ->
+            Array(width) { j ->
+                    if (i == 0 || j == 0 || i == height - 1 || j == width - 1){
                         Wall(Coordinates(i, j, h, this))
                     } else {
                         Floor.empty(Coordinates(i, j, h, this))
@@ -50,7 +50,7 @@ class Level(val depth: Int, val height: Int, val width: Int) {
 
     fun canGo(c: Coordinates, direction: Direction, r: Int): Boolean {
         val (i,j) = getNewCoordinate(c, direction, r)
-        return i >= 0 || j >= 0 || i <= height + 1 || j <= width + 1
+        return i >= 0 || j >= 0 || i < height || j < width
     }
 
     private fun getNewCoordinate(c: Coordinates, direction: Direction, r: Int): Pair<Int, Int> {
@@ -65,8 +65,8 @@ class Level(val depth: Int, val height: Int, val width: Int) {
     fun randomCell() = getCell(randomCoordinates())
 
     fun randomCoordinates() = Coordinates(
-        Random.nextInt(1, height + 1),
-        Random.nextInt(1, width + 1),
+        Random.nextInt(1, height - 1),
+        Random.nextInt(1, width - 1),
         Random.nextInt(0, depth),
         this)
 
