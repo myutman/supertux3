@@ -41,7 +41,7 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         val roomCells = Array<LinkedList<Floor>>(roomsCount) {
             LinkedList()
         }
-        val level = Level(depth, halfHeight, halfWidth)
+        val level = Level(depth, halfHeight + 2, halfWidth + 2)
         for (i in 0 until roomsCount) {
             while (true) {
                 val randomCell = level.randomCell()
@@ -116,7 +116,7 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         val possibleDoors = Array(roomsCount) {
             mutableMapOf<Int, MutableList<Cell>>()
         }
-        val bigLevel = Level(depth, height, width)
+        val bigLevel = Level(depth, heightWithWalls, widthWithWalls)
         for (h in 0 until depth) {
             for (i in 0 until halfHeight) {
                 for (j in 0 until halfWidth) {
