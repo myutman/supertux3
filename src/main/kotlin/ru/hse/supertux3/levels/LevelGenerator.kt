@@ -14,8 +14,8 @@ fun main() {
 
 // height and width should be even
 class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWalls: Int) {
-    private val height = heightWithWalls
-    private val width = widthWithWalls
+    private val height = heightWithWalls - 2
+    private val width = widthWithWalls - 2
     private val halfHeight = height / 2
     private val halfWidth = width / 2
     private val roomsCount = Random.nextInt(
