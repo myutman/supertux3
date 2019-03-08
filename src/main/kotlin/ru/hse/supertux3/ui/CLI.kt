@@ -41,6 +41,7 @@ fun main() {
                 'a' -> view.moveLeft()
                 'd' -> view.moveRight()
                 's' -> view.moveDown()
+                ' ' -> view.moveLadder()
             }
 
             if (quit) {
