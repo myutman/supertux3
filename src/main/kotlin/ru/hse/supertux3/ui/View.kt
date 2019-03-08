@@ -45,8 +45,9 @@ class View(val state: GameState, val visual: TermColors) {
     fun moveUp() {
         val level = state.level
         val position = state.player.position
+        val prevPosition = position.copy(i = position.i + 1)
 
-        val symb = level.getCell(position).toString()
+        val symb = level.getCell(prevPosition).toString()
 
         visual.run {
             print(symb)
@@ -62,8 +63,9 @@ class View(val state: GameState, val visual: TermColors) {
     fun moveDown() {
         val level = state.level
         val position = state.player.position
+        val prevPosition = position.copy(i = position.i - 1)
 
-        val symb = level.getCell(position).toString()
+        val symb = level.getCell(prevPosition).toString()
 
         visual.run {
             print(symb)
@@ -79,8 +81,9 @@ class View(val state: GameState, val visual: TermColors) {
     fun moveLeft() {
         val level = state.level
         val position = state.player.position
+        val prevPosition = position.copy(j = position.j + 1)
 
-        val symb = level.getCell(position).toString()
+        val symb = level.getCell(prevPosition).toString()
 
         visual.run {
             print(symb)
@@ -96,8 +99,9 @@ class View(val state: GameState, val visual: TermColors) {
     fun moveRight() {
         val level = state.level
         val position = state.player.position
+        val prevPosition = position.copy(j = position.j - 1)
 
-        val symb = level.getCell(position).toString()
+        val symb = level.getCell(prevPosition).toString()
 
         visual.run {
             print(symb)
