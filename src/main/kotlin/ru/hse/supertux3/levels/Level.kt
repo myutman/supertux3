@@ -55,10 +55,10 @@ class Level(val depth: Int, val height: Int, val width: Int) {
 
     private fun getNewCoordinate(c: Coordinates, direction: Direction, r: Int): Pair<Int, Int> {
         return when (direction) {
-            Direction.RIGHT -> Pair(c.i + r, c.j)
-            Direction.LEFT -> Pair(c.i - r, c.j)
-            Direction.UP -> Pair(c.i, c.j - r)
-            Direction.DOWN -> Pair(c.i, c.j + r)
+            Direction.LEFT -> Pair(c.i, c.j - r)
+            Direction.RIGHT -> Pair(c.i, c.j + r)
+            Direction.DOWN -> Pair(c.i + r, c.j)
+            Direction.UP -> Pair(c.i - r, c.j)
         }
     }
 

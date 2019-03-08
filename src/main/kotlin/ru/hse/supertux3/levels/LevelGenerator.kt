@@ -9,7 +9,8 @@ import kotlin.random.Random
 
 fun main() {
 //    for (i in 0..1000)
-    print(LevelGenerator.generate(4, 30, 40))
+    val level = LevelGenerator.generate(4, 30, 40)
+    println(level)
 }
 
 // height and width should be even
@@ -25,6 +26,7 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
     private val graph = Array(roomsCount) {
         mutableListOf<Pair<Int, Cell>>()
     }
+    private val bfsQueue = LinkedList<Int>()
     private val used = Array(roomsCount) { false }
 
     fun generate(): Level {
@@ -159,13 +161,13 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         if (depth != 1) {
             makeLadders(bigLevel)
         }
-        dfs(0, bigLevel)
+        bfs(bigLevel)
         return bigLevel
     }
 
     private fun makeLadders(level: Level) {
         val ladders = mutableSetOf<Pair<Int, Int>>()
-        val laddersCount = roomsCount / 10 * depth
+        val laddersCount = Math.sqrt(roomsCount.toDouble()).toInt() * (depth - 1)
         for (i in 1..laddersCount) {
             while (true) {
                 val randomCell = level.randomCell()
@@ -184,13 +186,20 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                         }
                         ladders.add(Pair(v, u))
                         ladders.add(Pair(u, v))
-                        level.setCell(c.i, c.j, c.h, Ladder(c, c.h - 1))
+                        level.setCell(c.i, c.j, c.h, Ladder(c.copy(), c.h - 1))
                         level.setCell(c.i, c.j, c.h - 1, Ladder(
-                            Coordinates(c.i, c.j, c.h - 1, level),
-                            c.h))
+                            Coordinates(c.i, c.j, c.h - 1, level), c.h))
                         val ladder = level.getCell(c)
                         graph[v].add(Pair(u, ladder))
                         graph[u].add(Pair(v, ladder))
+                        if (!used[v]) {
+                            bfsQueue.push(v)
+                            used[v] = true
+                        }
+                        if (!used[u]) {
+                            bfsQueue.push(u)
+                            used[u] = true
+                        }
                         break
                     }
                 }
@@ -198,16 +207,18 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         }
     }
 
-    private fun dfs(v: Int, level: Level) {
-        used[v] = true
-        for ((u, cell) in graph[v]) {
-            if (used[u]) {
-                continue
+    private fun bfs(level: Level) {
+        bfsQueue.push(0)
+        while (!bfsQueue.isEmpty()) {
+            val v = bfsQueue.pop()
+            used[v] = true
+            for ((u, cell) in graph[v]) {
+                if (!used[u]) {
+                    assert(cell !is Ladder)
+                    level.setCell(cell.coordinates, Door(cell.coordinates))
+                    bfsQueue.push(u)
+                }
             }
-            if (cell !is Ladder) {
-                level.setCell(cell.coordinates, Door(cell.coordinates))
-            }
-            dfs(u, level)
         }
     }
 

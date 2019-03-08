@@ -58,7 +58,7 @@ class Door(coordinates: Coordinates): Floor(coordinates) {
 
 }
 
-class Ladder(coordinates: Coordinates, destination: Int): Floor(coordinates) {
+class Ladder(coordinates: Coordinates, val destination: Int): Floor(coordinates) {
     override fun interact() {
         // pass
     }
