@@ -32,6 +32,14 @@ abstract class Floor(coordinates: Coordinates,
             override fun toString() = "."
         }
 
+        fun chest(coordinates: Coordinates): Floor = object: Floor(coordinates) {
+            override fun interact() {
+                // do nothing
+            }
+
+            override fun toString() = "&"
+        }
+
         var nextRoomNumber = 0
     }
 }
@@ -63,6 +71,6 @@ class Ladder(coordinates: Coordinates, val destination: Int): Floor(coordinates)
         // pass
     }
 
-    override fun toString() = "X"
+    override fun toString() = if (destination > coordinates.h) "v" else "^"
 
 }
