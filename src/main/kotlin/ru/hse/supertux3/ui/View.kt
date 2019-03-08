@@ -17,7 +17,11 @@ class View(val level: Level, val visual: TermColors) {
             for (j in 0 until level.width) {
                 val symb = level.getCell(i, j, position.h).toString()
                 visual.run {
-                    print(rgb("#ffffff")(symb))
+                    if (symb != "&") {
+                        print(rgb("#ffffff")(symb))
+                    } else {
+                        print(red(symb))
+                    }
                 }
             }
             visual.run {
@@ -122,7 +126,19 @@ class View(val level: Level, val visual: TermColors) {
         val right = position.j
 
         val str = buildString {
-            append("pos(i,j,h) = ", position.i, ", ", position.j, ", ", position.h, " height = ", level.height, " width = ", level.width, "      ")
+            append(
+                "pos(i,j,h) = ",
+                position.i,
+                ", ",
+                position.j,
+                ", ",
+                position.h,
+                " height = ",
+                level.height,
+                " width = ",
+                level.width,
+                "      "
+            )
         }
 
         visual.run {

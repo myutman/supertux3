@@ -36,6 +36,10 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         }
         val smallLevel = createRooms()
         val level = buildWalls(smallLevel)
+        val c = level.randomCoordinates()
+        if (level.getCell(c) is Floor) {
+            level.setCell(c, Floor.chest(c))
+        }
         return level
     }
 
@@ -192,14 +196,14 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                         val ladder = level.getCell(c)
                         graph[v].add(Pair(u, ladder))
                         graph[u].add(Pair(v, ladder))
-                        if (!used[v]) {
-                            bfsQueue.push(v)
-                            used[v] = true
-                        }
-                        if (!used[u]) {
-                            bfsQueue.push(u)
-                            used[u] = true
-                        }
+//                        if (!used[v]) {
+//                            bfsQueue.push(v)
+//                            used[v] = true
+//                        }
+//                        if (!used[u]) {
+//                            bfsQueue.push(u)
+//                            used[u] = true
+//                        }
                         break
                     }
                 }
@@ -211,13 +215,22 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         bfsQueue.push(0)
         while (!bfsQueue.isEmpty()) {
             val v = bfsQueue.pop()
-            used[v] = true
+            dfsLadders(v)
             for ((u, cell) in graph[v]) {
                 if (!used[u]) {
-                    assert(cell !is Ladder)
                     level.setCell(cell.coordinates, Door(cell.coordinates))
                     bfsQueue.push(u)
                 }
+            }
+        }
+    }
+
+    private fun dfsLadders(v: Int) {
+        used[v] = true
+        for ((u, cell) in graph[v]) {
+            if (!used[u] && cell is Ladder) {
+                bfsQueue.push(u)
+                dfsLadders(u)
             }
         }
     }
