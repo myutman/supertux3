@@ -66,7 +66,7 @@ class Model(val depth: Int, val heightWithWalls: Int, val widthWithWalls: Int) {
 
         val cell = level.getCell(position)
         if (cell is Ladder) run {
-            state.player.position = position.copy(h = cell.destination)
+            state.player.position = position.copy(h = cell.destination.h)
             view.moveLadder()
         }
     }

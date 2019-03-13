@@ -1,12 +1,15 @@
 package ru.hse.supertux3.levels
 
-import javax.print.attribute.standard.Destination
+import com.beust.klaxon.Json
 
-open class Cell(val coordinates: Coordinates)
+open class Cell(@Json(ignored = true) val coordinates: Coordinates, val id: String) {
+    override fun toString() = id
+}
 
-abstract class Floor(coordinates: Coordinates,
-                     private val items: MutableList<Int> = emptyList<Int>().toMutableList()): Cell(coordinates) {
-
+abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
+    @Json
+    val items: MutableList<Int> = mutableListOf()
+    @Json(ignored = true)
     var roomNumber = -1
 
     fun newRoom() {
@@ -23,29 +26,26 @@ abstract class Floor(coordinates: Coordinates,
     }
 
     companion object {
-        fun empty(coordinates: Coordinates): Floor = object: Floor(coordinates) {
+        fun empty(coordinates: Coordinates): Floor = object : Floor(coordinates, ".") {
+
             override fun interact() {
                 // do nothing
             }
-
-            //override fun toString() = if (roomNumber == -1) "." else roomNumber.toString()
-            override fun toString() = "."
         }
 
-        fun chest(coordinates: Coordinates): Floor = object: Floor(coordinates) {
+        fun chest(coordinates: Coordinates): Floor = object : Floor(coordinates, "&") {
+
             override fun interact() {
                 // do nothing
             }
-
-            override fun toString() = "&"
         }
 
         var nextRoomNumber = 0
     }
 }
 
+class Wall(coordinates: Coordinates) : Cell(coordinates, "#") {
 
-class Wall(coordinates: Coordinates): Cell(coordinates) {
     fun canBreak(): Boolean {
         return false
     }
@@ -53,24 +53,19 @@ class Wall(coordinates: Coordinates): Cell(coordinates) {
     fun breakMe() {
 
     }
-
-    override fun toString() = "#"
 }
 
-class Door(coordinates: Coordinates): Floor(coordinates) {
+class Door(coordinates: Coordinates) : Floor(coordinates, "O") {
     override fun interact() {
         // pass
     }
 
-    override fun toString() = "O"
-
 }
 
-class Ladder(coordinates: Coordinates, val destination: Int): Floor(coordinates) {
+class Ladder(coordinates: Coordinates, @Json val destination: Coordinates) : Floor(coordinates, "L") {
     override fun interact() {
         // pass
     }
 
-    override fun toString() = if (destination > coordinates.h) "v" else "^"
-
+    override fun toString() = if (destination.h > coordinates.h) "v" else "^"
 }

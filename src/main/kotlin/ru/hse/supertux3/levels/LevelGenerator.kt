@@ -190,20 +190,13 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                         }
                         ladders.add(Pair(v, u))
                         ladders.add(Pair(u, v))
-                        level.setCell(c.i, c.j, c.h, Ladder(c.copy(), c.h - 1))
-                        level.setCell(c.i, c.j, c.h - 1, Ladder(
-                            Coordinates(c.i, c.j, c.h - 1, level), c.h))
+                        val from = c
+                        val to = Coordinates(c.i, c.j, c.h - 1, level.id)
+                        level.setCell(from, Ladder(from, to))
+                        level.setCell(to, Ladder(to, from))
                         val ladder = level.getCell(c)
                         graph[v].add(Pair(u, ladder))
                         graph[u].add(Pair(v, ladder))
-//                        if (!used[v]) {
-//                            bfsQueue.push(v)
-//                            used[v] = true
-//                        }
-//                        if (!used[u]) {
-//                            bfsQueue.push(u)
-//                            used[u] = true
-//                        }
                         break
                     }
                 }
@@ -218,6 +211,8 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
             dfsLadders(v)
             for ((u, cell) in graph[v]) {
                 if (!used[u]) {
+                    // In normal bfs they set used[u] = true here
+                    // but without it we re generating nice random cycles
                     level.setCell(cell.coordinates, Door(cell.coordinates))
                     bfsQueue.push(u)
                 }
