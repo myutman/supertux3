@@ -86,8 +86,8 @@ class Model(private val level: Level) {
         val position = state.player.position
 
         val cell = level.getCell(position)
-        if (cell is Ladder) {
-            state.player.position = position.copy(h = cell.destination)
+        if (cell is Ladder) run {
+            state.player.position = position.copy(h = cell.destination.h)
             view.moveLadder()
         }
     }
