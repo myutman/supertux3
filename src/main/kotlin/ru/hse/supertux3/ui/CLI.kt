@@ -5,14 +5,15 @@ import org.jline.terminal.Attributes
 import org.jline.terminal.TerminalBuilder
 import ru.hse.supertux3.logic.Model
 
-fun main(args: Array<String>) {
+fun main() {
     println("Welcome to Super Tux 3!")
 
-    val depth = parseIntFromArrayOrDefault(args, 0, 4)
-    val heightWithWalls = parseIntFromArrayOrDefault(args, 1, 40)
-    val widthWithWalls = parseIntFromArrayOrDefault(args, 2, 30)
-
-    val level = requestLevel(depth, heightWithWalls, widthWithWalls)
+    val level = try {
+        requestLevel()
+    } catch (e: Exception) {
+        println("Error while loading from file! Are you sure file exists?")
+        return
+    }
 
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 

@@ -1,11 +1,11 @@
 package ru.hse.supertux3.levels
 
 class LevelLoader {
-    fun loadLevel(id: String, fileName: String): Level {
-        return Level(1, 1, 1)
+    fun loadLevel(fileName: String): Level {
+        return Level.load(fileName)
     }
 
-    fun genetateLevel(): Level {
+    fun generateLevel(): Level {
         val depth = 4
         val heightWithWalls = 30
         val widthWithWalls = 40

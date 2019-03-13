@@ -122,6 +122,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                             "." -> level.setCell(c, Floor.empty(c))
                             "&" -> level.setCell(c, Floor.chest(c))
                             "#" -> level.setCell(c, Wall(c))
+                            "O" -> level.setCell(c, Door(c))
                             "L" -> {
                                 val destJson = cellJson.obj("destination")!!
                                 val destination = Coordinates(
