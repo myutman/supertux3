@@ -3,11 +3,17 @@ package ru.hse.supertux3.ui
 import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Attributes
 import org.jline.terminal.TerminalBuilder
-import ru.hse.supertux3.levels.LevelGenerator
 import ru.hse.supertux3.logic.Model
 
+fun main(args: Array<String>) {
+    println("Welcome to Super Tux 3!")
 
-fun main() {
+    val depth = parseIntFromArrayOrDefault(args, 0, 4)
+    val heightWithWalls = parseIntFromArrayOrDefault(args, 1, 40)
+    val widthWithWalls = parseIntFromArrayOrDefault(args, 2, 30)
+
+    val level = requestLevel(depth, heightWithWalls, widthWithWalls)
+
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
     val attributes = Attributes()
@@ -21,8 +27,7 @@ fun main() {
     terminal.enterRawMode()
     val reader = terminal.reader()
 
-    val model = Model(4, 30, 40)
-    println("Generated")
+    val model = Model(level)
     val view = View(model.state, visual)
     model.view = view
 
