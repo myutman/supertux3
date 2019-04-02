@@ -3,6 +3,7 @@ package ru.hse.supertux3.ui
 import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Attributes
 import org.jline.terminal.TerminalBuilder
+import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.Model
 
 fun main() {
@@ -45,10 +46,10 @@ fun main() {
             var quit = false
             when (buffer[0]) {
                 'q' -> quit = true
-                'w' -> model.moveUp()
-                'a' -> model.moveLeft()
-                'd' -> model.moveRight()
-                's' -> model.moveDown()
+                'w' -> model.move(Direction.UP)
+                'a' -> model.move(Direction.LEFT)
+                'd' -> model.move(Direction.RIGHT)
+                's' -> model.move(Direction.DOWN)
                 ' ' -> model.moveLadder()
             }
 

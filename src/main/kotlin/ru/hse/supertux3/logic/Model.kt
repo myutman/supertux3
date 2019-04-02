@@ -29,60 +29,30 @@ class Model(private val level: Level) {
                 && level.getCell(position) !is Wall
     }
 
+    private val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
+        Direction.UP to {position -> position.copy(i = position.i - 1)},
+        Direction.DOWN to {position -> position.copy(i = position.i + 1)},
+        Direction.LEFT to {position -> position.copy(j = position.j - 1)},
+        Direction.RIGHT to {position -> position.copy(j = position.j + 1)}
+    )
+
+    /**
+     * Move player in given direction (if possible).
+     */
     fun move(direction: Direction) {
         val position = state.player.position
-        val newPosition = position.copy(i = position.i - 1)
-        if (check(newPosition)) {
-            state.player.position = newPosition
-            view.moveUp()
-        }
-    }
+        val newPositionFunction = directionToMove.getOrDefault(direction) { position }
+        val newPosition = newPositionFunction(position)
 
-    /**
-     * Function that moves player up.
-     */
-    fun moveUp() {
-        val position = state.player.position
-        val newPosition = position.copy(i = position.i - 1)
         if (check(newPosition)) {
+            // TODO: check if attack is necessary
             state.player.position = newPosition
-            view.moveUp()
-        }
-    }
-
-    /**
-     * Function that moves player down.
-     */
-    fun moveDown() {
-        val position = state.player.position
-        val newPosition = position.copy(i = position.i + 1)
-        if (check(newPosition)) {
-            state.player.position = newPosition
-            view.moveDown()
-        }
-    }
-
-    /**
-     * Function that moves player left.
-     */
-    fun moveLeft() {
-        val position = state.player.position
-        val newPosition = position.copy(j = position.j - 1)
-        if (check(newPosition)) {
-            state.player.position = newPosition
-            view.moveLeft()
-        }
-    }
-
-    /**
-     * Function that moves player right.
-     */
-    fun moveRight() {
-        val position = state.player.position
-        val newPosition = position.copy(j = position.j + 1)
-        if (check(newPosition)) {
-            state.player.position = newPosition
-            view.moveRight()
+            when (direction) {
+                Direction.UP -> view.moveUp()
+                Direction.DOWN -> view.moveDown()
+                Direction.RIGHT -> view.moveRight()
+                Direction.LEFT -> view.moveLeft()
+            }
         }
     }
 
@@ -101,9 +71,9 @@ class Model(private val level: Level) {
     }
 
     /**
-     * Process everything that happens after player's move
+     * Process everything that happens after player's move.
      */
     fun afterAction() {
-        // TODO: update npc,
+        // TODO: update npc, update effects, check if player isn't dead
     }
 }

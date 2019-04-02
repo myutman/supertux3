@@ -1,7 +1,6 @@
 package ru.hse.supertux3.logic.mobs
 
 import ru.hse.supertux3.levels.Coordinates
-import ru.hse.supertux3.levels.Direction
 
 /**
  * Class that has all player data, such as characteristics and inventory.
@@ -21,10 +20,6 @@ class Player(
      */
     fun attack(npc: NPC) {
         // TODO
-    }
-
-    fun changePosition(direction: Direction) {
-
     }
 
     // some inventory fields will be added in future
