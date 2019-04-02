@@ -5,12 +5,26 @@ import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
 
 /**
  * Interface for non-playable characters. They are mobs, but also they must move by themselves.
+ * Also they can fight for cell, if someone stands there.
  */
-interface NPC : Mob {
+abstract class NPC : Mob() {
+    /**
+     * Level of this mob, which should determine
+     */
+    abstract var level: Int
+
     /**
      * Strategy used by this NPC to calculate moves.
      */
-    var moveStrategy: MoveStrategy
+    abstract var moveStrategy: MoveStrategy
 
-    fun move(level: Level)
+    /**
+     * Function to move this NPC.
+     */
+    abstract fun move(level: Level)
+
+    /**
+     * Function that handles attack of this NPC on another mob.
+     */
+    abstract fun attack(mob: Mob)
 }

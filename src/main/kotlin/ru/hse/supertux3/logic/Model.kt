@@ -29,6 +29,14 @@ class Model(private val level: Level) {
                 && level.getCell(position) !is Wall
     }
 
+    fun move(direction: Direction) {
+        val position = state.player.position
+        val newPosition = position.copy(i = position.i - 1)
+        if (check(newPosition)) {
+            state.player.position = newPosition
+            view.moveUp()
+        }
+    }
 
     /**
      * Function that moves player up.
@@ -90,5 +98,12 @@ class Model(private val level: Level) {
             state.player.position = position.copy(h = cell.destination.h)
             view.moveLadder()
         }
+    }
+
+    /**
+     * Process everything that happens after player's move
+     */
+    fun afterAction() {
+        // TODO: update npc,
     }
 }

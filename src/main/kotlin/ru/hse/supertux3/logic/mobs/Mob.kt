@@ -3,40 +3,35 @@ package ru.hse.supertux3.logic.mobs
 import ru.hse.supertux3.levels.Coordinates
 
 /**
- * Interface for mobs (including player). Mobs are things that can:
- * - attack
- * - move
- * - live and die
+ * Interface for mobs (including player). Mob is basically any creature in game.
+ * Mobs are divided in two groups:
+ * - player
+ * - non-playable characters.
  */
-interface Mob {
+abstract class Mob {
     /**
      * Base health points of creature.
      */
-    var hp: Int
+    abstract var hp: Int
     /**
      * Base resist chance of mob.
      */
-    var resistChance: Int
+    abstract var resistChance: Int
     /**
      * Base armor of mob.
      */
-    var armor: Int
+    abstract var armor: Int
     /**
      * Base damage of mob.
      */
-    var damage: Int
+    abstract var damage: Int
     /**
      * Base mob' chance of critical hit.
      */
-    var criticalChance: Int
+    abstract var criticalChance: Int
 
     /**
-     * Creature's position.
+     * Mob's position.
      */
-    var position: Coordinates
-
-    /**
-     * Function that processes battle turn
-     */
-    fun attack(enemy: Mob)
+    abstract var position: Coordinates
 }
