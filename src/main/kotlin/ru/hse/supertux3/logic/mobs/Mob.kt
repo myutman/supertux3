@@ -35,5 +35,5 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     /**
      * Mob's position.
      */
-    var position: Coordinates = cell.coordinates
+    fun position(): Coordinates = cell.coordinates
 }
