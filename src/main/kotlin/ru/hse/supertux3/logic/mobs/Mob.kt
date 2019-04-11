@@ -1,5 +1,7 @@
 package ru.hse.supertux3.logic.mobs
 
+import ru.hse.supertux3.levels.Cell
+import ru.hse.supertux3.levels.CellStander
 import ru.hse.supertux3.levels.Coordinates
 
 /**
@@ -8,7 +10,7 @@ import ru.hse.supertux3.levels.Coordinates
  * - player
  * - non-playable characters.
  */
-abstract class Mob {
+abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     /**
      * Base health points of creature.
      */
@@ -33,5 +35,5 @@ abstract class Mob {
     /**
      * Mob's position.
      */
-    abstract var position: Coordinates
+    var position: Coordinates = cell.coordinates
 }
