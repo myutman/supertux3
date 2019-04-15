@@ -23,8 +23,4 @@ class Snowball(cell: Cell) : NPC(cell, "ё") {
     override fun move(level: Level) {
         moveStrategy.move(level, this)
     }
-
-    override fun attack(mob: Mob) {
-        // TODO
-    }
 }
