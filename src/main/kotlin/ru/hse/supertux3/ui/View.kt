@@ -40,6 +40,7 @@ class View(val state: GameState, val visual: TermColors) {
             print(red("@"))
             print(cursorLeft(1))
         }
+        
         printPos()
     }
 
@@ -57,8 +58,6 @@ class View(val state: GameState, val visual: TermColors) {
             print(red("@"))
             print(cursorLeft(1))
         }
-
-        printPos()
     }
 
     private fun moveDown() {
@@ -75,8 +74,6 @@ class View(val state: GameState, val visual: TermColors) {
             print(red("@"))
             print(cursorLeft(1))
         }
-
-        printPos()
     }
 
     private fun moveLeft() {
@@ -93,8 +90,6 @@ class View(val state: GameState, val visual: TermColors) {
             print(red("@"))
             print(cursorLeft(1))
         }
-
-        printPos()
     }
 
     private fun moveRight() {
@@ -111,8 +106,6 @@ class View(val state: GameState, val visual: TermColors) {
             print(red("@"))
             print(cursorLeft(1))
         }
-
-        printPos()
     }
 
     fun move(direction: Direction) {
@@ -122,6 +115,8 @@ class View(val state: GameState, val visual: TermColors) {
             Direction.RIGHT -> moveRight()
             Direction.LEFT -> moveLeft()
         }
+
+        printPos()
     }
 
     fun moveLadder() {
