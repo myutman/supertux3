@@ -1,6 +1,7 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
+import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.GameState
 
 class View(val state: GameState, val visual: TermColors) {
@@ -9,7 +10,7 @@ class View(val state: GameState, val visual: TermColors) {
         redraw()
     }
 
-    fun redraw() {
+    private fun redraw() {
         print("\u001Bc")
 
         val level = state.level
@@ -42,7 +43,7 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
-    fun moveUp() {
+    private fun moveUp() {
         val level = state.level
         val position = state.player.position()
         val prevPosition = position.copy(i = position.i + 1)
@@ -60,7 +61,7 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
-    fun moveDown() {
+    private fun moveDown() {
         val level = state.level
         val position = state.player.position()
         val prevPosition = position.copy(i = position.i - 1)
@@ -78,7 +79,7 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
-    fun moveLeft() {
+    private fun moveLeft() {
         val level = state.level
         val position = state.player.position()
         val prevPosition = position.copy(j = position.j + 1)
@@ -96,7 +97,7 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
-    fun moveRight() {
+    private fun moveRight() {
         val level = state.level
         val position = state.player.position()
         val prevPosition = position.copy(j = position.j - 1)
@@ -114,11 +115,20 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
+    fun move(direction: Direction) {
+        when (direction) {
+            Direction.UP -> moveUp()
+            Direction.DOWN -> moveDown()
+            Direction.RIGHT -> moveRight()
+            Direction.LEFT -> moveLeft()
+        }
+    }
+
     fun moveLadder() {
         redraw()
     }
 
-    fun printPos() {
+    private fun printPos() {
         val level = state.level
         val position = state.player.position()
 
