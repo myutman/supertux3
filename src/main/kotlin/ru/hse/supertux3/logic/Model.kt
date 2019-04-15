@@ -37,7 +37,7 @@ class Model(private val level: Level) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
             MoveResult.ATTACKED -> view.attacked()
-            MoveResult.DIED -> view.died()
+            MoveResult.DIED -> handleDeath()
         }
 
         afterAction(level)
@@ -51,7 +51,7 @@ class Model(private val level: Level) {
         if (state.player.hp > 0) {
             view.attacked()
         } else {
-            view.died()
+            handleDeath()
         }
 
         afterAction(level)
@@ -94,7 +94,11 @@ class Model(private val level: Level) {
         // TODO: update effects
 
         if (state.player.hp <= 0) {
-            view.died()
+            handleDeath()
         }
+    }
+
+    fun handleDeath() {
+        view.died()
     }
 }

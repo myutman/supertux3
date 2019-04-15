@@ -133,7 +133,7 @@ class View(val state: GameState, val visual: TermColors) {
 
     private fun drawBeingSeen() {
         val cur = state.player.position()
-        state.level.bfs(cur, 3) {
+        state.level.bfs(cur, state.player.visibilityDepth) {
             drawCell(it)
             it.visibility = Visibility.Visible
         }
