@@ -8,6 +8,7 @@ import ru.hse.supertux3.levels.LevelLoader
  */
 
 fun requestLevel(): Level {
+    clearScreen()
     println("Do you want to load level from file? " +
             "If yes, write name of file. " +
             "If no, press Enter.")
