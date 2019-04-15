@@ -229,10 +229,8 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
 
     private fun addMobs(level: Level) {
         for (i in 1..roomsCount) {
-            val floor = level.randomFloor()
-            if (floor.stander == null) {
-                floor.stander = Snowball(floor)
-            }
+            val mob = Snowball(level.randomCell())
+            level.putMob(mob)
         }
     }
 
