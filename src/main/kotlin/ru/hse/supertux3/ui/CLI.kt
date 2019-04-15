@@ -3,30 +3,17 @@ package ru.hse.supertux3.ui
 import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Attributes
 import org.jline.terminal.TerminalBuilder
+import org.jline.utils.NonBlockingReader
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.Model
 
-val attributes = Attributes()
-
-val terminal = {
-    attributes.setLocalFlag(Attributes.LocalFlag.ECHO, false)
-    TerminalBuilder.builder()
-    .jna(true)
-    .system(true)
-    .attributes(attributes)
-    .build()
-}()
-
-val reader = {
-    terminal.enterRawMode()
-    terminal.reader()
-}()
+var reader: NonBlockingReader? = null
 
 fun readChar(): Char {
     val buffer = CharArray(4)
     var read = 0
     while (read == 0) {
-        read = reader.read(buffer)
+        read = reader!!.read(buffer)
     }
     return buffer[0]
 }
@@ -45,6 +32,19 @@ fun main() {
         return
     }
 
+    val attributes = Attributes()
+    attributes.setLocalFlag(Attributes.LocalFlag.ECHO, false)
+
+    val terminal = TerminalBuilder.builder()
+        .jna(true)
+        .system(true)
+        .attributes(attributes)
+        .build()
+
+    terminal.enterRawMode()
+
+    reader = terminal.reader()
+
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
     val model = Model(level)
@@ -62,11 +62,12 @@ fun main() {
                 'a' -> model.move(Direction.LEFT)
                 'd' -> model.move(Direction.RIGHT)
                 's' -> model.move(Direction.DOWN)
+                'r' -> view.redraw()
                 'x' -> model.selfHarm()
                 ' ' -> model.moveLadder()
             }
 
-            if (quit || model.state.player.hp == 0) {
+            if (quit || model.state.player.hp < 0) {
                 break
             }
         }

@@ -16,8 +16,8 @@ class Model(private val level: Level) {
     val state: GameState
 
     init {
-        val position = level.randomCoordinates()
-        val player = Player(level.getCell(position))
+        val position = level.randomFloor()
+        val player = Player(level.getCell(position.coordinates))
         state = GameState(level, player)
     }
 

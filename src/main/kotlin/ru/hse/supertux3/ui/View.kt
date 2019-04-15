@@ -6,6 +6,10 @@ import ru.hse.supertux3.logic.GameState
 
 class View(val state: GameState, val visual: TermColors) {
 
+    init {
+        redraw()
+    }
+
     fun moveLadder() {
         redraw()
     }
@@ -42,11 +46,7 @@ class View(val state: GameState, val visual: TermColors) {
         readChar()
     }
 
-    init {
-        redraw()
-    }
-
-    private fun redraw() {
+    fun redraw() {
         clearScreen()
 
         val level = state.level

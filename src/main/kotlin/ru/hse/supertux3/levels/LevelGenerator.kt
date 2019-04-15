@@ -1,11 +1,13 @@
 package ru.hse.supertux3.levels
 
 import ru.hse.supertux3.logic.mobs.Snowball
+import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
 import java.lang.Exception
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 // height and width should be even
 class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, private val widthWithWalls: Int) {
@@ -230,6 +232,14 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
     private fun addMobs(level: Level) {
         for (i in 1..roomsCount) {
             val mob = Snowball(level.randomCell())
+            val rand = Random.nextInt(1..3)
+            val strategy = when(rand) {
+                1 -> AggressiveStrategy()
+                2 -> AggressiveStrategy()
+                3 -> AggressiveStrategy()
+                else -> AggressiveStrategy()
+            }
+            mob.moveStrategy = strategy
             level.putMob(mob)
         }
     }
