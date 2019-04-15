@@ -5,7 +5,6 @@ import org.junit.Before
 import org.junit.Test
 import ru.hse.supertux3.logic.mobs.Snowball
 import java.io.File
-import kotlin.math.floor
 
 class LevelTest {
 
@@ -34,6 +33,12 @@ class LevelTest {
             }
         }
         println(level1)
+    }
+
+    @Test
+    fun mobsGenerating() {
+        val level = LevelLoader().generateLevel()
+        assertTrue(level.mobs.isNotEmpty())
     }
 
 }

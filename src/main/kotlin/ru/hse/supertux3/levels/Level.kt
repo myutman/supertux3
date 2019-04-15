@@ -17,6 +17,7 @@ enum class Direction {
 }
 
 class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
+    val mobs = mutableListOf<Mob>()
 
     val id = if (id == -1) Level.maxId++ else id
 
@@ -91,14 +92,19 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
     }
 
     fun putMob(mob: Mob) {
-        val floor = randomFloor()
+        var floor = randomFloor()
+        while (floor.stander != null) {
+            floor = randomFloor()
+        }
         putMob(mob, floor.coordinates)
+        mobs.add(mob)
     }
 
     fun putMob(mob: Mob, c: Coordinates): Boolean {
         val maybeFloor = getCell(c)
         if (maybeFloor is Floor && maybeFloor.stander == null) {
             maybeFloor.stander = mob
+            mob.cell = maybeFloor
             return true
         } else {
             return false
