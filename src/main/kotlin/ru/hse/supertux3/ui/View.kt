@@ -26,12 +26,28 @@ class View(val state: GameState, val visual: TermColors) {
         printStrInLine("You were attacked", 2)
     }
 
+    fun died() {
+        clearScreen()
+        print(buildString {
+            append(
+                "You die!", System.lineSeparator(),
+                "And words won't do anything", System.lineSeparator(),
+                "It's permanently night", System.lineSeparator(),
+                "And I won't feel anything", System.lineSeparator(),
+                "We'll all be laughing with you when you die", System.lineSeparator(),
+                System.lineSeparator(),
+                "Press any key to exit..."
+            )
+        })
+        readChar()
+    }
+
     init {
         redraw()
     }
 
     private fun redraw() {
-        print("\u001Bc")
+        clearScreen()
 
         val level = state.level
         val position = state.player.position()

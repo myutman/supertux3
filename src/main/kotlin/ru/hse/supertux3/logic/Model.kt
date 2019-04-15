@@ -1,7 +1,9 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.Player
+import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 
 /**
@@ -35,7 +37,21 @@ class Model(private val level: Level) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
             MoveResult.ATTACKED -> view.attacked()
-            MoveResult.DIED -> {} // TODO
+            MoveResult.DIED -> view.died()
+        }
+
+        afterAction(level)
+    }
+
+    fun selfHarm() {
+        val npc = Snowball(Cell(Coordinates(0, 0, 0, 0), ""))
+        npc.damage = 20
+        npc.attack(state.player)
+
+        if (state.player.hp > 0) {
+            view.attacked()
+        } else {
+            view.died()
         }
 
         afterAction(level)
