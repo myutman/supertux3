@@ -1,8 +1,9 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
-import ru.hse.supertux3.levels.Direction
+import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import kotlin.math.max
 
 class View(val state: GameState, val visual: TermColors) {
 
@@ -15,11 +16,26 @@ class View(val state: GameState, val visual: TermColors) {
     }
 
     fun move(direction: Direction) {
-        when (direction) {
-            Direction.UP -> moveUp()
-            Direction.DOWN -> moveDown()
-            Direction.RIGHT -> moveRight()
-            Direction.LEFT -> moveLeft()
+        val prevPosition = state.level.getCell(state.player.position(), direction, -1)
+        visual.run {
+            print(prevPosition)
+            print(cursorLeft(1))
+        }
+
+        visual.run {
+            when (direction) {
+                Direction.UP -> print(cursorUp(1))
+                Direction.DOWN -> print(cursorDown(1))
+                Direction.RIGHT -> print(cursorRight(1))
+                Direction.LEFT -> print(cursorLeft(1))
+            }
+        }
+
+        drawBeingSeen()
+
+        visual.run {
+            print(red("@"))
+            print(cursorLeft(1))
         }
 
         printPos()
@@ -46,6 +62,29 @@ class View(val state: GameState, val visual: TermColors) {
         readChar()
     }
 
+    private fun drawCell(new: Cell) {
+        val cur = state.player.position()
+        val coordinates = new.coordinates
+        val left = max(cur.j - coordinates.j, 0)
+        val right = max(coordinates.j - cur.j, 0)
+        val up = max(cur.i - coordinates.i, 0)
+        val down = max(coordinates.i - cur.i, 0)
+        visual.run {
+            print(cursorLeft(left))
+            print(cursorRight(right))
+            print(cursorUp(up))
+            print(cursorDown(down))
+
+            print(new.toString())
+            print(cursorLeft(1))
+
+            print(cursorLeft(right))
+            print(cursorRight(left))
+            print(cursorUp(down))
+            print(cursorDown(up))
+        }
+    }
+
     fun redraw() {
         clearScreen()
 
@@ -54,12 +93,17 @@ class View(val state: GameState, val visual: TermColors) {
 
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
-                val symb = level.getCell(i, j, position.h).toString()
+                val cell = level.getCell(i, j, position.h)
+                val symb = cell.toString()
                 visual.run {
-                    if (symb != "&") {
-                        print(rgb("#ffffff")(symb))
+                    if (cell.visibility == Visibility.Visible) {
+                        if (symb != "&") {
+                            print(rgb("#ffffff")(symb))
+                        } else {
+                            print(red(symb))
+                        }
                     } else {
-                        print(red(symb))
+                        print(' ')
                     }
                 }
             }
@@ -70,9 +114,15 @@ class View(val state: GameState, val visual: TermColors) {
 
         val up = level.height - position.i
         val right = position.j
+
         visual.run {
             print(cursorUp(up))
             print(cursorRight(right))
+        }
+
+        drawBeingSeen()
+
+        visual.run {
             print(red("@"))
             print(cursorLeft(1))
         }
@@ -81,67 +131,11 @@ class View(val state: GameState, val visual: TermColors) {
         printUsrInfo()
     }
 
-    private fun moveUp() {
-        val level = state.level
-        val position = state.player.position()
-        val prevPosition = position.copy(i = position.i + 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorUp(1))
-            print(red("@"))
-            print(cursorLeft(1))
-        }
-    }
-
-    private fun moveDown() {
-        val level = state.level
-        val position = state.player.position()
-        val prevPosition = position.copy(i = position.i - 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorDown(1))
-            print(red("@"))
-            print(cursorLeft(1))
-        }
-    }
-
-    private fun moveLeft() {
-        val level = state.level
-        val position = state.player.position()
-        val prevPosition = position.copy(j = position.j + 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorLeft(1))
-            print(red("@"))
-            print(cursorLeft(1))
-        }
-    }
-
-    private fun moveRight() {
-        val level = state.level
-        val position = state.player.position()
-        val prevPosition = position.copy(j = position.j - 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorRight(1))
-            print(red("@"))
-            print(cursorLeft(1))
+    private fun drawBeingSeen() {
+        val cur = state.player.position()
+        state.level.bfs(cur, 3) {
+            drawCell(it)
+            it.visibility = Visibility.Visible
         }
     }
 

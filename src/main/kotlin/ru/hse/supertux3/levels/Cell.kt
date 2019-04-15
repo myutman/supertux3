@@ -7,7 +7,7 @@ enum class Visibility {Visible, Hidden}
 open class Cell(@Json(ignored = true) val coordinates: Coordinates,
                 val id: String) {
     override fun toString() = id
-    var visibility = Visibility.Visible
+    var visibility = Visibility.Hidden
 }
 
 abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
