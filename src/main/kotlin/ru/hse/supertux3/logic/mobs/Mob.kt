@@ -39,6 +39,11 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     fun position(): Coordinates = cell.coordinates
 
     /**
+     * Returns if this mob is dead.
+     */
+    fun isDead() = hp <= 0
+
+    /**
      * Function to attack NPC.
      */
     fun attack(mob: Mob): MoveResult {

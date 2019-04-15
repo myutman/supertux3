@@ -67,7 +67,7 @@ fun main() {
                 ' ' -> model.moveLadder()
             }
 
-            if (quit || model.state.player.hp <= 0) {
+            if (quit || model.state.player.isDead()) {
                 break
             }
         }
