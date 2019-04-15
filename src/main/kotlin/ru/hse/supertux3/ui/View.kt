@@ -41,6 +41,11 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
+    fun attack() {
+        printUsrInfo()
+        printStrInLine("You attacked", 2)
+    }
+
     fun attacked() {
         printUsrInfo()
         printStrInLine("You were attacked", 2)

@@ -36,13 +36,16 @@ class Model(private val level: Level) {
         when (moveResult) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
-            MoveResult.ATTACKED -> view.attacked()
+            MoveResult.ATTACKED -> view.attack()
             MoveResult.DIED -> handleDeath()
         }
 
         afterAction(level)
     }
 
+    /**
+     * Reduces player's health.
+     */
     fun selfHarm() {
         val npc = Snowball(Cell(Coordinates(0, 0, 0, 0), ""))
         npc.damage = 20
@@ -82,8 +85,8 @@ class Model(private val level: Level) {
             if (mob.isDead()) {
                 level.setCell(mob.position(), mob.cell)
                 (mob.cell as Floor).stander = null
-                // level.mobs.remove(mob)
             } else {
+                // TODO: print attack results
                 (mob as NPC).move(level)
             }
         }
@@ -98,6 +101,9 @@ class Model(private val level: Level) {
         }
     }
 
+    /**
+     * Functions to be done when player was killed
+     */
     fun handleDeath() {
         view.died()
     }
