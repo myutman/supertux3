@@ -16,13 +16,7 @@ class Player(
     ) : Mob(cell, "@") {
     var xp: Int = 0
 
-    /**
-     * Function to attack NPC.
-     */
-    fun attack(npc: NPC): MoveResult {
-        // TODO
-        return MoveResult.ATTACKED
-    }
+
 
 
     private val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
