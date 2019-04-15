@@ -37,7 +37,7 @@ class Model(private val level: Level) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
             MoveResult.ATTACKED -> view.attacked()
-            MoveResult.DIED -> view.died()
+            MoveResult.DIED -> handleDeath()
         }
 
         afterAction(level)
@@ -48,10 +48,10 @@ class Model(private val level: Level) {
         npc.damage = 20
         npc.attack(state.player)
 
-        if (state.player.hp > 0) {
-            view.attacked()
+        if (state.player.isDead()) {
+            handleDeath()
         } else {
-            view.died()
+            view.attacked()
         }
 
         afterAction(level)
@@ -79,7 +79,7 @@ class Model(private val level: Level) {
             if (mob is Player)
                 return
 
-            if (mob.hp <= 0) {
+            if (mob.isDead()) {
                 level.setCell(mob.position(), mob.cell)
                 (mob.cell as Floor).stander = null
                 // level.mobs.remove(mob)
@@ -89,12 +89,16 @@ class Model(private val level: Level) {
         }
 
         // Yep, if the mob is dead, he will hit you before dying and then die.
-        level.mobs.removeIf { it.hp <= 0 }
+        level.mobs.removeIf { it.isDead() }
 
         // TODO: update effects
 
-        if (state.player.hp <= 0) {
-            view.died()
+        if (state.player.isDead()) {
+            handleDeath()
         }
+    }
+
+    fun handleDeath() {
+        view.died()
     }
 }

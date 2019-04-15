@@ -17,6 +17,14 @@ class Player(
     ) : Mob(cell, "@") {
     var xp: Int = 0
 
+    var visibilityDepth = 3
+
+    init {
+        if (cell is Floor) {
+            cell.stander = this
+        }
+    }
+
     fun processMove(direction: Direction, level: Level): MoveResult {
         val move = Move(direction, 1)
         return move(move, level)
