@@ -16,9 +16,6 @@ class Player(
     ) : Mob(cell, "@") {
     var xp: Int = 0
 
-
-
-
     private val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
         Direction.UP to {position -> position.copy(i = position.i - 1)},
         Direction.DOWN to {position -> position.copy(i = position.i + 1)},
@@ -41,8 +38,8 @@ class Player(
         }
 
         val newCell = level.getCell(newPosition)
-        if (newCell is NPC) {
-            return attack(newCell)
+        if (newCell is Floor && newCell.stander != null) {
+            return attack(newCell.stander as Mob)
         }
 
         cell = newCell

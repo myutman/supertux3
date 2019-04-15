@@ -75,25 +75,26 @@ class Model(private val level: Level) {
      * Process everything that happens after player's move.
      */
     fun afterAction(level: Level) {
-        for (mob in level.mobs) {
-            // val mobCell = level.getCell(mob.position())
-
-        }
         level.mobs.forEach { mob ->
             if (mob is Player)
                 return
 
             if (mob.hp <= 0) {
                 level.setCell(mob.position(), mob.cell)
+                (mob.cell as Floor).stander = null
                 // level.mobs.remove(mob)
             } else {
                 (mob as NPC).move(level)
             }
         }
 
-        // Yep, if the mob is dead, he will hit you before dying.
-        level.mobs.filter { it.hp <= 0 }
+        // Yep, if the mob is dead, he will hit you before dying and then die.
+        level.mobs.removeIf { it.hp <= 0 }
 
         // TODO: update effects, check if player isn't dead
+
+        if (state.player.hp <= 0) {
+            view.died()
+        }
     }
 }
