@@ -1,20 +1,14 @@
 package ru.hse.supertux3.levels
 
-import ru.hse.supertux3.levels.Level
+import ru.hse.supertux3.logic.mobs.Snowball
 import java.lang.Exception
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.random.Random
 
-fun main() {
-//    for (i in 0..1000)
-    val level = LevelGenerator.generate(4, 30, 40)
-    println(level)
-}
-
 // height and width should be even
-class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWalls: Int) {
+class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, private val widthWithWalls: Int) {
     private val height = heightWithWalls - 2
     private val width = widthWithWalls - 2
     private val halfHeight = height / 2
@@ -36,10 +30,12 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         }
         val smallLevel = createRooms()
         val level = buildWalls(smallLevel)
-        val c = level.randomCoordinates()
-        if (level.getCell(c) is Floor) {
-            level.setCell(c, Floor.chest(c))
+        if (depth != 1) {
+            makeLadders(level)
         }
+        bfs(level)
+        addItems(level)
+        addMobs(level)
         return level
     }
 
@@ -162,10 +158,6 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                 graph[v].add(Pair(u, choosenDoor))
             }
         }
-        if (depth != 1) {
-            makeLadders(bigLevel)
-        }
-        bfs(bigLevel)
         return bigLevel
     }
 
@@ -230,6 +222,19 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         }
     }
 
+    private fun addItems(level: Level) {
+        val c = level.randomFloor().coordinates
+        level.setCell(c, Floor.chest(c))
+    }
+
+    private fun addMobs(level: Level) {
+        for (i in 1..roomsCount) {
+            val floor = level.randomFloor()
+            if (floor.stander == null) {
+                floor.stander = Snowball(floor)
+            }
+        }
+    }
 
     companion object {
         fun generate(depth: Int, height: Int, width: Int) = LevelGenerator(depth, height, width).generate()

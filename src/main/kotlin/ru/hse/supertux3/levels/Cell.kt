@@ -2,8 +2,12 @@ package ru.hse.supertux3.levels
 
 import com.beust.klaxon.Json
 
-open class Cell(@Json(ignored = true) val coordinates: Coordinates, val id: String) {
+enum class Visibility {Visible, Hidden}
+
+open class Cell(@Json(ignored = true) val coordinates: Coordinates,
+                val id: String) {
     override fun toString() = id
+    var visibility = Visibility.Visible
 }
 
 abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
@@ -11,6 +15,8 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
     val items: MutableList<Int> = mutableListOf()
     @Json(ignored = true)
     var roomNumber = -1
+    @Json(ignored = true)
+    var stander: CellStander? = null
 
     fun newRoom() {
         roomNumber = nextRoomNumber
@@ -24,6 +30,8 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
     fun drop(newItems: MutableList<Int>) {
         items.addAll(newItems)
     }
+
+    override fun toString() = stander?.id ?: id
 
     companion object {
         fun empty(coordinates: Coordinates): Floor = object : Floor(coordinates, ".") {
@@ -47,7 +55,9 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
 /**
  * Class for things that cover some cell (for example, mobs standing on floor).
  */
-abstract class CellStander(var cell: Cell, id: String) : Cell(cell.coordinates, id)
+abstract class CellStander(var cell: Cell, val id: String) {
+    val coordinates = cell.coordinates
+}
 
 class Wall(coordinates: Coordinates) : Cell(coordinates, "#") {
 

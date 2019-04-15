@@ -3,7 +3,9 @@ package ru.hse.supertux3.levels
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import ru.hse.supertux3.logic.mobs.Mob
 import java.io.File
+import java.util.*
 import kotlin.random.Random
 
 data class Coordinates(val i: Int, val j: Int, val h: Int, val levelId: Int) {
@@ -80,6 +82,29 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
         Random.nextInt(0, depth),
         id)
 
+    fun randomFloor(): Floor {
+        var maybeFloor = randomCell()
+        while (maybeFloor !is Floor) {
+            maybeFloor = randomCell()
+        }
+        return maybeFloor
+    }
+
+    fun putMob(mob: Mob) {
+        val floor = randomFloor()
+        putMob(mob, floor.coordinates)
+    }
+
+    fun putMob(mob: Mob, c: Coordinates): Boolean {
+        val maybeFloor = getCell(c)
+        if (maybeFloor is Floor && maybeFloor.stander == null) {
+            maybeFloor.stander = mob
+            return true
+        } else {
+            return false
+        }
+    }
+
     override fun toString(): String {
         val stringBuilder = StringBuilder()
         for (stage in field) {
@@ -138,6 +163,37 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
             }
 
             return level
+        }
+    }
+
+
+    fun bfs(start: Coordinates, maxDepth: Int, runLogic: (Cell) -> Unit) {
+        val used = Array(height) { i ->
+            Array(width) { j -> 0
+            }
+        }
+        used[start.i][start.j] = 1
+        val queue = LinkedList<Cell>()
+        queue.push(getCell(start))
+        while (queue.isNotEmpty()) {
+            val curCell = queue.pop()
+            val curDepth = used[curCell.coordinates.i][curCell.coordinates.j]
+            runLogic(curCell) // It can be a wall, but only one wall near floor
+            if (curCell !is Floor || curCell is Door) {
+                continue
+            } else {
+                if (curDepth <= maxDepth) {
+                    for (direction in Direction.values()) {
+                        if (canGo(curCell.coordinates, direction, 1)) {
+                            val next = getCell(curCell.coordinates, direction, 1)
+                            if (used[next.coordinates.i][next.coordinates.j] == 0) {
+                                used[next.coordinates.i][next.coordinates.j] = curDepth + 1
+                                queue.push(next)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

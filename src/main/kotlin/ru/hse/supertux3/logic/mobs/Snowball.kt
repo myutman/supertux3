@@ -21,7 +21,7 @@ class Snowball(cell: Cell) : NPC(cell, "ё") {
     override var moveStrategy: MoveStrategy = NeutralStrategy()
 
     override fun move(level: Level) {
-        moveStrategy.move(level)
+        moveStrategy.move(level, this)
     }
 
     override fun attack(mob: Mob) {
