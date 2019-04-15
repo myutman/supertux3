@@ -2,6 +2,7 @@ package ru.hse.supertux3.logic.mobs
 
 import ru.hse.supertux3.levels.Cell
 import ru.hse.supertux3.levels.Level
+import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
 
 /**
@@ -22,5 +23,5 @@ abstract class NPC(cell: Cell, id: String) : Mob(cell, id) {
     /**
      * Function to move this NPC.
      */
-    abstract fun move(level: Level)
+    abstract fun move(level: Level): MoveResult
 }

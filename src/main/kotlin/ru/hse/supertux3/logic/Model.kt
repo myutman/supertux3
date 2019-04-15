@@ -91,7 +91,7 @@ class Model(private val level: Level) {
         // Yep, if the mob is dead, he will hit you before dying and then die.
         level.mobs.removeIf { it.hp <= 0 }
 
-        // TODO: update effects, check if player isn't dead
+        // TODO: update effects
 
         if (state.player.hp <= 0) {
             view.died()

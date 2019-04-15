@@ -14,6 +14,6 @@ class AggressiveStrategy : MoveStrategy {
             Direction.RIGHT -> Direction.LEFT
             Direction.LEFT -> Direction.RIGHT
         }
-        return Move(direction, 1)
+        return Move(direction, opposite.r)
     }
 }
