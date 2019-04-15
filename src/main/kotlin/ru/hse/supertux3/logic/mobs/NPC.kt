@@ -23,9 +23,4 @@ abstract class NPC(cell: Cell, id: String) : Mob(cell, id) {
      * Function to move this NPC.
      */
     abstract fun move(level: Level)
-
-    /**
-     * Function that handles attack of this NPC on another mob.
-     */
-    abstract fun attack(mob: Mob)
 }
