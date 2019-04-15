@@ -6,6 +6,26 @@ import ru.hse.supertux3.logic.GameState
 
 class View(val state: GameState, val visual: TermColors) {
 
+    fun moveLadder() {
+        redraw()
+    }
+
+    fun move(direction: Direction) {
+        when (direction) {
+            Direction.UP -> moveUp()
+            Direction.DOWN -> moveDown()
+            Direction.RIGHT -> moveRight()
+            Direction.LEFT -> moveLeft()
+        }
+
+        printPos()
+    }
+
+    fun attacked() {
+        printUsrInfo()
+        printStrInLine("You were attacked", 2)
+    }
+
     init {
         redraw()
     }
@@ -40,8 +60,9 @@ class View(val state: GameState, val visual: TermColors) {
             print(red("@"))
             print(cursorLeft(1))
         }
-        
+
         printPos()
+        printUsrInfo()
     }
 
     private fun moveUp() {
@@ -108,27 +129,29 @@ class View(val state: GameState, val visual: TermColors) {
         }
     }
 
-    fun move(direction: Direction) {
-        when (direction) {
-            Direction.UP -> moveUp()
-            Direction.DOWN -> moveDown()
-            Direction.RIGHT -> moveRight()
-            Direction.LEFT -> moveLeft()
+    private fun printStrInLine(str: String, lineNumber: Int) {
+        val level = state.level
+        val position = state.player.position()
+
+        val up = level.height - position.i + lineNumber
+        val right = position.j
+
+        visual.run {
+            print(cursorLeft(right))
+            print(cursorDown(up))
+
+
+            print(str)
+            print(cursorLeft(str.length))
+
+            print(cursorUp(up))
+            print(cursorRight(right))
         }
-
-        printPos()
-    }
-
-    fun moveLadder() {
-        redraw()
     }
 
     private fun printPos() {
         val level = state.level
         val position = state.player.position()
-
-        val up = level.height - position.i
-        val right = position.j
 
         val str = buildString {
             append(
@@ -146,16 +169,28 @@ class View(val state: GameState, val visual: TermColors) {
             )
         }
 
-        visual.run {
-            print(cursorLeft(right))
-            print(cursorDown(up))
+        printStrInLine(str, 1)
+    }
 
+    private fun printUsrInfo() {
+        val player = state.player
 
-            print(str)
-            print(cursorLeft(str.length))
-
-            print(cursorUp(up))
-            print(cursorRight(right))
+        val str = buildString {
+            append(
+                "XP:",
+                player.xp,
+                ", HP:",
+                player.hp,
+                ", Armor:",
+                player.armor,
+                ", Damage:",
+                player.damage,
+                ", Cricital chance:",
+                player.criticalChance,
+                "      "
+            )
         }
+
+        printStrInLine(str, 0)
     }
 }

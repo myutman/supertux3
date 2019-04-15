@@ -34,7 +34,7 @@ class Model(private val level: Level) {
         when (moveResult) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
-            MoveResult.ATTACKED -> {} // TODO
+            MoveResult.ATTACKED -> view.attacked()
             MoveResult.DIED -> {} // TODO
         }
 
