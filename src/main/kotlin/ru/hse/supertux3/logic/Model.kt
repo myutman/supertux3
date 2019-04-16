@@ -91,7 +91,7 @@ class Model(private val level: Level) {
             }
         }
 
-        // Yep, if the mob is dead, he will hit you before dying.
+        // Yep, if the npc is dead, he will hit you before dying.
         level.mobs.removeIf { it.isDead() }
 
         // TODO: update effects

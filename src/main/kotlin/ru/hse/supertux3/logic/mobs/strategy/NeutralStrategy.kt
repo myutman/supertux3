@@ -5,7 +5,7 @@ import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Mob
 
 /**
- * Strategy that makes mob do nothing.
+ * Strategy that makes npc do nothing.
  */
 class NeutralStrategy : MoveStrategy {
     override fun move(level: Level, mob: Mob): Move {

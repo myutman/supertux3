@@ -10,7 +10,7 @@ import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
  */
 abstract class NPC(cell: Cell, id: String) : Mob(cell, id) {
     /**
-     * Level of this mob, which should determine its stats
+     * Level of this npc, which should determine its stats
      */
     abstract var level: Int
 

@@ -4,14 +4,14 @@ import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.MoveResult
-import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.strategy.Move
+import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
 
 /**
- * Decorator for mob class that allows to change mob's behaviour.
+ * Decorator for npc class that allows to change npc's behaviour.
  */
-class MobDecorator(val mob: Mob, level: Level) : NPC(mob.cell, "c") {
+class MobDecorator(val npc: NPC, level: Level) : NPC(npc.cell, "c") {
 
     init {
         redecorate()
@@ -22,39 +22,47 @@ class MobDecorator(val mob: Mob, level: Level) : NPC(mob.cell, "c") {
     var confusedTime = 0
 
     override var hp: Int
-        get() = mob.hp
-        set(value) { mob.hp = value }
+        get() = npc.hp
+        set(value) { npc.hp = value }
 
     override var resistChance: Int
-        get() = mob.resistChance
-        set(value) { mob.resistChance = value }
+        get() = npc.resistChance
+        set(value) { npc.resistChance = value }
 
     override var armor: Int
-        get() = mob.armor
-        set(value) { mob.armor = value }
+        get() = npc.armor
+        set(value) { npc.armor = value }
 
     override var damage: Int
-        get() = mob.damage
-        set(value) { mob.damage = value }
+        get() = npc.damage
+        set(value) { npc.damage = value }
 
     override var criticalChance: Int
-        get() = mob.criticalChance
-        set(value) { mob.criticalChance = value }
+        get() = npc.criticalChance
+        set(value) { npc.criticalChance = value }
+
+    override var level: Int
+        get() = npc.level
+        set(value) { npc.level = value }
+    override var moveStrategy: MoveStrategy
+        get() = npc.moveStrategy
+        set(value) { npc.moveStrategy = value }
+
 
     private fun redecorate() {
-        cell = mob.cell
+        cell = npc.cell
         (cell as Floor).stander = this
     }
 
     private fun undecorate(level: Level) {
-        (cell as Floor).stander = mob
+        (cell as Floor).stander = npc
         val i = level.mobs.indexOf(this)
-        level.mobs[i] = mob
+        level.mobs[i] = npc
     }
 
     override fun move(level: Level): MoveResult {
         val randomDirection = Direction.values().random()
-        val moveResult = mob.move(Move(randomDirection, 1), level)
+        val moveResult = npc.move(Move(randomDirection, 1), level)
         redecorate()
         confusedTime++
         if (confusedTime == MAX_CONFUSED_TIME) {

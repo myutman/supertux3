@@ -8,7 +8,7 @@ import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.Player
 
 /**
- * Strategy that makes mob run away from player, if mob sees him.
+ * Strategy that makes npc run away from player, if npc sees him.
  */
 class CowardStrategy : MoveStrategy {
     override fun move(level: Level, mob: Mob): Move {

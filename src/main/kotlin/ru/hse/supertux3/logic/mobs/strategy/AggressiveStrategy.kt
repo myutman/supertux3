@@ -5,7 +5,7 @@ import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Mob
 
 /**
- * Strategy that makes mob run towards player, if mob sees him..
+ * Strategy that makes npc run towards player, if npc sees him..
  */
 class AggressiveStrategy : MoveStrategy {
     private val coward = CowardStrategy()

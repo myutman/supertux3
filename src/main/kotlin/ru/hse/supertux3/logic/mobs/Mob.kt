@@ -18,19 +18,19 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
      */
     abstract var hp: Int
     /**
-     * Base resist chance of mob.
+     * Base resist chance of npc.
      */
     abstract var resistChance: Int
     /**
-     * Base armor of mob.
+     * Base armor of npc.
      */
     abstract var armor: Int
     /**
-     * Base damage of mob.
+     * Base damage of npc.
      */
     abstract var damage: Int
     /**
-     * Base mob' chance of critical hit.
+     * Base npc' chance of critical hit.
      */
     abstract var criticalChance: Int
 
@@ -45,12 +45,12 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     fun position(): Coordinates = cell.coordinates
 
     /**
-     * Returns if this mob is dead.
+     * Returns if this npc is dead.
      */
     fun isDead() = hp <= 0
 
     /**
-     * Function that processes attack of this mob on given mob.
+     * Function that processes attack of this npc on given npc.
      */
     fun attack(mob: Mob, level: Level): MoveResult {
         val n1 = (0..100).random()
@@ -60,7 +60,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
         if (criticalChance > n1) {
             baseDamage *= 2
             if (this is Player) {
-                val decorator = MobDecorator(mob, level)
+                val decorator = MobDecorator(mob as NPC, level)
                 val i = level.mobs.indexOf(mob)
                 level.mobs[i] = decorator
             }
@@ -83,7 +83,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     }
 
     /**
-     * The basic function that moves this mob.
+     * The basic function that moves this npc.
      */
     open fun move(move: Move, level: Level): MoveResult {
         val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(

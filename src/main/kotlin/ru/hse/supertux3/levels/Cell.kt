@@ -37,7 +37,7 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
     var roomNumber = -1
 
     /**
-     * Mob (CellStander) that stands on this cell, or null there is no mob.
+     * Mob (CellStander) that stands on this cell, or null there is no npc.
      */
     @Json(ignored = true)
     var stander: CellStander? = null

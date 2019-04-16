@@ -10,7 +10,7 @@ import ru.hse.supertux3.logic.mobs.Player
 data class GameState(val level: Level, val player: Player)
 
 /**
- * Enum for results of mob's (mostly player's) move.
+ * Enum for results of npc's (mostly player's) move.
  */
 enum class MoveResult {
     FAILED,
