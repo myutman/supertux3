@@ -12,10 +12,12 @@ import java.io.File
 class LevelTest {
 
     var level1 = Level.load("src/test/resources/testLevel1.kek")
+    var arena = Level.load("src/test/resources/arena.kek")
 
     @Before
     fun load() {
         level1 = Level.load("src/test/resources/testLevel1.kek")
+        arena = Level.load("src/test/resources/arena.kek")
     }
 
     @Test
@@ -66,6 +68,15 @@ class LevelTest {
         (cell2 as Floor).stander = mob
         println(level1)
         assertEquals(0, AggressiveStrategy().move(level1, mob).r)
+    }
+
+    @Test
+    fun arena() {
+        val cell = arena.getCell(1, 1, 0)
+        val mob = Snowball(cell)
+        (cell as Floor).stander = mob
+        println(arena)
+        arena.save("src/test/resources/arenaTest.kek")
     }
 
 }

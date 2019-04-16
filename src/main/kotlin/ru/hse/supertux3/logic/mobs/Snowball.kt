@@ -7,13 +7,13 @@ import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
 import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 
 class Snowball(cell: Cell) : NPC(cell, "ё") {
-    override var hp: Int = 1
+    override var hp: Int = 20
 
     override var resistChance: Int = 0
 
     override var armor: Int = 0
 
-    override var damage: Int = 1
+    override var damage: Int = 10
 
     override var criticalChance: Int = 0
 
