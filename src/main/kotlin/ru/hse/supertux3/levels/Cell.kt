@@ -56,7 +56,8 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
  * Class for things that cover some cell (for example, mobs standing on floor).
  */
 abstract class CellStander(var cell: Cell, val id: String) {
-    val coordinates = cell.coordinates
+    val coordinates
+        get() = cell.coordinates
 }
 
 class Wall(coordinates: Coordinates) : Cell(coordinates, "#") {

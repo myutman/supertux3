@@ -6,7 +6,6 @@ import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.Player
-import ru.hse.supertux3.logic.mobs.Snowball
 
 class CowardStrategy : MoveStrategy {
     override fun move(level: Level, mob: Mob): Move {
