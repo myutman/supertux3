@@ -174,15 +174,16 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
 
 
     fun bfs(start: Coordinates, maxDepth: Int, runLogic: (Cell) -> Unit) {
-        val used = Array(height) { i ->
-            Array(width) { j -> 0
+        val used = Array(height) {
+            Array(width) {
+                0
             }
         }
         used[start.i][start.j] = 1
         val queue = LinkedList<Cell>()
-        queue.push(getCell(start))
+        queue.add(getCell(start))
         while (queue.isNotEmpty()) {
-            val curCell = queue.pop()
+            val curCell = queue.pollFirst()
             val curDepth = used[curCell.coordinates.i][curCell.coordinates.j]
             runLogic(curCell) // It can be a wall, but only one wall near floor
             if (curCell !is Floor || curCell is Door) {
@@ -194,7 +195,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                             val next = getCell(curCell.coordinates, direction, 1)
                             if (used[next.coordinates.i][next.coordinates.j] == 0) {
                                 used[next.coordinates.i][next.coordinates.j] = curDepth + 1
-                                queue.push(next)
+                                queue.add(next)
                             }
                         }
                     }

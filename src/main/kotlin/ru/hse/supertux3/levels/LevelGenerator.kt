@@ -199,16 +199,16 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
     }
 
     private fun bfs(level: Level) {
-        bfsQueue.push(0)
+        bfsQueue.add(0)
         while (!bfsQueue.isEmpty()) {
-            val v = bfsQueue.pop()
+            val v = bfsQueue.pollFirst()
             dfsLadders(v)
             for ((u, cell) in graph[v]) {
                 if (!used[u]) {
                     // In normal bfs they set used[u] = true here
                     // but without it we re generating nice random cycles
                     level.setCell(cell.coordinates, Door(cell.coordinates))
-                    bfsQueue.push(u)
+                    bfsQueue.add(u)
                 }
             }
         }
