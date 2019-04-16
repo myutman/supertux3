@@ -5,16 +5,15 @@ import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.mobs.Mob
+import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.strategy.Move
 
 /**
  * Decorator for mob class that allows to change mob's behaviour.
  */
-class MobDecorator(val mob: Mob, level: Level) : Mob(mob.cell, mob.id) {
+class MobDecorator(val mob: Mob, level: Level) : NPC(mob.cell, "c") {
 
     init {
-        val i = level.mobs.indexOf(mob)
-        level.mobs[i] = this
         redecorate()
     }
 
@@ -53,7 +52,7 @@ class MobDecorator(val mob: Mob, level: Level) : Mob(mob.cell, mob.id) {
         level.mobs[i] = mob
     }
 
-    override fun move(move: Move, level: Level): MoveResult {
+    override fun move(level: Level): MoveResult {
         val randomDirection = Direction.values().random()
         val moveResult = mob.move(Move(randomDirection, 1), level)
         redecorate()
