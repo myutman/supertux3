@@ -23,6 +23,9 @@ class Player(
         }
     }
 
+    /**
+     * Processes move of player.
+     */
     fun processMove(direction: Direction, level: Level): MoveResult {
         val move = Move(direction, 1)
         return move(move, level)

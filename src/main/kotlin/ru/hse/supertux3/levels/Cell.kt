@@ -2,27 +2,57 @@ package ru.hse.supertux3.levels
 
 import com.beust.klaxon.Json
 
+/**
+ * Enum for visibility state of cell.
+ */
 enum class Visibility {Visible, Hidden}
 
+/**
+ * Basic class for cells that form level.
+ */
 open class Cell(@Json(ignored = true) val coordinates: Coordinates,
                 val id: String) {
     override fun toString() = id
+
+    /**
+     * Shows if this cell is visible by Player.
+     */
     var visibility = Visibility.Hidden
 }
 
+/**
+ * Class for cells that can be stepped on.
+ */
 abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
+    /**
+     * List of items laying on the floor.
+     */
     @Json
     val items: MutableList<Int> = mutableListOf()
+
+    /**
+     * Number of room this floor cell belongs to.
+     */
     @Json(ignored = true)
     var roomNumber = -1
+
+    /**
+     * Mob (CellStander) that stands on this cell, or null there is no mob.
+     */
     @Json(ignored = true)
     var stander: CellStander? = null
 
+    /**
+     *
+     */
     fun newRoom() {
         roomNumber = nextRoomNumber
         nextRoomNumber++
     }
 
+    /**
+     * Some interaction with this floor cell.
+     */
     abstract fun interact()
 
     fun pickUp(): List<Int> = items

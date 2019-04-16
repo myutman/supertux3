@@ -2,6 +2,9 @@ package ru.hse.supertux3.logic.mobs.decorators
 
 import ru.hse.supertux3.logic.mobs.Mob
 
+/**
+ * Decorator for mob class that allows to change mob's behaviour.
+ */
 class MobDecorator(val mob: Mob) : Mob(mob.cell, mob.id) {
 
     init {

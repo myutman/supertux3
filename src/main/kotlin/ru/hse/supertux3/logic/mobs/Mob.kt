@@ -34,7 +34,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     abstract var criticalChance: Int
 
     /**
-     * Mob's visible area depth
+     * Mob's visible area depth.
      */
     var visibilityDepth = 4
 
@@ -49,7 +49,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     fun isDead() = hp <= 0
 
     /**
-     * Function to attack NPC.
+     * Function that processes attack of this mob on given mob.
      */
     fun attack(mob: Mob): MoveResult {
         val n1 = (0..100).random()
@@ -77,7 +77,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     }
 
     /**
-     * The basic function for mobs to move.
+     * The basic function that moves this mob.
      */
     fun move(move: Move, level: Level): MoveResult {
         val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(

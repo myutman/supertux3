@@ -6,6 +6,9 @@ import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
 import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 
+/**
+ * Basic and weakest enemy in the game.
+ */
 class Snowball(cell: Cell) : NPC(cell, "ё") {
     override var hp: Int = 1
 
