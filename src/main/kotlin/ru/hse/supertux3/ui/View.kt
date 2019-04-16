@@ -1,7 +1,9 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
-import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.levels.Cell
+import ru.hse.supertux3.levels.Direction
+import ru.hse.supertux3.levels.Visibility
 import ru.hse.supertux3.logic.GameState
 import kotlin.math.max
 
@@ -39,6 +41,7 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         printPos()
+        clearAttacked()
     }
 
     fun attack() {
@@ -48,7 +51,7 @@ class View(val state: GameState, val visual: TermColors) {
 
     fun attacked() {
         printUsrInfo()
-        printStrInLine("You were attacked", 2)
+        printAttacked()
     }
 
     fun died() {
@@ -207,5 +210,13 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         printStrInLine(str, 0)
+    }
+
+    private fun printAttacked() {
+        printStrInLine("You were attacked", 2)
+    }
+
+    private fun clearAttacked() {
+        printStrInLine("                 ", 2)
     }
 }

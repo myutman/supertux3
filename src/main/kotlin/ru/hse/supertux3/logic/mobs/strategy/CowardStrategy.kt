@@ -6,11 +6,12 @@ import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.Player
+import ru.hse.supertux3.logic.mobs.Snowball
 
 class CowardStrategy : MoveStrategy {
     override fun move(level: Level, mob: Mob): Move {
         var playerCoordinates: Coordinates? = null
-        level.bfs(mob.coordinates, 6) {
+        level.bfs(mob.coordinates, mob.visibilityDepth) {
             if (it is Floor && it.stander != null && it.stander is Player) {
                 playerCoordinates = it.coordinates
             }
