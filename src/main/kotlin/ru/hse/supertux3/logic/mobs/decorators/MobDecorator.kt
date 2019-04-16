@@ -7,7 +7,13 @@ import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.strategy.Move
 
-class MobDecorator(val mob: Mob) : Mob(mob.cell, mob.id) {
+class MobDecorator(val mob: Mob, level: Level) : Mob(mob.cell, mob.id) {
+
+    init {
+        val i = level.mobs.indexOf(mob)
+        level.mobs[i] = this
+        redecorate()
+    }
 
     val MAX_CONFUSED_TIME = 5
 
