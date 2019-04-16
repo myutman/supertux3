@@ -1,10 +1,10 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
-import ru.hse.supertux3.levels.Cell
-import ru.hse.supertux3.levels.Direction
-import ru.hse.supertux3.levels.Visibility
+import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.mobs.Mob
+import ru.hse.supertux3.logic.mobs.NPC
 import kotlin.math.max
 
 class View(val state: GameState, val visual: TermColors) {
@@ -33,6 +33,11 @@ class View(val state: GameState, val visual: TermColors) {
             }
         }
 
+        clearMonstersNotSeen(prevPosition.coordinates)
+        clearAttacked()
+    }
+
+    fun afterAction() {
         drawBeingSeen()
 
         visual.run {
@@ -41,7 +46,6 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         printPos()
-        clearAttacked()
     }
 
     fun attack() {
@@ -70,7 +74,7 @@ class View(val state: GameState, val visual: TermColors) {
         readChar()
     }
 
-    private fun drawCell(new: Cell) {
+    private fun drawCell(new: Cell, str: String = "") {
         val cur = state.player.position()
         val coordinates = new.coordinates
         val left = max(cur.j - coordinates.j, 0)
@@ -83,7 +87,7 @@ class View(val state: GameState, val visual: TermColors) {
             print(cursorUp(up))
             print(cursorDown(down))
 
-            print(new.toString())
+            print(if (str.isEmpty()) new.toString() else str)
             print(cursorLeft(1))
 
             print(cursorLeft(right))
@@ -137,6 +141,14 @@ class View(val state: GameState, val visual: TermColors) {
 
         printPos()
         printUsrInfo()
+    }
+
+    private fun clearMonstersNotSeen(prevPosition: Coordinates) {
+        state.level.bfs(prevPosition, state.player.visibilityDepth) {
+            if (it.toString().equals("ё") || it.toString().equals("c")) {
+                drawCell(it, ".")
+            }
+        }
     }
 
     private fun drawBeingSeen() {

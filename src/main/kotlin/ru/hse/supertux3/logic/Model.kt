@@ -95,6 +95,7 @@ class Model(private val level: Level) {
         level.mobs.removeIf { it.isDead() }
 
         // TODO: update effects
+        view.afterAction()
 
         if (state.player.isDead()) {
             handleDeath()
