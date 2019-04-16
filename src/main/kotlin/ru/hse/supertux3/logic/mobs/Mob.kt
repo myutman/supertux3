@@ -79,7 +79,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     /**
      * The basic function that moves this mob.
      */
-    fun move(move: Move, level: Level): MoveResult {
+    open fun move(move: Move, level: Level): MoveResult {
         val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
             Direction.UP to { position -> position.copy(i = position.i - move.r)},
             Direction.DOWN to { position -> position.copy(i = position.i + move.r)},

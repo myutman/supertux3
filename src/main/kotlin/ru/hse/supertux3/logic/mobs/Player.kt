@@ -10,7 +10,7 @@ import ru.hse.supertux3.logic.mobs.strategy.Move
 class Player(
     cell: Cell,
     override var hp: Int = 100,
-    override var damage: Int = 10,
+    override var damage: Int = 15,
     override var resistChance: Int = 50,
     override var armor: Int = 5,
     override var criticalChance: Int = 50

@@ -9,14 +9,5 @@ import ru.hse.supertux3.logic.mobs.Mob
  */
 class AggressiveStrategy : MoveStrategy {
     private val coward = CowardStrategy()
-    override fun move(level: Level, mob: Mob): Move {
-        val opposite = coward.move(level, mob)
-        val direction = when (opposite.direction) {
-            Direction.UP -> Direction.DOWN
-            Direction.DOWN -> Direction.UP
-            Direction.RIGHT -> Direction.LEFT
-            Direction.LEFT -> Direction.RIGHT
-        }
-        return Move(direction, opposite.r)
-    }
+    override fun move(level: Level, mob: Mob) = coward.move(level, mob).opposite()
 }

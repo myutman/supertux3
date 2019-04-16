@@ -17,4 +17,15 @@ interface MoveStrategy {
 /**
  * Container for move data: direction and how far this move goes.
  */
-data class Move(val direction: Direction, val r: Int)
+data class Move(val direction: Direction, val r: Int) {
+    fun opposite(): Move {
+
+        val oppositeDirection = when (direction) {
+            Direction.UP -> Direction.DOWN
+            Direction.DOWN -> Direction.UP
+            Direction.RIGHT -> Direction.LEFT
+            Direction.LEFT -> Direction.RIGHT
+        }
+        return Move(oppositeDirection, r)
+    }
+}
