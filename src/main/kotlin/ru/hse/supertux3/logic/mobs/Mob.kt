@@ -2,6 +2,7 @@ package ru.hse.supertux3.logic.mobs
 
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveResult
+import ru.hse.supertux3.logic.mobs.decorators.MobDecorator
 import ru.hse.supertux3.logic.mobs.strategy.Move
 import java.lang.Integer.max
 
@@ -51,13 +52,18 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     /**
      * Function to attack NPC.
      */
-    fun attack(mob: Mob): MoveResult {
+    fun attack(mob: Mob, level: Level): MoveResult {
         val n1 = (0..100).random()
         val n2 = (0..100).random()
 
         var baseDamage = damage
         if (criticalChance > n1) {
             baseDamage *= 2
+            if (this is Player) {
+                val decorator = MobDecorator(mob, level)
+                val i = level.mobs.indexOf(mob)
+                level.mobs[i] = decorator
+            }
         }
 
         if (mob.resistChance > n2) {
@@ -100,7 +106,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
 
         val newCell = level.getCell(newPosition)
         if (newCell is Floor && newCell.stander != null) {
-            return attack(newCell.stander as Mob)
+            return attack(newCell.stander as Mob, level)
         }
 
         (cell as Floor).stander = null

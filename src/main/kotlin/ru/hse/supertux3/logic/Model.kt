@@ -49,7 +49,7 @@ class Model(private val level: Level) {
     fun selfHarm() {
         val npc = Snowball(Cell(Coordinates(0, 0, 0, 0), ""))
         npc.damage = 20
-        npc.attack(state.player)
+        npc.attack(state.player, level)
 
         if (state.player.isDead()) {
             handleDeath()
