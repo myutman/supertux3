@@ -145,8 +145,10 @@ class View(val state: GameState, val visual: TermColors) {
 
     private fun clearMonstersNotSeen(prevPosition: Coordinates) {
         state.level.bfs(prevPosition, state.player.visibilityDepth) {
-            if (it.toString().equals("ё") || it.toString().equals("c")) {
-                drawCell(it, ".")
+            if (it is Floor) {
+                if (it.stander != null) {
+                    drawCell(it, ".")
+                }
             }
         }
     }
