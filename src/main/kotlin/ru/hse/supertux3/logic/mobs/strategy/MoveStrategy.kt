@@ -18,6 +18,9 @@ interface MoveStrategy {
  * Container for move data: direction and how far this move goes.
  */
 data class Move(val direction: Direction, val r: Int) {
+    /**
+     * Returns move in opposite direction to given move and same length.
+     */
     fun opposite(): Move {
 
         val oppositeDirection = when (direction) {

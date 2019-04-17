@@ -113,5 +113,5 @@ class Ladder(coordinates: Coordinates, @Json val destination: Coordinates) : Flo
         // pass
     }
 
-    override fun toString() = if (destination.h > coordinates.h) "v" else "^"
+    override fun toString() = stander?.id ?: if (destination.h > coordinates.h) "v" else "^"
 }

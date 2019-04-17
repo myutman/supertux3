@@ -82,19 +82,23 @@ class Model(private val level: Level) {
             if (mob is Player)
                 return
 
-            if (mob.isDead()) {
-                level.setCell(mob.position(), mob.cell)
-                (mob.cell as Floor).stander = null
-            } else {
-                // TODO: print attack results
+            if (!mob.isDead()) {
                 (mob as NPC).move(level)
             }
         }
 
-        // Yep, if the npc is dead, he will hit you before dying.
+        level.mobs.forEach { mob ->
+            if (mob is Player)
+                return
+
+            if (mob.isDead()) {
+                level.setCell(mob.position(), mob.cell)
+                (mob.cell as Floor).stander = null
+            }
+        }
+
         level.mobs.removeIf { it.isDead() }
 
-        // TODO: update effects
         view.afterAction()
 
         if (state.player.isDead()) {
@@ -106,7 +110,6 @@ class Model(private val level: Level) {
      * Functions to be done when player was killed
      */
     fun handleDeath() {
-        Thread.sleep(1500)
         view.died()
     }
 }

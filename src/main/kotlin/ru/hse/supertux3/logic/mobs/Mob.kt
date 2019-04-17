@@ -57,7 +57,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
         val n2 = (0..100).random()
 
         var baseDamage = damage
-        if (criticalChance > n1) {
+        if (criticalChance < n1) {
             baseDamage *= 2
             if (this is Player) {
                 val decorator = MobDecorator(mob as NPC, level)
@@ -66,7 +66,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
             }
         }
 
-        if (mob.resistChance > n2) {
+        if (mob.resistChance < n2) {
             baseDamage /= 2
         }
 

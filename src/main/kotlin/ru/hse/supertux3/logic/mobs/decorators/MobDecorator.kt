@@ -50,6 +50,7 @@ class MobDecorator(val npc: NPC, level: Level) : NPC(npc.cell, "c") {
 
 
     private fun redecorate() {
+        (cell as Floor).stander = null
         cell = npc.cell
         (cell as Floor).stander = this
     }
