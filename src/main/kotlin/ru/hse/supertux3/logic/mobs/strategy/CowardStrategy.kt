@@ -10,7 +10,7 @@ import ru.hse.supertux3.logic.mobs.Player
 /**
  * Strategy that makes npc run away from player, if npc sees him.
  */
-class CowardStrategy : MoveStrategy {
+class CowardStrategy : MoveStrategy("C") {
     override fun move(level: Level, mob: Mob): Move {
         var playerCoordinates: Coordinates? = null
         level.bfs(mob.coordinates, mob.visibilityDepth) {

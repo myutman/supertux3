@@ -79,18 +79,12 @@ class Model(private val level: Level) {
      */
     fun afterAction(level: Level) {
         level.mobs.forEach { mob ->
-            if (mob is Player)
-                return
-
             if (!mob.isDead()) {
-                (mob as NPC).move(level)
+                mob.move(level)
             }
         }
 
         level.mobs.forEach { mob ->
-            if (mob is Player)
-                return
-
             if (mob.isDead()) {
                 level.setCell(mob.position(), mob.cell)
                 (mob.cell as Floor).stander = null

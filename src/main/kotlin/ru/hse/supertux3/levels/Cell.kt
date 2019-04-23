@@ -39,7 +39,7 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
     /**
      * Mob (CellStander) that stands on this cell, or null there is no npc.
      */
-    @Json(ignored = true)
+    @Json
     var stander: CellStander? = null
 
     /**
@@ -85,7 +85,8 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
 /**
  * Class for things that cover some cell (for example, mobs standing on floor).
  */
-abstract class CellStander(var cell: Cell, val id: String) {
+abstract class CellStander(@Json(ignored = true)var cell: Cell, val id: String) {
+    @Json(ignored = true)
     val coordinates
         get() = cell.coordinates
 }
