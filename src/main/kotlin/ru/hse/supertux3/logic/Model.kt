@@ -36,7 +36,10 @@ class Model(private val level: Level) {
         when (moveResult) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
-            MoveResult.ATTACKED -> view.attack()
+            MoveResult.ATTACKED -> {
+                state.player.addXp()
+                view.attack()
+            }
             MoveResult.DIED -> handleDeath()
         }
 
