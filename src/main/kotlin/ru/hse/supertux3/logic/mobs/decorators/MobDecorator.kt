@@ -3,6 +3,7 @@ package ru.hse.supertux3.logic.mobs.decorators
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
+import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.strategy.Move
@@ -61,14 +62,14 @@ class MobDecorator(val npc: NPC, level: Level) : NPC(npc.cell, "c") {
         level.mobs[i] = npc
     }
 
-    override fun move(level: Level): MoveResult {
+    override fun move(level: Level): MoveData {
         val randomDirection = Direction.values().random()
-        val moveResult = npc.move(Move(randomDirection, 1), level)
+        val moveData = npc.move(Move(randomDirection, 1), level)
         redecorate()
         confusedTime++
         if (confusedTime == MAX_CONFUSED_TIME) {
             undecorate(level)
         }
-        return moveResult
+        return moveData
     }
 }

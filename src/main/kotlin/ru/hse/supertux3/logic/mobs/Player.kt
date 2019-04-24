@@ -1,7 +1,7 @@
 package ru.hse.supertux3.logic.mobs
 
 import ru.hse.supertux3.levels.*
-import ru.hse.supertux3.logic.MoveResult
+import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.mobs.strategy.Move
 
 /**
@@ -27,7 +27,7 @@ class Player(
     /**
      * Processes move of player.
      */
-    fun processMove(direction: Direction, level: Level): MoveResult {
+    fun processMove(direction: Direction, level: Level): MoveData {
         val move = Move(direction, 1)
         return move(move, level)
     }

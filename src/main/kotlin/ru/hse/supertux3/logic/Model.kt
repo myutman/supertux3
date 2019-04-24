@@ -31,9 +31,9 @@ class Model(private val level: Level) {
      * Move player in given direction (if possible).
      */
     fun move(direction: Direction) {
-        val moveResult = state.player.processMove(direction, level)
+        val moveData = state.player.processMove(direction, level)
 
-        when (moveResult) {
+        when (moveData.result) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
             MoveResult.ATTACKED -> {
@@ -72,7 +72,11 @@ class Model(private val level: Level) {
 
         val cell = level.getCell(position)
         if (cell is Ladder) run {
-            state.player.cell = level.getCell(cell.destination)
+            cell.stander = null
+            val newCell = level.getCell(cell.destination)
+            (newCell as Floor).stander = state.player
+
+            state.player.cell = newCell
             view.moveLadder()
         }
     }

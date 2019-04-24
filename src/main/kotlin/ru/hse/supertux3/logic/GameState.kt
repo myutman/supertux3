@@ -8,13 +8,3 @@ import ru.hse.supertux3.logic.mobs.Player
  * It is used by View to draw level, player and everything else.
  */
 data class GameState(val level: Level, val player: Player)
-
-/**
- * Enum for results of npc's (mostly player's) move.
- */
-enum class MoveResult {
-    FAILED,
-    MOVED,
-    ATTACKED,
-    DIED
-}
