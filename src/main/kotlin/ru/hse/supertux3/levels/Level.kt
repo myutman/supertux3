@@ -4,6 +4,12 @@ import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
 import ru.hse.supertux3.logic.mobs.Mob
+import ru.hse.supertux3.logic.mobs.NPC
+import ru.hse.supertux3.logic.mobs.Player
+import ru.hse.supertux3.logic.mobs.Snowball
+import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
+import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
+import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 import java.io.File
 import java.util.*
 import kotlin.random.Random
@@ -17,7 +23,8 @@ enum class Direction {
 }
 
 class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
-    val mobs = mutableListOf<Mob>()
+    val mobs = mutableListOf<NPC>()
+    var player: Player? = null
 
     val id = if (id == -1) Level.maxId++ else id
 
@@ -97,7 +104,9 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
             floor = randomFloor()
         }
         putMob(mob, floor.coordinates)
-        mobs.add(mob)
+        if (mob is NPC) {
+            mobs.add(mob)
+        }
     }
 
     fun putMob(mob: Mob, c: Coordinates): Boolean {
@@ -149,11 +158,11 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                         val cellJson = field.get(h).get(i).get(j)
                         val id = cellJson.string("id")
                         val c = Coordinates(i, j, h, levelId)
-                        when (id) {
-                            "." -> level.setCell(c, Floor.empty(c))
-                            "&" -> level.setCell(c, Floor.chest(c))
-                            "#" -> level.setCell(c, Wall(c))
-                            "O" -> level.setCell(c, Door(c))
+                        val cell = when (id) {
+                            "." -> Floor.empty(c)
+                            "&" -> Floor.chest(c)
+                            "#" -> Wall(c)
+                            "O" -> Door(c)
                             "L" -> {
                                 val destJson = cellJson.obj("destination")!!
                                 val destination = Coordinates(
@@ -161,9 +170,44 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                                     destJson.int("j")!!,
                                     destJson.int("h")!!,
                                     levelId)
-                                level.setCell(c, Ladder(c, destination))
+                                Ladder(c, destination)
+                            }
+                            else -> Wall(c)
+                        }
+                        level.setCell(c, cell)
+                        val stander = cellJson.obj("stander")
+                        if (stander != null) {
+                            val standerId = stander.string("id")
+                            val mob: Mob = when (standerId) {
+                                "ё" -> Snowball(cell)
+                                "@" -> Player(cell)
+                                else -> Snowball(cell)
+                            }
+                            if (cell is Floor) {
+                                cell.stander = mob
+                            }
+                            if (mob is Player) {
+                                level.player = mob
+                            } else if (mob is NPC) {
+                                level.mobs.add(mob)
+                            }
+                            mob.armor = stander.int("armor")!!
+                            mob.criticalChance = stander.int("criticalChance")!!
+                            mob.damage = stander.int("damage")!!
+                            mob.resistChance = stander.int("resistChance")!!
+                            mob.hp = stander.int("hp")!!
+                            mob.visibilityDepth = stander.int("visibilityDepth")!!
+                            if (mob is NPC) {
+                                mob.level = stander.int("level")!!
+                                mob.moveStrategy = when(stander.obj("moveStrategy")!!.string("id")) {
+                                    "N" -> NeutralStrategy()
+                                    "A" -> AggressiveStrategy()
+                                    "C" -> CowardStrategy()
+                                    else -> NeutralStrategy()
+                                }
                             }
                         }
+
                     }
                 }
             }

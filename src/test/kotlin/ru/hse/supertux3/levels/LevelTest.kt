@@ -76,7 +76,10 @@ class LevelTest {
         val mob = Snowball(cell)
         (cell as Floor).stander = mob
         println(arena)
-        arena.save("src/test/resources/arenaTest.kek")
+        val testFile = "src/test/resources/arenaTest.kek"
+        arena.save(testFile)
+        println(Level.load(testFile))
+        File(testFile).delete()
     }
 
 }
