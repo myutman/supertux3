@@ -1,31 +1,22 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
-import ru.hse.supertux3.logic.mobs.NPC
-import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
  */
-class Model(private val level: Level) {
+class Model(val state: GameState) {
     /**
      * State of game, including level and player.
      */
-    val state: GameState
-
-    init {
-        val position = level.randomFloor()
-        val player = Player(level.getCell(position.coordinates))
-        state = GameState(level, player)
-    }
+    val level = state.level
 
     /**
      * View to request to redraw everything.
      */
     lateinit var view: View
-
 
     /**
      * Move player in given direction (if possible).
