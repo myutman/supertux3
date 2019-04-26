@@ -1,7 +1,11 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
+import ru.hse.supertux3.levels.Cell
+import ru.hse.supertux3.levels.Coordinates
+import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.GameState
+import kotlin.math.max
 
 class View(val state: GameState, val visual: TermColors) {
 
@@ -9,11 +13,69 @@ class View(val state: GameState, val visual: TermColors) {
         redraw()
     }
 
+    fun moveLadder() {
+        redraw()
+    }
+
+    fun move(direction: Direction) {
+        val prevPosition = state.level.getCell(state.player.position, direction, -1)
+        visual.run {
+            print(prevPosition)
+            print(cursorLeft(1))
+        }
+
+        visual.run {
+            when (direction) {
+                Direction.UP -> print(cursorUp(1))
+                Direction.DOWN -> print(cursorDown(1))
+                Direction.RIGHT -> print(cursorRight(1))
+                Direction.LEFT -> print(cursorLeft(1))
+            }
+        }
+
+        clearMonstersNotSeen(prevPosition.coordinates)
+
+        visual.run {
+            print(red("@"))
+            print(cursorLeft(1))
+        }
+
+        printPos()
+    }
+
+    private fun clearMonstersNotSeen(coordinates: Coordinates) {
+        drawCell(state.level.getCell(coordinates))
+    }
+
+    private fun drawCell(new: Cell, str: String = "") {
+        val cur = state.player.position
+        val coordinates = new.coordinates
+        val left = max(cur.j - coordinates.j, 0)
+        val right = max(coordinates.j - cur.j, 0)
+        val up = max(cur.i - coordinates.i, 0)
+        val down = max(coordinates.i - cur.i, 0)
+        visual.run {
+            print(cursorLeft(left))
+            print(cursorRight(right))
+            print(cursorUp(up))
+            print(cursorDown(down))
+
+            print(if (str.isEmpty()) new.toString() else str)
+            print(cursorLeft(1))
+
+            print(cursorLeft(right))
+            print(cursorRight(left))
+            print(cursorUp(down))
+            print(cursorDown(up))
+        }
+    }
+
     fun redraw() {
-        print("\u001Bc")
+        clearScreen()
 
         val level = state.level
         val position = state.player.position
+
 
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
@@ -33,97 +95,44 @@ class View(val state: GameState, val visual: TermColors) {
 
         val up = level.height - position.i
         val right = position.j
+
         visual.run {
             print(cursorUp(up))
             print(cursorRight(right))
-            print(red("@"))
-            print(cursorLeft(1))
         }
-        printPos()
-    }
-
-    fun moveUp() {
-        val level = state.level
-        val position = state.player.position
-        val prevPosition = position.copy(i = position.i + 1)
-
-        val symb = level.getCell(prevPosition).toString()
 
         visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorUp(1))
             print(red("@"))
             print(cursorLeft(1))
         }
 
         printPos()
+        printUsrInfo()
     }
 
-    fun moveDown() {
-        val level = state.level
-        val position = state.player.position
-        val prevPosition = position.copy(i = position.i - 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorDown(1))
-            print(red("@"))
-            print(cursorLeft(1))
-        }
-
-        printPos()
-    }
-
-    fun moveLeft() {
-        val level = state.level
-        val position = state.player.position
-        val prevPosition = position.copy(j = position.j + 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorLeft(1))
-            print(red("@"))
-            print(cursorLeft(1))
-        }
-
-        printPos()
-    }
-
-    fun moveRight() {
-        val level = state.level
-        val position = state.player.position
-        val prevPosition = position.copy(j = position.j - 1)
-
-        val symb = level.getCell(prevPosition).toString()
-
-        visual.run {
-            print(symb)
-            print(cursorLeft(1))
-            print(cursorRight(1))
-            print(red("@"))
-            print(cursorLeft(1))
-        }
-
-        printPos()
-    }
-
-    fun moveLadder() {
-        redraw()
-    }
-
-    fun printPos() {
+    private fun printStrInLine(str: String, lineNumber: Int) {
         val level = state.level
         val position = state.player.position
 
-        val up = level.height - position.i
+        val up = level.height - position.i + lineNumber
         val right = position.j
+
+        visual.run {
+            print(cursorLeft(right))
+            print(cursorDown(up))
+
+
+            print(str)
+            print(cursorLeft(str.length))
+
+            print(cursorUp(up))
+            print(cursorRight(right))
+        }
+    }
+
+    private fun printPos() {
+        val level = state.level
+        val position = state.player.position
 
         val str = buildString {
             append(
@@ -141,16 +150,28 @@ class View(val state: GameState, val visual: TermColors) {
             )
         }
 
-        visual.run {
-            print(cursorLeft(right))
-            print(cursorDown(up))
+        printStrInLine(str, 1)
+    }
 
+    private fun printUsrInfo() {
+        val player = state.player
 
-            print(str)
-            print(cursorLeft(str.length))
-
-            print(cursorUp(up))
-            print(cursorRight(right))
+        val str = buildString {
+            append(
+                "XP:",
+                player.xp,
+                ", HP:",
+                player.hp,
+                ", Armor:",
+                player.armor,
+                ", Damage:",
+                player.damage,
+                ", Cricital chance:",
+                player.criticalChance,
+                "      "
+            )
         }
+
+        printStrInLine(str, 0)
     }
 }

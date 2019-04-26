@@ -47,12 +47,7 @@ class Model(private val level: Level) {
         if (check(newPosition)) {
             // TODO: check if attack is necessary
             state.player.position = newPosition
-            when (direction) {
-                Direction.UP -> view.moveUp()
-                Direction.DOWN -> view.moveDown()
-                Direction.RIGHT -> view.moveRight()
-                Direction.LEFT -> view.moveLeft()
-            }
+            view.move(direction)
         }
     }
 
