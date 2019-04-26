@@ -7,6 +7,7 @@ import org.jline.utils.NonBlockingReader
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.ui.commands.*
+import java.io.File
 
 var reader: NonBlockingReader? = null
 
@@ -17,6 +18,10 @@ fun readChar(): Char {
         read = reader!!.read(buffer)
     }
     return buffer[0]
+}
+
+fun deleteSave(saveName: String) {
+    File(saveName).delete()
 }
 
 fun clearScreen() {
@@ -53,13 +58,14 @@ fun main() {
     model.view = view
 
     val invoker = Invoker()
+    val saveName = "GG"
 
     visual.run {
 
         while (!state.isGameFinished()) {
 
             invoker.currentCommand = when (readChar()) {
-                'q' -> QuitCommand(state)
+                'q' -> QuitCommand(state, saveName)
                 'w' -> MoveCommand(model, Direction.UP)
                 'a' -> MoveCommand(model, Direction.LEFT)
                 'd' -> MoveCommand(model, Direction.RIGHT)
@@ -71,6 +77,10 @@ fun main() {
             }
 
             invoker.run()
+
+            if (state.player.isDead()) {
+                deleteSave(saveName)
+            }
         }
         clearScreen()
     }
