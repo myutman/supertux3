@@ -1,27 +1,26 @@
 package ru.hse.supertux3.levels
 
-import ru.hse.supertux3.levels.Level
-import java.lang.Exception
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 import kotlin.random.Random
 
-fun main() {
-//    for (i in 0..1000)
-    val level = LevelGenerator.generate(4, 30, 40)
-    println(level)
-}
-
-// height and width should be even
+/**
+ * Class for generating new levels with given depth, width and high
+ * width * high should be >= 100 cause I need it to create rooms correctly
+ * @param depth should be >= 1
+ * @param heightWithWalls should be >= 4 and even
+ * @param widthWithWalls should be >= 4 and even
+ */
 class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWalls: Int) {
     private val height = heightWithWalls - 2
     private val width = widthWithWalls - 2
     private val halfHeight = height / 2
     private val halfWidth = width / 2
     private val roomsCount = Random.nextInt(
-        halfHeight * halfWidth * depth / 40,
-        halfHeight * halfWidth * depth / 20
+        halfHeight * halfWidth * depth / sqrt(halfHeight * halfWidth * depth.toDouble()).toInt(),
+        2 * halfHeight * halfWidth * depth / sqrt(halfHeight * halfWidth * depth.toDouble()).toInt()
     )
     private val graph = Array(roomsCount) {
         mutableListOf<Pair<Int, Cell>>()
@@ -29,10 +28,34 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
     private val bfsQueue = LinkedList<Int>()
     private val used = Array(roomsCount) { false }
 
-    fun generate(): Level {
-        Floor.nextRoomNumber = 0
-        if (height * width * depth < 100) {
-            throw Exception("To small field size...")
+
+    companion object {
+        /**
+         * This static method is the only way you can generate levels
+         */
+        fun generate(depth: Int, height: Int, width: Int) = LevelGenerator(depth, height, width).generate()
+
+        private val MAX_ROOM_EXPAND = 3
+    }
+
+    private fun generate(): Level {
+        if (height * width < 100) {
+            throw LevelGeneratorException("height * width is < 100")
+        }
+        if (height < 4) {
+            throw LevelGeneratorException("height is too small")
+        }
+        if (height % 2 != 0) {
+            throw LevelGeneratorException("height is odd")
+        }
+        if (width < 4) {
+            throw LevelGeneratorException("width is too small")
+        }
+        if (width % 2 != 0) {
+            throw LevelGeneratorException("width is odd")
+        }
+        if (depth < 1) {
+            throw LevelGeneratorException("depth < 1")
         }
         val smallLevel = createRooms()
         val level = buildWalls(smallLevel)
@@ -44,6 +67,7 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
     }
 
     private fun createRooms(): Level {
+        var nextRoomNumber = 0
         val roomCells = Array<LinkedList<Floor>>(roomsCount) {
             LinkedList()
         }
@@ -57,7 +81,8 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                     if (randomCell.roomNumber >= 0) {
                         continue
                     } else {
-                        randomCell.newRoom()
+                        randomCell.roomNumber = nextRoomNumber
+                        nextRoomNumber++
                         roomCells[i].add(randomCell)
                         break
                     }
@@ -68,35 +93,37 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         return level
     }
 
+    private fun expandRoom(room: LinkedList<Floor>, level: Level): Int {
+        var fulledCells = 0
+        val startCell = room.pop()
+        val c = startCell.coordinates
+        for (direction in Direction.values()) {
+            for (r in 1..Random.nextInt(1, MAX_ROOM_EXPAND + 1)) {
+                val nextCell = level.getCell(c, direction, r)
+                if (nextCell is Floor) {
+                    if (checkCanExpand(c, direction, r, level)) {
+                        nextCell.roomNumber = startCell.roomNumber
+                        room.push(nextCell)
+                        fulledCells++
+                    } else {
+                        break
+                    }
+                } else {
+                    break
+                }
+            }
+        }
+        return fulledCells
+    }
+
     private fun expandRooms(roomCells: Array<LinkedList<Floor>>, level: Level) {
         var fulledCells = roomCells.size
-        val maxExpand = 3
         while (fulledCells < halfHeight * halfWidth * depth) {
             for (room in roomCells) {
                 if (!room.isEmpty()) {
-                    val startCell = room.pop()
-                    val c = startCell.coordinates
-                    for (direction in Direction.values()) {
-                        for (r in 1..Random.nextInt(1, maxExpand + 1)) {
-                            val nextCell = level.getCell(c, direction, r)
-                            if (nextCell is Floor) {
-                                if (checkCanExpand(c, direction, r, level)) {
-                                    nextCell.roomNumber = startCell.roomNumber
-                                    if (nextCell.roomNumber == -1 || startCell.roomNumber == -1) {
-                                        throw Exception("FUCK")
-                                    }
-                                    room.push(nextCell)
-                                    fulledCells++
-                                    if (fulledCells >= halfHeight * halfWidth * depth) {
-                                        return
-                                    }
-                                } else {
-                                    break
-                                }
-                            } else {
-                                break
-                            }
-                        }
+                    fulledCells += expandRoom(room, level)
+                    if (fulledCells >= halfHeight * halfWidth * depth) {
+                        return
                     }
                 }
             }
@@ -130,36 +157,49 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                     val roomNumber = cell.roomNumber
                     val right = level.getCell(i + 1, j + 2, h)
                     val down = level.getCell(i + 2, j + 1, h)
-                    val cell1 = bigLevel.getCell(1 + 2 * i, 1 + 2 * j, h) as Floor
-                    val cell2 = bigLevel.getCell(1 + 2 * i, 1 + 2 * j + 1, h) as Floor
-                    val cell3 = bigLevel.getCell(1 + 2 * i + 1, 1 + 2 * j, h) as Floor
-                    val cell4 = bigLevel.getCell(1 + 2 * i + 1, 1 + 2 * j + 1, h) as Floor
-                    cell1.roomNumber = roomNumber
-                    cell2.roomNumber = roomNumber
-                    cell3.roomNumber = roomNumber
-                    cell4.roomNumber = roomNumber
+                    //     cell
+                    // [-----------]
+                    // cell00 cell01  right right
+                    // cell10 cell11  right right
+                    //
+                    //  down   down
+                    //  down   down
+                    //
+                    // We have cell in small level, and it maps to 4 cells in big level
+                    // (cause it width and height are 2 times bigger)
+                    //
+                    val cell00 = bigLevel.getCell(1 + 2 * i, 1 + 2 * j, h) as Floor
+                    val cell01 = bigLevel.getCell(1 + 2 * i, 1 + 2 * j + 1, h) as Floor
+                    val cell10 = bigLevel.getCell(1 + 2 * i + 1, 1 + 2 * j, h) as Floor
+                    val cell11 = bigLevel.getCell(1 + 2 * i + 1, 1 + 2 * j + 1, h) as Floor
+                    cell00.roomNumber = roomNumber
+                    cell01.roomNumber = roomNumber
+                    cell10.roomNumber = roomNumber
+                    cell11.roomNumber = roomNumber
+
+                    // We need to build walls if right is another room or down is another room
                     if (right is Floor && right.roomNumber != roomNumber) {
-                        bigLevel.buildWall(cell2.coordinates)
-                        bigLevel.buildWall(cell4.coordinates)
+                        bigLevel.buildWall(cell01.coordinates)
+                        bigLevel.buildWall(cell11.coordinates)
                         val doors = possibleDoors[min(roomNumber, right.roomNumber)]
                             .getOrPut(max(roomNumber, right.roomNumber)) { mutableListOf() }
-                        doors.add(cell2)
+                        doors.add(cell01)
                     }
                     if (down is Floor && down.roomNumber != roomNumber) {
-                        bigLevel.buildWall(cell3.coordinates)
-                        bigLevel.buildWall(cell4.coordinates)
+                        bigLevel.buildWall(cell10.coordinates)
+                        bigLevel.buildWall(cell11.coordinates)
                         val doors = possibleDoors[min(roomNumber, down.roomNumber)]
                             .getOrPut(max(roomNumber, down.roomNumber)) { mutableListOf() }
-                        doors.add(cell3)
+                        doors.add(cell10)
                     }
                 }
             }
         }
         for (u in possibleDoors.indices) {
             for ((v, doors) in possibleDoors[u]) {
-                val choosenDoor = doors.random()
-                graph[u].add(Pair(v, choosenDoor))
-                graph[v].add(Pair(u, choosenDoor))
+                val chosenDoor = doors.random()
+                graph[u].add(Pair(v, chosenDoor))
+                graph[v].add(Pair(u, chosenDoor))
             }
         }
         if (depth != 1) {
@@ -228,10 +268,5 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                 dfsLadders(u)
             }
         }
-    }
-
-
-    companion object {
-        fun generate(depth: Int, height: Int, width: Int) = LevelGenerator(depth, height, width).generate()
     }
 }
