@@ -1,6 +1,7 @@
 package ru.hse.supertux3.logic.mobs
 
 import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.mobs.decorators.MobDecorator
 import ru.hse.supertux3.logic.mobs.strategy.Move
@@ -85,7 +86,7 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
     /**
      * The basic function that moves this npc.
      */
-    open fun move(move: Move, level: Level): MoveResult {
+    open fun move(move: Move, level: Level): MoveData {
         val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
             Direction.UP to { position -> position.copy(i = position.i - move.r)},
             Direction.DOWN to { position -> position.copy(i = position.i + move.r)},
@@ -93,26 +94,32 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
             Direction.RIGHT to { position -> position.copy(j = position.j + move.r)}
         )
 
-        val newPositionFunction = directionToMove[move.direction] ?: return MoveResult.FAILED
+        val newPositionFunction = directionToMove[move.direction] ?: { position -> position }
         val newPosition = newPositionFunction(position())
 
+        val moveData = MoveData(this, newPosition)
+
         if (!check(newPosition, level)) {
-            return MoveResult.FAILED
+            return moveData
         }
 
         if (newPosition == position()) {
-            return MoveResult.MOVED
+            moveData.result = MoveResult.MOVED
+            return moveData
         }
 
         val newCell = level.getCell(newPosition)
-        if (newCell is Floor && newCell.stander != null) {
-            return attack(newCell.stander as Mob, level)
+        if (newCell is Floor && newCell.stander != null && newCell.stander is Mob) {
+            moveData.affected = newCell.stander as Mob
+            moveData.result = attack(newCell.stander as Mob, level)
+            return moveData
         }
 
         (cell as Floor).stander = null
         cell = newCell
         (cell as Floor).stander = this
 
-        return MoveResult.MOVED
+        moveData.result = MoveResult.MOVED
+        return moveData
     }
 }

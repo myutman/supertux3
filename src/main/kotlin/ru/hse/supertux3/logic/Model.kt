@@ -1,42 +1,36 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
-import ru.hse.supertux3.logic.mobs.NPC
-import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
  */
-class Model(private val level: Level) {
+class Model(val state: GameState) {
     /**
      * State of game, including level and player.
      */
-    val state: GameState
-
-    init {
-        val position = level.randomFloor()
-        val player = Player(level.getCell(position.coordinates))
-        state = GameState(level, player)
-    }
+    val level = state.level
 
     /**
      * View to request to redraw everything.
      */
     lateinit var view: View
 
-
     /**
      * Move player in given direction (if possible).
      */
     fun move(direction: Direction) {
-        val moveResult = state.player.processMove(direction, level)
+        val moveData = state.player.processMove(direction, level)
 
-        when (moveResult) {
+        when (moveData.result) {
             MoveResult.FAILED -> return
             MoveResult.MOVED -> view.move(direction)
-            MoveResult.ATTACKED -> view.attack()
+            MoveResult.ATTACKED -> {
+                state.player.addXp()
+                view.attack()
+            }
             MoveResult.DIED -> handleDeath()
         }
 
@@ -69,7 +63,11 @@ class Model(private val level: Level) {
 
         val cell = level.getCell(position)
         if (cell is Ladder) run {
-            state.player.cell = level.getCell(cell.destination)
+            cell.stander = null
+            val newCell = level.getCell(cell.destination)
+            (newCell as Floor).stander = state.player
+
+            state.player.cell = newCell
             view.moveLadder()
         }
     }

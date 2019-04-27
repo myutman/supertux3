@@ -120,6 +120,11 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
         }
     }
 
+    fun createPlayer(): Player {
+        val cell = randomFloor()
+        return Player(cell)
+    }
+
     override fun toString(): String {
         val stringBuilder = StringBuilder()
         for (stage in field) {
