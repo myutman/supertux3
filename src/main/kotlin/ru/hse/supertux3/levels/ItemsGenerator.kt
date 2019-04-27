@@ -4,32 +4,12 @@ import ru.hse.supertux3.logic.items.Item
 import ru.hse.supertux3.logic.items.WearableBuilder
 import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.items.WearableType.*
+import ru.hse.supertux3.logic.items.ItemsDictionary
 import kotlin.random.Random
 
 class ItemsGenerator {
 
     companion object {
-
-        private val descriptions = mapOf(
-            GLOVES to listOf(Pair("Regular gloves", "Just a regular guys"),
-                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
-            ),
-            HAT to listOf(Pair("Regular gloves", "Just a regular guys"),
-                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
-            ),
-            JACKET to listOf(Pair("Regular gloves", "Just a regular guys"),
-                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
-            ),
-            SHOES to listOf(Pair("Regular gloves", "Just a regular guys"),
-                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
-            ),
-            WEAPON to listOf(Pair("Regular gloves", "Just a regular guys"),
-                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
-            ),
-            PANTS to listOf(Pair("Regular gloves", "Just a regular guys"),
-                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
-            )
-        )
 
         fun generateItems(count: Int, playerLevel: Int): List<Item> {
             val items = mutableListOf<Item>()
@@ -41,7 +21,8 @@ class ItemsGenerator {
 
         private fun randomItem(playerLevel: Int): Item {
             val wearableType = WearableType.values().random()
-            val (name, description) = descriptions[wearableType]?.random() ?: Pair("item", "no one ll read it")
+            val (name, description) = ItemsDictionary.dictionary[wearableType]?.random()
+                ?: Pair("item", "no one ll read it")
             val builder = WearableBuilder(description, name, wearableType)
             val randCritical = Random.nextInt(1 + playerLevel, 2 + 2 * playerLevel)
             val randResist = Random.nextInt(1 + playerLevel, 2 + 2 * playerLevel)
