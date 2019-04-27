@@ -7,6 +7,7 @@ import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
+import ru.hse.supertux3.logic.mobs.decorators.MobDecorator
 import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
 import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
 import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
@@ -190,43 +191,61 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                         level.setCell(c, cell)
                         val stander = cellJson.obj("stander")
                         if (stander != null) {
-                            val standerId = stander.string("id")
-                            val mob: Mob = when (standerId) {
-                                "ё" -> Snowball(cell)
-                                "@" -> Player(cell)
-                                else -> Snowball(cell)
-                            }
+                            val mob = processStander(level, cell, stander)
                             if (cell is Floor) {
                                 cell.stander = mob
                             }
+
                             if (mob is Player) {
                                 level.player = mob
-                                mob.xp = stander.int("xp")!!
                             } else if (mob is NPC) {
                                 level.mobs.add(mob)
                             }
-                            mob.armor = stander.int("armor")!!
-                            mob.criticalChance = stander.int("criticalChance")!!
-                            mob.damage = stander.int("damage")!!
-                            mob.resistChance = stander.int("resistChance")!!
-                            mob.hp = stander.int("hp")!!
-                            mob.visibilityDepth = stander.int("visibilityDepth")!!
-                            if (mob is NPC) {
-                                mob.level = stander.int("level")!!
-                                mob.moveStrategy = when(stander.obj("moveStrategy")!!.string("id")) {
-                                    "N" -> NeutralStrategy()
-                                    "A" -> AggressiveStrategy()
-                                    "C" -> CowardStrategy()
-                                    else -> NeutralStrategy()
-                                }
-                            }
                         }
-
                     }
                 }
             }
 
             return level
+        }
+
+        fun processStander(level: Level, cell: Cell, stander: JsonObject): Mob {
+            val standerId = stander.string("id")
+            val mob: Mob = when (standerId) {
+                "c" -> {
+                    val decorated = processStander(level, cell, stander.obj("npc")!!)
+                    MobDecorator(decorated as NPC, level)
+                }
+                "ё" -> Snowball(cell)
+                "@" -> Player(cell)
+                else -> Snowball(cell)
+            }
+
+            getMobCharacteristics(mob, stander)
+
+            if (mob is NPC) {
+                mob.level = stander.int("level")!!
+                mob.moveStrategy = when(stander.obj("moveStrategy")!!.string("id")) {
+                    "N" -> NeutralStrategy()
+                    "A" -> AggressiveStrategy()
+                    "C" -> CowardStrategy()
+                    else -> NeutralStrategy()
+                }
+            }
+            if (mob is Player) {
+                mob.xp = stander.int("xp")!!
+            }
+
+            return mob
+        }
+
+        fun getMobCharacteristics(mob: Mob, jsonMob: JsonObject) {
+            mob.armor = jsonMob.int("armor")!!
+            mob.criticalChance = jsonMob.int("criticalChance")!!
+            mob.damage = jsonMob.int("damage")!!
+            mob.resistChance = jsonMob.int("resistChance")!!
+            mob.hp = jsonMob.int("hp")!!
+            mob.visibilityDepth = jsonMob.int("visibilityDepth")!!
         }
     }
 
