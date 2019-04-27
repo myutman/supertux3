@@ -18,10 +18,10 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
     private val width = widthWithWalls - 2
     private val halfHeight = height / 2
     private val halfWidth = width / 2
-    private val roomsCount = Random.nextInt(
-        halfHeight * halfWidth * depth / sqrt(halfHeight * halfWidth * depth.toDouble()).toInt(),
-        2 * halfHeight * halfWidth * depth / sqrt(halfHeight * halfWidth * depth.toDouble()).toInt()
-    )
+    private val roomsCount = max(Random.nextInt(
+        sqrt(halfHeight * halfWidth * depth.toDouble()).toInt(),
+        2 * sqrt(halfHeight * halfWidth * depth.toDouble()).toInt()
+    ), depth)
     private val graph = Array(roomsCount) {
         mutableListOf<Pair<Int, Cell>>()
     }
@@ -39,19 +39,19 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
     }
 
     private fun generate(): Level {
-        if (height * width < 100) {
+        if (heightWithWalls * widthWithWalls < 100) {
             throw LevelGeneratorException("height * width is < 100")
         }
-        if (height < 4) {
+        if (heightWithWalls < 4) {
             throw LevelGeneratorException("height is too small")
         }
-        if (height % 2 != 0) {
+        if (heightWithWalls % 2 != 0) {
             throw LevelGeneratorException("height is odd")
         }
-        if (width < 4) {
+        if (widthWithWalls < 4) {
             throw LevelGeneratorException("width is too small")
         }
-        if (width % 2 != 0) {
+        if (widthWithWalls % 2 != 0) {
             throw LevelGeneratorException("width is odd")
         }
         if (depth < 1) {
@@ -74,10 +74,13 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         val level = Level(depth, halfHeight + 2, halfWidth + 2)
         for (i in 0 until roomsCount) {
             while (true) {
-                val randomCell = level.randomCell()
-                if (randomCell is Wall) {
-                    continue
-                } else if (randomCell is Floor) {
+                val randomCell = if (i >= depth) {
+                    level.randomCell()
+                } else {
+                    level.getCell(
+                        Random.nextInt(1, halfHeight), Random.nextInt(1, halfWidth), i)
+                }
+                if (randomCell is Floor) {
                     if (randomCell.roomNumber >= 0) {
                         continue
                     } else {

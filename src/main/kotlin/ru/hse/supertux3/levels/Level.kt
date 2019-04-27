@@ -159,7 +159,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
             for (h in 0 until depth) {
                 for (i in 0 until height) {
                     for (j in 0 until width) {
-                        val cellJson = field.get(h).get(i).get(j)
+                        val cellJson = field[h][i][j]
                         val id = cellJson.string("id")
                         val c = Coordinates(i, j, h, levelId)
                         when (id) {
