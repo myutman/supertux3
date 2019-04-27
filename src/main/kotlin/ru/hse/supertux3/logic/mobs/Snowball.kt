@@ -20,7 +20,12 @@ class Snowball(cell: Cell) : NPC(cell, "ё") {
 
     override var criticalChance: Int = 0
 
-    override var level: Int = 1
+    override var level: Int = 0
+        set(value) {
+            damage += (field - value) * 5
+            hp += (field - value) * 10
+            field = value
+        }
 
     override var moveStrategy: MoveStrategy = NeutralStrategy()
 

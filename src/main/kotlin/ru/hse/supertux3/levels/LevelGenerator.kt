@@ -2,6 +2,8 @@ package ru.hse.supertux3.levels
 
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
+import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
+import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 import java.lang.Exception
 import java.util.*
 import kotlin.math.max
@@ -235,11 +237,14 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
             val rand = Random.nextInt(1..3)
             val strategy = when(rand) {
                 1 -> AggressiveStrategy()
-                2 -> AggressiveStrategy()
-                3 -> AggressiveStrategy()
+                2 -> NeutralStrategy()
+                3 -> CowardStrategy()
                 else -> AggressiveStrategy()
             }
+            mob.level = level.player?.level ?: 0
             mob.moveStrategy = strategy
+            val itemsCount = Random.nextInt(1, 4)
+            mob.drop.addAll(ItemsGenerator.generateItems(itemsCount, level.player?.level ?: 0))
             level.putMob(mob)
         }
     }
