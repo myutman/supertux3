@@ -9,6 +9,7 @@ import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.ui.commands.*
 import java.io.File
 
+val saveName = ".save"
 var reader: NonBlockingReader? = null
 
 fun readChar(): Char {
@@ -31,13 +32,6 @@ fun clearScreen() {
 fun main() {
     println("Welcome to Super Tux 3!")
 
-    val state = try {
-        requestGameState()
-    } catch (e: Exception) {
-        println("Error while loading from file! Are you sure file exists?")
-        return
-    }
-
     val attributes = Attributes()
     attributes.setLocalFlag(Attributes.LocalFlag.ECHO, false)
 
@@ -51,6 +45,13 @@ fun main() {
 
     reader = terminal.reader()
 
+    val state = try {
+        requestGameState()
+    } catch (e: Exception) {
+        println("Error while loading from file! Are you sure file exists?")
+        return
+    }
+
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
     val model = Model(state)
@@ -58,7 +59,6 @@ fun main() {
     model.view = view
 
     val invoker = Invoker()
-    val saveName = "GG"
 
     visual.run {
 
