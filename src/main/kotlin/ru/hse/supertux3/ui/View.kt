@@ -209,7 +209,9 @@ class View(val state: GameState, val visual: TermColors) {
 
         val str = buildString {
             append(
-                "XP:",
+                "Level:",
+                player.level,
+                ", XP:",
                 player.xp,
                 ", HP:",
                 player.hp,
