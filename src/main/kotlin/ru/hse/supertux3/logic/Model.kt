@@ -26,7 +26,7 @@ class Model(val state: GameState) {
         floor.items.clear()
 
         view.printInventoryInfo()
-        afterAction(level)
+        afterAction()
     }
 
     /**
