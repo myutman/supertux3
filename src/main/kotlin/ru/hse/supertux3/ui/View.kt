@@ -7,6 +7,11 @@ import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.GameState
 import kotlin.math.max
 
+/*
+ * Class for moving cursor commands.
+ * @param state current game state consists of level and player information
+ * @param visual object for moving cursor and coloring symbols
+ */
 class View(val state: GameState, val visual: TermColors) {
 
     init {
