@@ -62,7 +62,7 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
         items.addAll(newItems)
     }
 
-    override fun toString() = stander?.id ?: id
+    override fun toString() = stander?.id ?: (if (items.isEmpty()) id else ":")
 
     companion object {
         fun empty(coordinates: Coordinates): Floor = object : Floor(coordinates, ".") {

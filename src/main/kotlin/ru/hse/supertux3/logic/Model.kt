@@ -86,6 +86,7 @@ class Model(val state: GameState) {
             if (mob.isDead()) {
                 level.setCell(mob.position(), mob.cell)
                 (mob.cell as Floor).stander = null
+                (mob.cell as Floor).drop(mob.drop)
             }
         }
 

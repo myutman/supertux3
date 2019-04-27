@@ -25,6 +25,9 @@ class ItemsGenerator {
             ),
             WEAPON to listOf(Pair("Regular gloves", "Just a regular guys"),
                 Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
+            ),
+            PANTS to listOf(Pair("Regular gloves", "Just a regular guys"),
+                Pair("Gloves of infinity whatever", "Hell yeah avengers meme")
             )
         )
 
@@ -58,7 +61,6 @@ class ItemsGenerator {
                 JACKET -> {
                     builder.armor = 2 * randArmor
                     builder.resistChance = randResist
-
                 }
                 PANTS -> {
                     builder.armor = 3 / 2 * randArmor

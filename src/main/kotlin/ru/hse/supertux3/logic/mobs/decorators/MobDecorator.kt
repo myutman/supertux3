@@ -5,6 +5,7 @@ import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.MoveResult
+import ru.hse.supertux3.logic.items.Item
 import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.strategy.Move
 import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
@@ -45,6 +46,10 @@ class MobDecorator(val npc: NPC, level: Level) : NPC(npc.cell, "c") {
     override var level: Int
         get() = npc.level
         set(value) { npc.level = value }
+
+    override val drop: MutableList<Item>
+        get() = npc.drop
+
     override var moveStrategy: MoveStrategy
         get() = npc.moveStrategy
         set(value) { npc.moveStrategy = value }

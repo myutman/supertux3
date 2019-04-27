@@ -28,5 +28,5 @@ abstract class NPC(cell: Cell, id: String) : Mob(cell, id) {
     /**
      * Items, that will drop on the floor after mob's death
      */
-    val drop = mutableListOf<Item>()
+    abstract val drop: MutableList<Item>
 }
