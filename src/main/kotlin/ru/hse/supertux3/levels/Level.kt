@@ -22,12 +22,7 @@ enum class Direction {
 /**
  * This is one level in our game - depth of stages, which are just matrixes of cells
  */
-class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
-
-    /**
-     * Unique level id
-     */
-    val id = if (id == -1) Level.maxId++ else id
+class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level.maxId++) {
 
     /**
      * Just a 3D array representation of field,

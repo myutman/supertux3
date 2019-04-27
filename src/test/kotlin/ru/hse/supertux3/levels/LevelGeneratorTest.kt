@@ -4,11 +4,11 @@ import org.junit.Test
 import org.junit.Assert.*
 
 class LevelGeneratorTest {
+    private val depth = 4
+    private val width = 20
+    private val height = 20
     @Test
     fun roomsTest() {
-        val depth = 4
-        val width = 10
-        val height = 10
         for (i in 0..20) {
             val level = LevelGenerator.generate(depth, height, width)
             for (h in 0 until depth) {
@@ -21,9 +21,6 @@ class LevelGeneratorTest {
 
     @Test
     fun wallsTest() {
-        val depth = 4
-        val width = 10
-        val height = 10
         for (t in 0..20) {
             val level = LevelGenerator.generate(depth, height, width)
             for (h in 0 until depth) {
@@ -35,6 +32,27 @@ class LevelGeneratorTest {
                     assertTrue(level.getCell(0, j, h) is Wall)
                     assertTrue(level.getCell(height - 1, j, h) is Wall)
                 }
+            }
+        }
+    }
+
+    @Test
+    fun laddersTest() {
+        for (t in 0..20) {
+            val level = LevelGenerator.generate(depth, height, width)
+            val connected = BooleanArray(depth - 1) { false }
+            for (h in 0 until depth - 1) {
+                for (i in 0 until height) {
+                    for (j in 0 until width) {
+                        val cell = level.getCell(i, j, h)
+                        if (cell is Ladder) {
+                            connected[h] = true
+                        }
+                    }
+                }
+            }
+            for (stage in connected) {
+                assertTrue(stage)
             }
         }
     }

@@ -214,7 +214,7 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
 
     private fun makeLadders(level: Level) {
         val ladders = mutableSetOf<Pair<Int, Int>>()
-        val laddersCount = Math.sqrt(roomsCount.toDouble()).toInt() * (depth - 1)
+        val laddersCount = sqrt(roomsCount.toDouble()).toInt() * (depth - 1)
         for (i in 1..laddersCount) {
             while (true) {
                 val randomCell = level.randomCell()
