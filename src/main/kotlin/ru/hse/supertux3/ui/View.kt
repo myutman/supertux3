@@ -13,10 +13,17 @@ class View(val state: GameState, val visual: TermColors) {
         redraw()
     }
 
+    /*
+     * Move up or down the ladder.
+     */
     fun moveLadder() {
         redraw()
     }
 
+    /*
+     * Go to the given direction.
+     * @param direction direction to go to
+     */
     fun move(direction: Direction) {
         val prevPosition = state.level.getCell(state.player.position, direction, -1)
         visual.run {
@@ -70,6 +77,9 @@ class View(val state: GameState, val visual: TermColors) {
         }
     }
 
+    /*
+     * Redraw all the field.
+     */
     fun redraw() {
         clearScreen()
 

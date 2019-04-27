@@ -9,6 +9,9 @@ import ru.hse.supertux3.logic.Model
 
 var reader: NonBlockingReader? = null
 
+/*
+ * Reads key press from keyboard.
+ */
 fun readChar(): Char {
     val buffer = CharArray(4)
     var read = 0
@@ -18,6 +21,9 @@ fun readChar(): Char {
     return buffer[0]
 }
 
+/*
+ * Clears screen.
+ */
 fun clearScreen() {
     print("\u001Bc")
 }
