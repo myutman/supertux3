@@ -4,6 +4,7 @@ import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
+import ru.hse.supertux3.ui.readChar
 
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
@@ -19,13 +20,23 @@ class Model(val state: GameState) {
      */
     lateinit var view: View
 
+    fun putOn() {
+        println("What do you want to put on?")
+        val c = readChar()
+    }
+
+    fun putOff() {
+        println("What do you want to put off?")
+
+    }
+
     fun loot() {
         val floor = state.level.getCell(state.player.position()) as Floor
         if (floor.items.isEmpty()) return
         state.player.inventory.unequipped.addAll(floor.items)
         floor.items.clear()
 
-        view.printInventoryInfo()
+        view.redraw()
         afterAction()
     }
 

@@ -34,6 +34,8 @@ fun main() {
 
     val attributes = Attributes()
     attributes.setLocalFlag(Attributes.LocalFlag.ECHO, false)
+    attributes.setLocalFlag(Attributes.LocalFlag.ECHOKE, true)
+    attributes.setLocalFlag(Attributes.LocalFlag.ECHOK, false)
 
     val terminal = TerminalBuilder.builder()
         .jna(true)
@@ -55,7 +57,7 @@ fun main() {
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
     val model = Model(state)
-    val view = View(state, visual)
+    val view = View(state, visual, terminal)
     model.view = view
 
     val invoker = Invoker()
@@ -73,6 +75,8 @@ fun main() {
                 'r' -> RedrawCommand(view)
                 'x' -> SelfHarmCommand(model)
                 'l' -> LootCommand(model)
+                'W' -> PutonCommand(model)
+                'U' -> PutoffCommand(model)
                 ' ' -> MoveLadderCommand(model)
                 else -> null
             }

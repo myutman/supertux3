@@ -1,10 +1,12 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
+import org.jline.terminal.Terminal
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import kotlin.math.min
 
-class View(val state: GameState, val visual: TermColors) {
+class View(val state: GameState, val visual: TermColors, val terminal: Terminal) {
 
     init {
         redraw()
@@ -224,32 +226,49 @@ class View(val state: GameState, val visual: TermColors) {
         printStrInLineRight("Inventory", 0)
         var line = 1
         for (entry in state.player.inventory.equipped) {
-            printStrInLineRight("${entry.value} (being worn)", line)
-            line++
+            line += printStrInLineRight("${entry.value} (being worn)", line)
+
         }
         for (item in state.player.inventory.unequipped) {
-            printStrInLineRight(item.toString(), line)
-            line++
+            line += printStrInLineRight(item.toString(), line)
         }
     }
 
-    private fun printStrInLineRight(str: String, lineNumber: Int) {
+    private fun printStrInLineRight(toPrint: String, lineNumber: Int): Int {
         val level = state.level
         val position = state.player.position()
+        val offset = 20
 
-        val down = lineNumber - position.i
-        val right = level.width + 2 - position.j
+        var i = 0
+        var toPrintList = toPrint.split(System.lineSeparator())
 
-        visual.run {
-            print(cursorRight(right))
-            print(cursorDown(down))
+        var len = terminal.width - level.width - offset
 
-            print(str)
-            print(cursorLeft(str.length))
+        for (line in toPrintList) {
+            var rest = line
+            while (rest.length > 0) {
+                len = min(len, rest.length)
+                val str = rest.substring(0, len)
+                rest = rest.substring(len)
+                val down = lineNumber + i - position.i
+                val right = level.width + offset - position.j
 
-            print(cursorUp(down))
-            print(cursorLeft(right))
+                visual.run {
+                    print(cursorRight(right))
+                    print(cursorDown(down))
+
+                    print(str)
+                    print(cursorLeft(str.length))
+
+                    print(cursorUp(down))
+                    print(cursorLeft(right))
+                }
+
+                i++
+            }
         }
+
+        return i
     }
 
     private fun printAttacked() {
