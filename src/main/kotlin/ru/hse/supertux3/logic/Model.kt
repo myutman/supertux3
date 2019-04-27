@@ -34,7 +34,7 @@ class Model(val state: GameState) {
             MoveResult.DIED -> handleDeath()
         }
 
-        afterAction(level)
+        afterAction()
     }
 
     /**
@@ -51,7 +51,7 @@ class Model(val state: GameState) {
             view.attacked()
         }
 
-        afterAction(level)
+        afterAction()
     }
 
     /**
@@ -75,7 +75,7 @@ class Model(val state: GameState) {
     /**
      * Process everything that happens after player's move.
      */
-    fun afterAction(level: Level) {
+    fun afterAction() {
         level.mobs.forEach { mob ->
             if (!mob.isDead()) {
                 mob.move(level)
