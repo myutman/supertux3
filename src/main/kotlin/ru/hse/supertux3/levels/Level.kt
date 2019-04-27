@@ -188,6 +188,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                             }
                             if (mob is Player) {
                                 level.player = mob
+                                mob.xp = stander.int("xp")!!
                             } else if (mob is NPC) {
                                 level.mobs.add(mob)
                             }
