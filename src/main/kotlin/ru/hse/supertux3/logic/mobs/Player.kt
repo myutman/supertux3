@@ -3,6 +3,8 @@ package ru.hse.supertux3.logic.mobs
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.items.Inventory
+import ru.hse.supertux3.logic.items.Wearable
+import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.strategy.Move
 
 /**

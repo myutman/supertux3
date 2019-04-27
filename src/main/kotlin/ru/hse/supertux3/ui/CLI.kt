@@ -72,6 +72,7 @@ fun main() {
                 's' -> MoveCommand(model, Direction.DOWN)
                 'r' -> RedrawCommand(view)
                 'x' -> SelfHarmCommand(model)
+                'l' -> LootCommand(model)
                 ' ' -> MoveLadderCommand(model)
                 else -> null
             }

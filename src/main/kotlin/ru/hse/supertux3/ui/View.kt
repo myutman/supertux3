@@ -3,9 +3,6 @@ package ru.hse.supertux3.ui
 import com.github.ajalt.mordant.TermColors
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
-import ru.hse.supertux3.logic.mobs.Mob
-import ru.hse.supertux3.logic.mobs.NPC
-import kotlin.math.max
 
 class View(val state: GameState, val visual: TermColors) {
 
@@ -77,23 +74,17 @@ class View(val state: GameState, val visual: TermColors) {
     private fun drawCell(new: Cell, str: String = "") {
         val cur = state.player.position()
         val coordinates = new.coordinates
-        val left = max(cur.j - coordinates.j, 0)
-        val right = max(coordinates.j - cur.j, 0)
-        val up = max(cur.i - coordinates.i, 0)
-        val down = max(coordinates.i - cur.i, 0)
+        val right = coordinates.j - cur.j
+        val down = coordinates.i - cur.i
         visual.run {
-            print(cursorLeft(left))
             print(cursorRight(right))
-            print(cursorUp(up))
             print(cursorDown(down))
 
             print(if (str.isEmpty()) new.toString() else str)
             print(cursorLeft(1))
 
             print(cursorLeft(right))
-            print(cursorRight(left))
             print(cursorUp(down))
-            print(cursorDown(up))
         }
     }
 
@@ -141,6 +132,7 @@ class View(val state: GameState, val visual: TermColors) {
 
         printPos()
         printUsrInfo()
+        printInventoryInfo()
     }
 
     private fun clearMonstersNotSeen(prevPosition: Coordinates) {
@@ -224,6 +216,38 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         printStrInLine(str, 0)
+    }
+
+    fun printInventoryInfo() {
+        printStrInLineRight("Inventory", 0)
+        var line = 1
+        for (entry in state.player.inventory.equipped) {
+            printStrInLineRight("${entry.value} (being worn)", line)
+            line++
+        }
+        for (item in state.player.inventory.unequipped) {
+            printStrInLineRight(item.toString(), line)
+            line++
+        }
+    }
+
+    private fun printStrInLineRight(str: String, lineNumber: Int) {
+        val level = state.level
+        val position = state.player.position()
+
+        val down = lineNumber - position.i
+        val right = level.width + 2 - position.j
+
+        visual.run {
+            print(cursorRight(right))
+            print(cursorDown(down))
+
+            print(str)
+            print(cursorLeft(str.length))
+
+            print(cursorUp(down))
+            print(cursorLeft(right))
+        }
     }
 
     private fun printAttacked() {

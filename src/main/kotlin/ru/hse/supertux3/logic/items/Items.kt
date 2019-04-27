@@ -15,6 +15,10 @@ abstract class Item(val description: String, val name: String) {
      * Item may have any effect on the game, so it can do anything with level
      */
     abstract fun interact(level: Level)
+
+    override fun toString(): String {
+        return "$name: $description"
+    }
 }
 
 /**
@@ -34,6 +38,10 @@ abstract class Wearable(description: String, name: String, val type: WearableTyp
 
     override fun interact(level: Level) {
         // pass
+    }
+
+    override fun toString(): String {
+        return super.toString() + ", $type"
     }
 }
 

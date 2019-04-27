@@ -1,6 +1,7 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 
@@ -17,6 +18,16 @@ class Model(val state: GameState) {
      * View to request to redraw everything.
      */
     lateinit var view: View
+
+    fun loot() {
+        val floor = state.level.getCell(state.player.position()) as Floor
+        if (floor.items.isEmpty()) return
+        state.player.inventory.unequipped.addAll(floor.items)
+        floor.items.clear()
+
+        view.printInventoryInfo()
+        afterAction(level)
+    }
 
     /**
      * Move player in given direction (if possible).
