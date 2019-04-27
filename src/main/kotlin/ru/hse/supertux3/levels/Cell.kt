@@ -1,6 +1,7 @@
 package ru.hse.supertux3.levels
 
 import com.beust.klaxon.Json
+import ru.hse.supertux3.logic.items.Item
 
 /**
  * Enum for visibility state of cell.
@@ -28,7 +29,7 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
      * List of items laying on the floor.
      */
     @Json
-    val items: MutableList<Int> = mutableListOf()
+    val items: MutableList<Item> = mutableListOf()
 
     /**
      * Number of room this floor cell belongs to.
@@ -55,9 +56,9 @@ abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, i
      */
     abstract fun interact()
 
-    fun pickUp(): List<Int> = items
+    fun pickUp(): List<Item> = items
 
-    fun drop(newItems: MutableList<Int>) {
+    fun drop(newItems: MutableList<Item>) {
         items.addAll(newItems)
     }
 
