@@ -179,6 +179,14 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                             }
                             else -> Wall(c)
                         }
+
+                        val visibility = cellJson.string("visibility")
+                        cell.visibility = if (visibility == "Visible") {
+                            Visibility.Visible
+                        } else {
+                            Visibility.Hidden
+                        }
+
                         level.setCell(c, cell)
                         val stander = cellJson.obj("stander")
                         if (stander != null) {
