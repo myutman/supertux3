@@ -79,6 +79,7 @@ fun main() {
                 'p' -> PutoffCommand(model)
                 'j' -> SlideUpCommand(view)
                 'k' -> SlideDownCommand(view)
+                '?' -> ShowItemInfoCommand(view)
                 ' ' -> MoveLadderCommand(model)
                 else -> null
             }

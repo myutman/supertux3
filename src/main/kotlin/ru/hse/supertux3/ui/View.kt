@@ -4,6 +4,9 @@ import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Terminal
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.items.Inventory
+import ru.hse.supertux3.logic.items.Item
+import java.lang.RuntimeException
 import kotlin.math.max
 import kotlin.math.min
 
@@ -11,12 +14,10 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
     private var inventoryCur: Int
     private val inventoryWindowSize: Int
-    private val slotNames: List<Char>
 
     init {
         inventoryCur = 0
         inventoryWindowSize = 10
-        slotNames = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
         redraw()
     }
 
@@ -79,6 +80,44 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
             )
         })
         readChar()
+    }
+
+    private data class ItemInfo(val item: Item, val isEquipped: Boolean, val index: Int)
+
+    private fun getItemInfoBySlot(slot: Char): ItemInfo {
+        val error = "No element in selected slot"
+            if (Inventory.wornSlotNames.contains(slot)) {
+            val index = Inventory.wornSlotNames.indexOf(slot)
+            val equipped = state.player.inventory.equipped.toList()
+            if (index >= equipped.size) {
+                throw RuntimeException(error)
+            } else {
+                val item = equipped[index].second
+                return ItemInfo(item, true, index)
+            }
+        } else if (Inventory.unwornSlotNames.contains(slot)) {
+            val index = inventoryCur + Inventory.unwornSlotNames.indexOf(slot)
+            val unequipped = state.player.inventory.unequipped
+            if (index >= unequipped.size) {
+                throw RuntimeException(error)
+            } else {
+                val item = unequipped[index]
+                return ItemInfo(item, false, index)
+            }
+        } else {
+            throw RuntimeException(error)
+        }
+    }
+
+    fun showInfo(slot: Char) {
+        redraw()
+        val str: String = try {
+            val itemInfo = getItemInfoBySlot(slot)
+            itemInfo.item.description
+        } catch (e: RuntimeException) {
+            e.message!!
+        } + "\nPress ESC to continue"
+        printStrInLine(str, 4)
     }
 
     private fun drawCell(new: Cell, str: String = "") {
@@ -163,24 +202,42 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
     }
 
-    private fun printStrInLine(str: String, lineNumber: Int) {
+    private fun printStrInLine(toPrint: String, lineNumber: Int): Int {
         val level = state.level
         val position = state.player.position()
+        val offset = 20
 
-        val up = level.height - position.i + lineNumber
-        val right = position.j
+        var i = 0
+        val toPrintList = toPrint.split(System.lineSeparator())
 
-        visual.run {
-            print(cursorLeft(right))
-            print(cursorDown(up))
+        val len = terminal.width - level.width - offset
+
+        for (line in toPrintList) {
+            var rest = line
+            while (rest.length > 0) {
+                val myLen = min(len, rest.length)
+                val str = rest.substring(0, myLen)
+                rest = rest.substring(myLen)
+                val down = level.height - position.i + lineNumber + i
+                val left = position.j
+
+                visual.run {
+                    print(cursorLeft(left))
+                    print(cursorDown(down))
 
 
-            print(str)
-            print(cursorLeft(str.length))
+                    print(str)
+                    print(cursorLeft(str.length))
 
-            print(cursorUp(up))
-            print(cursorRight(right))
+                    print(cursorUp(down))
+                    print(cursorRight(left))
+                }
+
+                i++
+            }
         }
+
+        return i
     }
 
     private fun printPos() {
@@ -244,21 +301,34 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
     }
 
-    fun printInventoryInfo() {
-        printStrInLineRight("Inventory", 0)
-        var line = 1
+    fun showInventoryMessage() {
+        val str = "What item do you want to know about?"
+        printStrInLine(str, 4)
+    }
+
+    private fun printInventoryInfo() {
+        var line = 0
+        line += printStrInLineRight("Inventory", line)
+        line += printStrInLineRight("Unequipped:", line)
         val inventory = state.player.inventory
-        for (entry in inventory.equipped) {
-            line += printStrInLineRight("${entry.value} (being worn)", line)
-        }
-        inventoryCur = max(0, min(inventoryCur, inventory.unequipped.size - inventoryWindowSize))
-        for (i in 0..inventoryWindowSize - 1) {
+        inventoryCur = max(0, min(inventoryCur, inventory.unequipped.size - Inventory.unwornSlotNames.size))
+        for (i in 0..Inventory.unwornSlotNames.size - 1) {
+            val slotName = Inventory.unwornSlotNames[i]
             if (inventoryCur + i < inventory.unequipped.size) {
                 val item = inventory.unequipped[inventoryCur + i]
-                line += printStrInLineRight("[${slotNames[i]}] " + item.toString(), line)
+                line += printStrInLineRight("[$slotName] " + item.toString(), line)
             } else {
-                line += printStrInLineRight("[${slotNames[i]}] --", line)
+                line += printStrInLineRight("[$slotName] --", line)
             }
+        }
+        line += printStrInLineRight("To slide up press j. To slide down press k.", line)
+        line++
+        line += printStrInLineRight("Equipped:", line)
+        val worns = inventory.equipped.toList()
+        for (i in 0..worns.size - 1) {
+            val entry = worns[i]
+            val slotName = Inventory.wornSlotNames[i]
+            line += printStrInLineRight("[$slotName] ${entry.second} (being worn)", line)
         }
     }
 
@@ -268,16 +338,16 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         val offset = 20
 
         var i = 0
-        var toPrintList = toPrint.split(System.lineSeparator())
+        val toPrintList = toPrint.split(System.lineSeparator())
 
-        var len = terminal.width - level.width - offset
+        val len = terminal.width - level.width - offset
 
         for (line in toPrintList) {
             var rest = line
             while (rest.length > 0) {
-                len = min(len, rest.length)
-                val str = rest.substring(0, len)
-                rest = rest.substring(len)
+                val myLen = min(len, rest.length)
+                val str = rest.substring(0, myLen)
+                rest = rest.substring(myLen)
                 val down = lineNumber + i - position.i
                 val right = level.width + offset - position.j
 
