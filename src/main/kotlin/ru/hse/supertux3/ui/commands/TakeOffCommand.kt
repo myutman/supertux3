@@ -24,7 +24,7 @@ class TakeOffCommand(val model: Model) : Command {
                 return
             }
             val entry = equipped.toList()[info.index]
-            entry.second.putOn(model.state.player)
+            entry.second.takeOff(model.state.player)
             equipped.remove(entry.first)
             unequipped.add(model.state.player.inventory.inventoryCur, entry.second)
             model.view.redraw()
