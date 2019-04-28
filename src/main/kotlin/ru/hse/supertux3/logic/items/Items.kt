@@ -11,7 +11,7 @@ import kotlin.math.min
  * @param name short name
  */
 abstract class Item(val description: String, val name: String) {
-    val slot: Char? = null
+    var slot: Char? = null
 
     /**
      * Item may have any effect on the game, so it can do anything with level

@@ -75,8 +75,10 @@ fun main() {
                 'r' -> RedrawCommand(view)
                 'x' -> SelfHarmCommand(model)
                 'l' -> LootCommand(model)
-                'W' -> PutonCommand(model)
-                'U' -> PutoffCommand(model)
+                'o' -> PutonCommand(model)
+                'p' -> PutoffCommand(model)
+                'j' -> SlideUpCommand(view)
+                'k' -> SlideDownCommand(view)
                 ' ' -> MoveLadderCommand(model)
                 else -> null
             }

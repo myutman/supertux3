@@ -4,11 +4,19 @@ import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Terminal
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import kotlin.math.max
 import kotlin.math.min
 
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal) {
 
+    private var inventoryCur: Int
+    private val inventoryWindowSize: Int
+    private val slotNames: List<Char>
+
     init {
+        inventoryCur = 0
+        inventoryWindowSize = 10
+        slotNames = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
         redraw()
     }
 
@@ -222,15 +230,36 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printStrInLine(str, 0)
     }
 
+    fun slideDown() {
+        if (inventoryCur + inventoryWindowSize + 1 < state.player.inventory.unequipped.size) {
+            inventoryCur++
+            redraw()
+        }
+    }
+
+    fun slideUp() {
+        if (inventoryCur > 0) {
+            inventoryCur--
+            redraw()
+        }
+    }
+
     fun printInventoryInfo() {
         printStrInLineRight("Inventory", 0)
         var line = 1
-        for (entry in state.player.inventory.equipped) {
+        val inventory = state.player.inventory
+        for (entry in inventory.equipped) {
             line += printStrInLineRight("${entry.value} (being worn)", line)
-
         }
-        for (item in state.player.inventory.unequipped) {
-            line += printStrInLineRight(item.toString(), line)
+        inventoryCur = max(0, min(inventoryCur, inventory.unequipped.size - inventoryWindowSize))
+        for (i in 0..inventoryWindowSize - 1) {
+            if (inventoryCur + i < inventory.unequipped.size) {
+                val item = inventory.unequipped[inventoryCur + i]
+                item.slot = slotNames[i]
+                line += printStrInLineRight(item.toString(), line)
+            } else {
+                line += printStrInLineRight("[${slotNames[i]}] --", line)
+            }
         }
     }
 
