@@ -3,6 +3,7 @@ package ru.hse.supertux3.levels
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import ru.hse.supertux3.logic.items.*
 import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.Player
@@ -32,11 +33,11 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
     val field: Array<Array<Array<Cell>>> = Array(depth) { h ->
         Array(height) { i ->
             Array(width) { j ->
-                    if (i == 0 || j == 0 || i == height - 1 || j == width - 1){
-                        Wall(Coordinates(i, j, h, id))
-                    } else {
-                        Floor.empty(Coordinates(i, j, h, id))
-                    }
+                if (i == 0 || j == 0 || i == height - 1 || j == width - 1) {
+                    Wall(Coordinates(i, j, h, id))
+                } else {
+                    Floor.empty(Coordinates(i, j, h, id))
+                }
             }
         }
 
@@ -65,12 +66,12 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
     }
 
     fun getCell(c: Coordinates, direction: Direction, r: Int): Cell {
-        val (i,j) = getNewCoordinate(c, direction, r)
+        val (i, j) = getNewCoordinate(c, direction, r)
         return field[c.h][i][j]
     }
 
     fun canGo(c: Coordinates, direction: Direction, r: Int): Boolean {
-        val (i,j) = getNewCoordinate(c, direction, r)
+        val (i, j) = getNewCoordinate(c, direction, r)
         return i >= 0 || j >= 0 || i < height || j < width
     }
 
@@ -89,7 +90,8 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
         Random.nextInt(1, height - 1),
         Random.nextInt(1, width - 1),
         Random.nextInt(0, depth),
-        id)
+        id
+    )
 
     fun randomFloor(): Floor {
         var maybeFloor = randomCell()
@@ -141,7 +143,6 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
     }
 
 
-
     fun save(fileName: String) {
         File(fileName).writeText(json.toJsonString(this))
     }
@@ -151,7 +152,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
         val json = Klaxon()
 
         fun load(fileName: String): Level {
-            val jsonLevel =  json.parseJsonObject(File(fileName).reader())!!
+            val jsonLevel = json.parseJsonObject(File(fileName).reader())!!
             val height = jsonLevel.int("height")!!
             val width = jsonLevel.int("width")!!
             val depth = jsonLevel.int("depth")!!
@@ -175,7 +176,8 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                                     destJson.int("i")!!,
                                     destJson.int("j")!!,
                                     destJson.int("h")!!,
-                                    levelId)
+                                    levelId
+                                )
                                 Ladder(c, destination)
                             }
                             else -> Wall(c)
@@ -209,7 +211,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
             return level
         }
 
-        fun processStander(level: Level, cell: Cell, stander: JsonObject): Mob {
+        private fun processStander(level: Level, cell: Cell, stander: JsonObject): Mob {
             val standerId = stander.string("id")
             val mob: Mob = when (standerId) {
                 "c" -> {
@@ -217,7 +219,7 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
                     MobDecorator(decorated as NPC, level)
                 }
                 "ё" -> Snowball(cell)
-                "@" -> Player(cell)
+                "@" -> Player(cell, inventory = processInventory(stander))
                 else -> Snowball(cell)
             }
 
@@ -225,11 +227,15 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
 
             if (mob is NPC) {
                 mob.level = stander.int("level")!!
-                mob.moveStrategy = when(stander.obj("moveStrategy")!!.string("id")) {
+                mob.moveStrategy = when (stander.obj("moveStrategy")!!.string("id")) {
                     "N" -> NeutralStrategy()
                     "A" -> AggressiveStrategy()
                     "C" -> CowardStrategy()
                     else -> NeutralStrategy()
+                }
+                val drop = stander.array<JsonObject>("drop")!!
+                for (i in 0 until drop.size) {
+                    mob.drop.add(processItem(drop[i]))
                 }
             }
             if (mob is Player) {
@@ -240,13 +246,52 @@ class Level(val depth: Int, val height: Int, val width: Int, id: Int = -1) {
             return mob
         }
 
-        fun getMobCharacteristics(mob: Mob, jsonMob: JsonObject) {
+        private fun getMobCharacteristics(mob: Mob, jsonMob: JsonObject) {
             mob.armor = jsonMob.int("armor")!!
             mob.criticalChance = jsonMob.int("criticalChance")!!
             mob.damage = jsonMob.int("damage")!!
             mob.resistChance = jsonMob.int("resistChance")!!
             mob.hp = jsonMob.int("hp")!!
             mob.visibilityDepth = jsonMob.int("visibilityDepth")!!
+        }
+
+        private fun processInventory(stander: JsonObject): Inventory {
+            val inventory = Inventory()
+            val jsonInventory = stander.obj("inventory")!!
+            val jsonEquipped = jsonInventory.obj("equipped")!!
+            val jsonUnequipped = jsonInventory.array<JsonObject>("unequipped")!!
+            for (wearableType in WearableType.values()) {
+                val equippedItem = jsonEquipped.obj(wearableType.toString())
+                if (equippedItem != null) {
+                    inventory.equipped[wearableType] = processItem(equippedItem) as Wearable
+                }
+            }
+            for (i in 0 until jsonUnequipped.size) {
+                inventory.unequipped.add(processItem(jsonUnequipped[i]))
+            }
+            return inventory
+        }
+
+        private fun processItem(jsonItem: JsonObject): Item {
+            val id = jsonItem.string("id")!!
+            val description = jsonItem.string("description")!!
+            val name = jsonItem.string("name")!!
+            val type = WearableType.valueOf(jsonItem.string("type")!!)
+            return when (id) {
+                "B" -> {
+                    val builder = WearableBuilder(description, name, type)
+                    builder.criticalChance = jsonItem.int("criticalChance")!!
+                        builder.damage = jsonItem.int("damage")!!
+                    builder.armor = jsonItem.int("armor")!!
+                    builder.resistChance = jsonItem.int("resistChance")!!
+                    builder.build()
+                }
+                else -> object : Item(description, name, id) {
+                    override fun interact(level: Level) {
+                    }
+
+                }
+            }
         }
     }
 
