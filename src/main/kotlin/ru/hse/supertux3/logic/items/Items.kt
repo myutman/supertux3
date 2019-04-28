@@ -25,8 +25,10 @@ abstract class Item(val description: String, val name: String, val id: String) {
 /**
  * Items, that upgrades player's characteristics
  */
-abstract class Wearable(description: String, name: String,
-                        val type: WearableType, id: String): Item(description, name, id) {
+abstract class Wearable(
+    description: String, name: String,
+    val type: WearableType, id: String
+) : Item(description, name, id) {
 
     var resistChance: Int = 0
 
@@ -53,9 +55,9 @@ abstract class Wearable(description: String, name: String,
      * Take this off the player
      */
     fun takeOff(player: Player) {
-        player.resistChance = max(0, player.resistChance + resistChance)
+        player.resistChance = max(0, player.resistChance - resistChance)
         player.armor -= armor
-        player.damage = max(0, player.damage -damage)
+        player.damage = max(0, player.damage - damage)
         player.criticalChance = max(0, player.criticalChance - criticalChance)
     }
 
@@ -85,14 +87,22 @@ class WearableBuilder(private val description: String, private val name: String,
 
     var criticalChance: Int = 0
 
-    fun build(): Wearable = object : Wearable(description, name, type, "B") {
-        override fun doPutOn(player: Player) {
+    fun build(): Wearable {
+        val item = object : Wearable(description, name, type, "B") {
+            override fun doPutOn(player: Player) {
+
+            }
+
+            override fun doTakeOff(player: Player) {
+
+            }
 
         }
 
-        override fun doTakeOff(player: Player) {
-
-        }
-
+        item.resistChance = resistChance
+        item.damage = damage
+        item.armor = armor
+        item.criticalChance = criticalChance
+        return item
     }
 }
