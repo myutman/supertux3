@@ -36,7 +36,7 @@ class ItemsGenerator {
                     builder.criticalChance = randCritical
                 }
                 HAT -> {
-                    builder.armor = 3 / 2 * randArmor
+                    builder.armor = 3 * randArmor / 2
                     builder.resistChance = randResist
                 }
                 JACKET -> {
@@ -44,8 +44,8 @@ class ItemsGenerator {
                     builder.resistChance = randResist
                 }
                 PANTS -> {
-                    builder.armor = 3 / 2 * randArmor
-                    builder.resistChance = 3 / 2 * randResist
+                    builder.armor = 3 * randArmor / 2
+                    builder.resistChance = 3 * randResist / 2
                 }
                 SHOES -> {
                     builder.armor = randArmor
