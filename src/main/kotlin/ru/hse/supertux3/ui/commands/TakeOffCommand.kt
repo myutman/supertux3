@@ -3,7 +3,7 @@ package ru.hse.supertux3.ui.commands
 import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.ui.readChar
 
-class PutOffCommand(val model: Model) : Command {
+class TakeOffCommand(val model: Model) : Command {
     private fun message(str: String) {
         model.view.printMessage("$str${System.lineSeparator()}Press ESC to continue")
         while (true) {

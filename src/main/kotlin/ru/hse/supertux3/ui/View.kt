@@ -74,7 +74,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     }
 
     fun printMessage(str: String) {
-        printStrInLine(str, 4)
+        printStrInLine(str, 5)
     }
 
     private fun drawCell(new: Cell, str: String = "") {

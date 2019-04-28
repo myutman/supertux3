@@ -77,7 +77,7 @@ fun main() {
                 'x' -> SelfHarmCommand(model)
                 'l' -> LootCommand(model)
                 'o' -> PutOnCommand(model)
-                'p' -> PutOffCommand(model)
+                'p' -> TakeOffCommand(model)
                 'j' -> SlideUpCommand(view)
                 'k' -> SlideDownCommand(view)
                 '?' -> ShowItemInfoCommand(view)
