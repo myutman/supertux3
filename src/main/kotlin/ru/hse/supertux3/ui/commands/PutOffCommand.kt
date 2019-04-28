@@ -1,13 +1,11 @@
 package ru.hse.supertux3.ui.commands
 
 import ru.hse.supertux3.logic.Model
-import ru.hse.supertux3.logic.items.Inventory
 import ru.hse.supertux3.ui.readChar
-import java.lang.RuntimeException
 
 class PutOffCommand(val model: Model) : Command {
     private fun message(str: String) {
-        model.view.printMessage(str + "\nPress ESC to continue")
+        model.view.printMessage("$str\nPress ESC to continue")
         while (true) {
             if (readChar().toInt() == 27) break
         }
@@ -28,7 +26,7 @@ class PutOffCommand(val model: Model) : Command {
             val entry = equipped.toList()[info.index]
             entry.second.putOn(model.state.player)
             equipped.remove(entry.first)
-            unequipped.add(entry.second)
+            unequipped.add(model.state.player.inventory.inventoryCur, entry.second)
             model.view.redraw()
         } catch (e: RuntimeException) {
             message(e.message!!)
