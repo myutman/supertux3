@@ -11,7 +11,6 @@ import kotlin.math.min
  * @param name short name
  */
 abstract class Item(val description: String, val name: String, val id: String) {
-    val slot: Char? = null
 
     /**
      * Item may have any effect on the game, so it can do anything with level
@@ -19,7 +18,7 @@ abstract class Item(val description: String, val name: String, val id: String) {
     abstract fun interact(level: Level)
 
     override fun toString(): String {
-        return "[$slot] $name"
+        return name
     }
 }
 

@@ -255,8 +255,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         for (i in 0..inventoryWindowSize - 1) {
             if (inventoryCur + i < inventory.unequipped.size) {
                 val item = inventory.unequipped[inventoryCur + i]
-                item.slot = slotNames[i]
-                line += printStrInLineRight(item.toString(), line)
+                line += printStrInLineRight("[${slotNames[i]}] " + item.toString(), line)
             } else {
                 line += printStrInLineRight("[${slotNames[i]}] --", line)
             }
