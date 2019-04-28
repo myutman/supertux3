@@ -5,19 +5,12 @@ import org.jline.terminal.Terminal
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.items.Inventory
-import ru.hse.supertux3.logic.items.Item
 import java.lang.RuntimeException
 import kotlin.math.max
 import kotlin.math.min
 
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal) {
-
-    private var inventoryCur: Int
-    private val inventoryWindowSize: Int
-
     init {
-        inventoryCur = 0
-        inventoryWindowSize = 10
         redraw()
     }
 
@@ -82,37 +75,10 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         readChar()
     }
 
-    private data class ItemInfo(val item: Item, val isEquipped: Boolean, val index: Int)
-
-    private fun getItemInfoBySlot(slot: Char): ItemInfo {
-        val error = "No element in selected slot"
-            if (Inventory.wornSlotNames.contains(slot)) {
-            val index = Inventory.wornSlotNames.indexOf(slot)
-            val equipped = state.player.inventory.equipped.toList()
-            if (index >= equipped.size) {
-                throw RuntimeException(error)
-            } else {
-                val item = equipped[index].second
-                return ItemInfo(item, true, index)
-            }
-        } else if (Inventory.unwornSlotNames.contains(slot)) {
-            val index = inventoryCur + Inventory.unwornSlotNames.indexOf(slot)
-            val unequipped = state.player.inventory.unequipped
-            if (index >= unequipped.size) {
-                throw RuntimeException(error)
-            } else {
-                val item = unequipped[index]
-                return ItemInfo(item, false, index)
-            }
-        } else {
-            throw RuntimeException(error)
-        }
-    }
-
     fun showInfo(slot: Char) {
         redraw()
         val str: String = try {
-            val itemInfo = getItemInfoBySlot(slot)
+            val itemInfo = state.player.inventory.getItemInfoBySlot(slot)
             itemInfo.item.description
         } catch (e: RuntimeException) {
             e.message!!
@@ -288,17 +254,13 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     }
 
     fun slideDown() {
-        if (inventoryCur + inventoryWindowSize + 1 < state.player.inventory.unequipped.size) {
-            inventoryCur++
+        if (state.player.inventory.slideDown())
             redraw()
-        }
     }
 
     fun slideUp() {
-        if (inventoryCur > 0) {
-            inventoryCur--
+        if (state.player.inventory.slideUp())
             redraw()
-        }
     }
 
     fun showInventoryMessage() {
@@ -311,11 +273,10 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         line += printStrInLineRight("Inventory", line)
         line += printStrInLineRight("Unequipped:", line)
         val inventory = state.player.inventory
-        inventoryCur = max(0, min(inventoryCur, inventory.unequipped.size - Inventory.unwornSlotNames.size))
         for (i in 0..Inventory.unwornSlotNames.size - 1) {
             val slotName = Inventory.unwornSlotNames[i]
-            if (inventoryCur + i < inventory.unequipped.size) {
-                val item = inventory.unequipped[inventoryCur + i]
+            if (state.player.inventory.inventoryCur + i < inventory.unequipped.size) {
+                val item = inventory.unequipped[state.player.inventory.inventoryCur + i]
                 line += printStrInLineRight("[$slotName] " + item.toString(), line)
             } else {
                 line += printStrInLineRight("[$slotName] --", line)
