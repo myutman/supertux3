@@ -2,8 +2,6 @@ package ru.hse.supertux3.logic.items
 
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Player
-import kotlin.math.max
-import kotlin.math.min
 
 /**
  * Basic item class
@@ -42,10 +40,10 @@ abstract class Wearable(
      * Puts this on the player
      */
     fun putOn(player: Player) {
-        player.resistChance = min(100, player.resistChance + resistChance)
+        player.resistChance = player.resistChance + resistChance
         player.armor += armor
         player.damage += damage
-        player.criticalChance = min(100, player.criticalChance + criticalChance)
+        player.criticalChance = player.criticalChance + criticalChance
         doPutOn(player)
     }
 
@@ -55,10 +53,10 @@ abstract class Wearable(
      * Take this off the player
      */
     fun takeOff(player: Player) {
-        player.resistChance = max(0, player.resistChance - resistChance)
+        player.resistChance = player.resistChance - resistChance
         player.armor -= armor
-        player.damage = max(0, player.damage - damage)
-        player.criticalChance = max(0, player.criticalChance - criticalChance)
+        player.damage = player.damage - damage
+        player.criticalChance = player.criticalChance - criticalChance
     }
 
     protected abstract fun doTakeOff(player: Player)

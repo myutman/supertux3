@@ -2,6 +2,7 @@ package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.items.Wearable
+import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 import ru.hse.supertux3.ui.readChar
@@ -100,7 +101,10 @@ class Model(val state: GameState) {
     fun afterAction() {
         level.mobs.forEach { mob ->
             if (!mob.isDead()) {
-                mob.move(level)
+                val result = mob.move(level)
+                if (result.affected is Player) {
+                    view.attacked()
+                }
             }
         }
 
