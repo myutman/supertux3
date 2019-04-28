@@ -15,7 +15,7 @@ class ShowItemInfoCommand(val view: View) : Command {
         } catch (e: RuntimeException) {
             e.message!!
         }
-        view.printMessage(str + "\nPress ESC to continue")
+        view.printMessage("$str${System.lineSeparator()}Press ESC to continue")
         while (true) {
             if (readChar().toInt() == 27) break
         }

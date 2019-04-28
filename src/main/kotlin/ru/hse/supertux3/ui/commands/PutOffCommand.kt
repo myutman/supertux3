@@ -5,7 +5,7 @@ import ru.hse.supertux3.ui.readChar
 
 class PutOffCommand(val model: Model) : Command {
     private fun message(str: String) {
-        model.view.printMessage("$str\nPress ESC to continue")
+        model.view.printMessage("$str${System.lineSeparator()}Press ESC to continue")
         while (true) {
             if (readChar().toInt() == 27) break
         }

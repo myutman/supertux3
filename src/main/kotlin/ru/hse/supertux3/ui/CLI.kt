@@ -72,6 +72,7 @@ fun main() {
                 'a' -> MoveCommand(model, Direction.LEFT)
                 'd' -> MoveCommand(model, Direction.RIGHT)
                 's' -> MoveCommand(model, Direction.DOWN)
+                '.' -> StayCommand(model)
                 'r' -> RedrawCommand(view)
                 'x' -> SelfHarmCommand(model)
                 'l' -> LootCommand(model)
@@ -80,6 +81,7 @@ fun main() {
                 'j' -> SlideUpCommand(view)
                 'k' -> SlideDownCommand(view)
                 '?' -> ShowItemInfoCommand(view)
+                'h' -> HelpCommand(view)
                 ' ' -> MoveLadderCommand(model)
                 else -> null
             }

@@ -5,8 +5,6 @@ import org.jline.terminal.Terminal
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.items.Inventory
-import java.lang.RuntimeException
-import kotlin.math.max
 import kotlin.math.min
 
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal) {
@@ -138,6 +136,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
             print(cursorLeft(1))
         }
 
+        printStrInLine("Press h to open help", 3)
         printPos()
         printUsrInfo()
         printInventoryInfo()
@@ -172,6 +171,10 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         val len = terminal.width - level.width - offset
 
         for (line in toPrintList) {
+            if (line.isEmpty()) {
+                i++
+                continue
+            }
             var rest = line
             while (rest.length > 0) {
                 val myLen = min(len, rest.length)
@@ -297,6 +300,10 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         val len = terminal.width - level.width - offset
 
         for (line in toPrintList) {
+            if (line.isEmpty()) {
+                i++
+                continue
+            }
             var rest = line
             while (rest.length > 0) {
                 val myLen = min(len, rest.length)
