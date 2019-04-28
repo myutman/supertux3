@@ -75,7 +75,7 @@ fun main() {
                 'r' -> RedrawCommand(view)
                 'x' -> SelfHarmCommand(model)
                 'l' -> LootCommand(model)
-                'o' -> PutonCommand(model)
+                'o' -> PutOnCommand(model)
                 'p' -> PutOffCommand(model)
                 'j' -> SlideUpCommand(view)
                 'k' -> SlideDownCommand(view)

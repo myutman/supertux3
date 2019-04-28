@@ -1,11 +1,11 @@
 package ru.hse.supertux3.ui.commands
 
 import ru.hse.supertux3.logic.Model
-import ru.hse.supertux3.logic.items.Inventory
+import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.ui.readChar
 import java.lang.RuntimeException
 
-class PutOffCommand(val model: Model) : Command {
+class PutOnCommand(val model: Model): Command {
     private fun message(str: String) {
         model.view.printMessage(str + "\nPress ESC to continue")
         while (true) {
@@ -15,20 +15,28 @@ class PutOffCommand(val model: Model) : Command {
     }
 
     override fun execute() {
-        model.view.printMessage("What do you want to put off")
+        model.view.printMessage("What do you want to put on")
         val slot = readChar()
         val equipped = model.state.player.inventory.equipped
         val unequipped = model.state.player.inventory.unequipped
         try {
             val info = model.state.player.inventory.getItemInfoBySlot(slot)
-            if (!info.isEquipped) {
-                message("Item is not equipped")
+            if (info.isEquipped) {
+                message("Item is already equipped")
                 return
             }
-            val entry = equipped.toList()[info.index]
-            entry.second.putOn(model.state.player)
-            equipped.remove(entry.first)
-            unequipped.add(entry.second)
+            val item = unequipped[info.index]
+            if (item !is Wearable) {
+                message("Item is not wearable")
+                return
+            }
+            if (equipped.containsKey(item.type)) {
+                message("${item.type} is already equipped")
+                return
+            }
+            item.putOn(model.state.player)
+            unequipped.removeAt(info.index)
+            equipped.put(item.type, item)
             model.view.redraw()
         } catch (e: RuntimeException) {
             message(e.message!!)
@@ -37,5 +45,4 @@ class PutOffCommand(val model: Model) : Command {
 
         model.afterAction()
     }
-
 }

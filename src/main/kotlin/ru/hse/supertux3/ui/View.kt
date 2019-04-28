@@ -75,14 +75,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         readChar()
     }
 
-    fun showInfo(slot: Char) {
-        redraw()
-        val str: String = try {
-            val itemInfo = state.player.inventory.getItemInfoBySlot(slot)
-            itemInfo.item.description
-        } catch (e: RuntimeException) {
-            e.message!!
-        } + "\nPress ESC to continue"
+    fun printMessage(str: String) {
         printStrInLine(str, 4)
     }
 
