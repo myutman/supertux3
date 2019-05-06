@@ -7,18 +7,29 @@ import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.NPC
 import kotlin.math.max
 
+/*
+ * Class for moving cursor commands.
+ * @param state current game state consists of level and player information
+ * @param visual object for moving cursor and coloring symbols
+ */
 class View(val state: GameState, val visual: TermColors) {
 
     init {
         redraw()
     }
 
+    /*
+     * Move up or down the ladder.
+     */
     fun moveLadder() {
         redraw()
     }
-
+    /*
+     * Go to the given direction.
+     * @param direction direction to go to
+     */
     fun move(direction: Direction) {
-        val prevPosition = state.level.getCell(state.player.position(), direction, -1)
+        val prevPosition = state.level.getCell(state.player.position, direction, -1)
         visual.run {
             print(prevPosition)
             print(cursorLeft(1))
@@ -97,11 +108,15 @@ class View(val state: GameState, val visual: TermColors) {
         }
     }
 
+    /*
+     * Redraw all the field.
+     */
     fun redraw() {
         clearScreen()
 
         val level = state.level
         val position = state.player.position()
+
 
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
@@ -206,7 +221,6 @@ class View(val state: GameState, val visual: TermColors) {
 
     private fun printUsrInfo() {
         val player = state.player
-
         val str = buildString {
             append(
                 "XP:",
