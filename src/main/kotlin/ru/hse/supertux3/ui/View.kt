@@ -1,10 +1,10 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
-import ru.hse.supertux3.levels.Cell
-import ru.hse.supertux3.levels.Coordinates
-import ru.hse.supertux3.levels.Direction
+import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.mobs.Mob
+import ru.hse.supertux3.logic.mobs.NPC
 import kotlin.math.max
 
 /*
@@ -24,13 +24,13 @@ class View(val state: GameState, val visual: TermColors) {
     fun moveLadder() {
         redraw()
     }
-
+  
     /*
      * Go to the given direction.
      * @param direction direction to go to
      */
     fun move(direction: Direction) {
-        val prevPosition = state.level.getCell(state.player.position, direction, -1)
+        val prevPosition = state.level.getCell(state.player.position(), direction, -1)
         visual.run {
             print(prevPosition)
             print(cursorLeft(1))
@@ -46,6 +46,11 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         clearMonstersNotSeen(prevPosition.coordinates)
+        clearAttacked()
+    }
+
+    fun afterAction() {
+        drawBeingSeen()
 
         visual.run {
             print(red("@"))
@@ -55,12 +60,34 @@ class View(val state: GameState, val visual: TermColors) {
         printPos()
     }
 
-    private fun clearMonstersNotSeen(coordinates: Coordinates) {
-        drawCell(state.level.getCell(coordinates))
+    fun attack() {
+        printUsrInfo()
+        printStrInLine("You attacked", 2)
+    }
+
+    fun attacked() {
+        printUsrInfo()
+        printAttacked()
+    }
+
+    fun died() {
+        clearScreen()
+        print(buildString {
+            append(
+                "You die!", System.lineSeparator(),
+                "And words won't do anything", System.lineSeparator(),
+                "It's permanently night", System.lineSeparator(),
+                "And I won't feel anything", System.lineSeparator(),
+                "We'll all be laughing with you when you die", System.lineSeparator(),
+                System.lineSeparator(),
+                "Press any key to exit..."
+            )
+        })
+        readChar()
     }
 
     private fun drawCell(new: Cell, str: String = "") {
-        val cur = state.player.position
+        val cur = state.player.position()
         val coordinates = new.coordinates
         val left = max(cur.j - coordinates.j, 0)
         val right = max(coordinates.j - cur.j, 0)
@@ -89,17 +116,22 @@ class View(val state: GameState, val visual: TermColors) {
         clearScreen()
 
         val level = state.level
-        val position = state.player.position
+        val position = state.player.position()
 
 
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
-                val symb = level.getCell(i, j, position.h).toString()
+                val cell = level.getCell(i, j, position.h)
+                val symb = cell.toString()
                 visual.run {
-                    if (symb != "&") {
-                        print(rgb("#ffffff")(symb))
+                    if (cell.visibility == Visibility.Visible) {
+                        if (symb != "&") {
+                            print(rgb("#ffffff")(symb))
+                        } else {
+                            print(red(symb))
+                        }
                     } else {
-                        print(red(symb))
+                        print(' ')
                     }
                 }
             }
@@ -116,6 +148,9 @@ class View(val state: GameState, val visual: TermColors) {
             print(cursorRight(right))
         }
 
+        drawBeingSeen()
+
+
         visual.run {
             print(red("@"))
             print(cursorLeft(1))
@@ -125,9 +160,27 @@ class View(val state: GameState, val visual: TermColors) {
         printUsrInfo()
     }
 
+    private fun clearMonstersNotSeen(prevPosition: Coordinates) {
+        state.level.bfs(prevPosition, state.player.visibilityDepth) {
+            if (it is Floor) {
+                if (it.stander != null) {
+                    drawCell(it, ".")
+                }
+            }
+        }
+    }
+
+    private fun drawBeingSeen() {
+        val cur = state.player.position()
+        state.level.bfs(cur, state.player.visibilityDepth) {
+            drawCell(it)
+            it.visibility = Visibility.Visible
+        }
+    }
+
     private fun printStrInLine(str: String, lineNumber: Int) {
         val level = state.level
-        val position = state.player.position
+        val position = state.player.position()
 
         val up = level.height - position.i + lineNumber
         val right = position.j
@@ -147,7 +200,7 @@ class View(val state: GameState, val visual: TermColors) {
 
     private fun printPos() {
         val level = state.level
-        val position = state.player.position
+        val position = state.player.position()
 
         val str = buildString {
             append(
@@ -170,7 +223,6 @@ class View(val state: GameState, val visual: TermColors) {
 
     private fun printUsrInfo() {
         val player = state.player
-
         val str = buildString {
             append(
                 "XP:",
@@ -188,5 +240,13 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         printStrInLine(str, 0)
+    }
+
+    private fun printAttacked() {
+        printStrInLine("You were attacked", 2)
+    }
+
+    private fun clearAttacked() {
+        printStrInLine("                 ", 2)
     }
 }

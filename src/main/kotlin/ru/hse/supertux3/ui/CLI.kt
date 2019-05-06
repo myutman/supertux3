@@ -69,10 +69,11 @@ fun main() {
                 'd' -> model.move(Direction.RIGHT)
                 's' -> model.move(Direction.DOWN)
                 'r' -> view.redraw()
+                'x' -> model.selfHarm()
                 ' ' -> model.moveLadder()
             }
 
-            if (quit) {
+            if (quit || model.state.player.isDead()) {
                 break
             }
         }

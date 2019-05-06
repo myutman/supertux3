@@ -4,7 +4,9 @@ import com.beust.klaxon.Json
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import ru.hse.supertux3.logic.mobs.Mob
 import java.io.File
+import java.util.*
 import kotlin.random.Random
 
 /**
@@ -23,6 +25,11 @@ enum class Direction {
  * This is one level in our game - depth of stages, which are just matrixes of cells
  */
 class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level.maxId++) {
+  
+    /**
+     * Mobs who are standing in this level
+     */
+    val mobs = mutableListOf<Mob>()
 
     /**
      * Just a 3D array representation of field,
@@ -114,6 +121,34 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         Random.nextInt(0, depth),
         id)
 
+    fun randomFloor(): Floor {
+        var maybeFloor = randomCell()
+        while (maybeFloor !is Floor) {
+            maybeFloor = randomCell()
+        }
+        return maybeFloor
+    }
+
+    fun putMob(mob: Mob) {
+        var floor = randomFloor()
+        while (floor.stander != null) {
+            floor = randomFloor()
+        }
+        putMob(mob, floor.coordinates)
+        mobs.add(mob)
+    }
+
+    fun putMob(mob: Mob, c: Coordinates): Boolean {
+        val maybeFloor = getCell(c)
+        if (maybeFloor is Floor && maybeFloor.stander == null) {
+            maybeFloor.stander = mob
+            mob.cell = maybeFloor
+            return true
+        } else {
+            return false
+        }
+    }
+
     override fun toString(): String {
         val stringBuilder = StringBuilder()
         for (stage in field) {
@@ -177,6 +212,38 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
             }
 
             return level
+        }
+    }
+
+
+    fun bfs(start: Coordinates, maxDepth: Int, runLogic: (Cell) -> Unit) {
+        val used = Array(height) {
+            Array(width) {
+                0
+            }
+        }
+        used[start.i][start.j] = 1
+        val queue = LinkedList<Cell>()
+        queue.add(getCell(start))
+        while (queue.isNotEmpty()) {
+            val curCell = queue.pollFirst()
+            val curDepth = used[curCell.coordinates.i][curCell.coordinates.j]
+            runLogic(curCell) // It can be a wall, but only one wall near floor
+            if (curCell !is Floor || curCell is Door) {
+                continue
+            } else {
+                if (curDepth <= maxDepth) {
+                    for (direction in Direction.values()) {
+                        if (canGo(curCell.coordinates, direction, 1)) {
+                            val next = getCell(curCell.coordinates, direction, 1)
+                            if (used[next.coordinates.i][next.coordinates.j] == 0) {
+                                used[next.coordinates.i][next.coordinates.j] = curDepth + 1
+                                queue.add(next)
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }

@@ -1,7 +1,9 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.mobs.Player
+import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 
 /**
@@ -14,7 +16,8 @@ class Model(private val level: Level) {
     val state: GameState
 
     init {
-        val player = Player(position = level.randomCoordinates())
+        val position = level.randomFloor()
+        val player = Player(level.getCell(position.coordinates))
         state = GameState(level, player)
     }
 
@@ -23,32 +26,37 @@ class Model(private val level: Level) {
      */
     lateinit var view: View
 
-    private fun check(position: Coordinates): Boolean {
-        val level = state.level
-        return level.canGo(position, Direction.UP, 0)
-                && level.getCell(position) !is Wall
-    }
-
-    private val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
-        Direction.UP to {position -> position.copy(i = position.i - 1)},
-        Direction.DOWN to {position -> position.copy(i = position.i + 1)},
-        Direction.LEFT to {position -> position.copy(j = position.j - 1)},
-        Direction.RIGHT to {position -> position.copy(j = position.j + 1)}
-    )
-
     /**
      * Move player in given direction (if possible).
      */
     fun move(direction: Direction) {
-        val position = state.player.position
-        val newPositionFunction = directionToMove.getOrDefault(direction) { position }
-        val newPosition = newPositionFunction(position)
+        val moveResult = state.player.processMove(direction, level)
 
-        if (check(newPosition)) {
-            // TODO: check if attack is necessary
-            state.player.position = newPosition
-            view.move(direction)
+        when (moveResult) {
+            MoveResult.FAILED -> return
+            MoveResult.MOVED -> view.move(direction)
+            MoveResult.ATTACKED -> view.attack()
+            MoveResult.DIED -> handleDeath()
         }
+
+        afterAction(level)
+    }
+
+    /**
+     * Reduces player's health.
+     */
+    fun selfHarm() {
+        val npc = Snowball(Cell(Coordinates(0, 0, 0, 0), ""))
+        npc.damage = 20
+        npc.attack(state.player, level)
+
+        if (state.player.isDead()) {
+            handleDeath()
+        } else {
+            view.attacked()
+        }
+
+        afterAction(level)
     }
 
     /**
@@ -56,11 +64,11 @@ class Model(private val level: Level) {
      */
     fun moveLadder() {
         val level = state.level
-        val position = state.player.position
+        val position = state.player.position()
 
         val cell = level.getCell(position)
         if (cell is Ladder) run {
-            state.player.position = position.copy(h = cell.destination.h)
+            state.player.cell = level.getCell(cell.destination)
             view.moveLadder()
         }
     }
@@ -68,7 +76,39 @@ class Model(private val level: Level) {
     /**
      * Process everything that happens after player's move.
      */
-    fun afterAction() {
-        // TODO: update npc, update effects, check if player isn't dead
+    fun afterAction(level: Level) {
+        level.mobs.forEach { mob ->
+            if (mob is Player)
+                return
+
+            if (!mob.isDead()) {
+                (mob as NPC).move(level)
+            }
+        }
+
+        level.mobs.forEach { mob ->
+            if (mob is Player)
+                return
+
+            if (mob.isDead()) {
+                level.setCell(mob.position(), mob.cell)
+                (mob.cell as Floor).stander = null
+            }
+        }
+
+        level.mobs.removeIf { it.isDead() }
+
+        view.afterAction()
+
+        if (state.player.isDead()) {
+            handleDeath()
+        }
+    }
+
+    /**
+     * Functions to be done when player was killed
+     */
+    fun handleDeath() {
+        view.died()
     }
 }

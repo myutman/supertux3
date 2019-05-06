@@ -1,10 +1,14 @@
 package ru.hse.supertux3.levels
 
+import ru.hse.supertux3.logic.mobs.Snowball
+import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
+import java.lang.Exception
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.sqrt
 import kotlin.random.Random
+import kotlin.random.nextInt
 
 /**
  * Class for generating new levels with given depth, width and high
@@ -13,7 +17,7 @@ import kotlin.random.Random
  * @param heightWithWalls should be >= 4 and even
  * @param widthWithWalls should be >= 4 and even
  */
-class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWalls: Int) {
+class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, private val widthWithWalls: Int) {
     private val height = heightWithWalls - 2
     private val width = widthWithWalls - 2
     private val halfHeight = height / 2
@@ -59,10 +63,12 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
         }
         val smallLevel = createRooms()
         val level = buildWalls(smallLevel)
-        val c = level.randomCoordinates()
-        if (level.getCell(c) is Floor) {
-            level.setCell(c, Floor.chest(c))
+        if (depth != 1) {
+            makeLadders(level)
         }
+        bfs(level)
+        addItems(level)
+        addMobs(level)
         return level
     }
 
@@ -205,10 +211,6 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                 graph[v].add(Pair(u, chosenDoor))
             }
         }
-        if (depth != 1) {
-            makeLadders(bigLevel)
-        }
-        bfs(bigLevel)
         return bigLevel
     }
 
@@ -248,16 +250,16 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
     }
 
     private fun bfs(level: Level) {
-        bfsQueue.push(0)
+        bfsQueue.add(0)
         while (!bfsQueue.isEmpty()) {
-            val v = bfsQueue.pop()
+            val v = bfsQueue.pollFirst()
             dfsLadders(v)
             for ((u, cell) in graph[v]) {
                 if (!used[u]) {
                     // In normal bfs they set used[u] = true here
                     // but without it we re generating nice random cycles
                     level.setCell(cell.coordinates, Door(cell.coordinates))
-                    bfsQueue.push(u)
+                    bfsQueue.add(u)
                 }
             }
         }
@@ -270,6 +272,26 @@ class LevelGenerator(val depth: Int, val heightWithWalls: Int, val widthWithWall
                 bfsQueue.push(u)
                 dfsLadders(u)
             }
+        }
+    }
+
+    private fun addItems(level: Level) {
+        val c = level.randomFloor().coordinates
+        level.setCell(c, Floor.chest(c))
+    }
+
+    private fun addMobs(level: Level) {
+        for (i in 1..roomsCount) {
+            val mob = Snowball(level.randomCell())
+            val rand = Random.nextInt(1..3)
+            val strategy = when(rand) {
+                1 -> AggressiveStrategy()
+                2 -> AggressiveStrategy()
+                3 -> AggressiveStrategy()
+                else -> AggressiveStrategy()
+            }
+            mob.moveStrategy = strategy
+            level.putMob(mob)
         }
     }
 }
