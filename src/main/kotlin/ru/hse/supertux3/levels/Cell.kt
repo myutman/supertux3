@@ -6,6 +6,7 @@ import com.beust.klaxon.Json
  * Enum for visibility state of cell.
  */
 enum class Visibility {Visible, Hidden}
+/**
  * Base class for cell that is the simplest part of level
  * @param coordinates coordinates in level
  * @param id unique id, it is used in console UI
@@ -18,6 +19,7 @@ open class Cell(@Json(ignored = true) val coordinates: Coordinates, val id: Stri
      */
     var visibility = Visibility.Hidden
 }
+/**
  * Floor is just a cell with additional features:
  * 1) Any mob can stand here
  * 2) Some items can lie here

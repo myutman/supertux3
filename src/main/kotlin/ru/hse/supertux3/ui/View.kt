@@ -29,7 +29,7 @@ class View(val state: GameState, val visual: TermColors) {
      * @param direction direction to go to
      */
     fun move(direction: Direction) {
-        val prevPosition = state.level.getCell(state.player.position, direction, -1)
+        val prevPosition = state.level.getCell(state.player.position(), direction, -1)
         visual.run {
             print(prevPosition)
             print(cursorLeft(1))
