@@ -26,7 +26,6 @@ class Model(private val level: Level) {
      */
     lateinit var view: View
 
-
     /**
      * Move player in given direction (if possible).
      */

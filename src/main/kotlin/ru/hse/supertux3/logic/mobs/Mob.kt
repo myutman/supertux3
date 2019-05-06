@@ -13,6 +13,7 @@ import java.lang.Integer.max
  * - non-playable characters.
  */
 abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
+
     /**
      * Base health points of creature.
      */
@@ -34,7 +35,6 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
      */
     abstract var criticalChance: Int
 
-    /**
      * Mob's visible area depth.
      */
     var visibilityDepth = 4

@@ -24,6 +24,7 @@ class View(val state: GameState, val visual: TermColors) {
     fun moveLadder() {
         redraw()
     }
+  
     /*
      * Go to the given direction.
      * @param direction direction to go to
@@ -148,6 +149,7 @@ class View(val state: GameState, val visual: TermColors) {
         }
 
         drawBeingSeen()
+
 
         visual.run {
             print(red("@"))

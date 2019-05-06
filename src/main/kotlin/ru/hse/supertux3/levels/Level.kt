@@ -20,6 +20,7 @@ data class Coordinates(val i: Int, val j: Int, val h: Int, val levelId: Int)
 enum class Direction {
     UP, DOWN, RIGHT, LEFT
 }
+
 /**
  * This is one level in our game - depth of stages, which are just matrixes of cells
  */
