@@ -12,6 +12,9 @@ import java.io.File
 val saveName = ".save"
 var reader: NonBlockingReader? = null
 
+/*
+ * Reads key press from keyboard.
+ */
 fun readChar(): Char {
     val buffer = CharArray(4)
     var read = 0
@@ -25,6 +28,9 @@ fun deleteSave(saveName: String) {
     File(saveName).delete()
 }
 
+/*
+ * Clears screen.
+ */
 fun clearScreen() {
     print("\u001Bc")
 }

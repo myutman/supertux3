@@ -21,15 +21,6 @@ class LevelTest {
     }
 
     @Test
-    fun save() {
-        val testFile = "src/test/resources/tempLevelTest.kek"
-        val generator = LevelLoader()
-        val level = generator.generateLevel()
-        level.save(testFile)
-        File(testFile).delete()
-    }
-
-    @Test
     fun bfsWorks() {
         val bfsStart = level1.getCell(2, 2, 0).coordinates
         level1.bfs(bfsStart, 15) {
@@ -44,6 +35,42 @@ class LevelTest {
     fun mobsGenerating() {
         val level = LevelLoader().generateLevel()
         assertTrue(level.mobs.isNotEmpty())
+    }
+  
+    @Test
+    fun saveWorks() {
+        val generator = LevelLoader()
+        val level = generator.generateLevel()
+        level.save("src/test/resources/testLevel1.kek")
+    }
+
+
+    @Test
+    fun loadWorks() {
+        val generator = LevelLoader()
+        val level = generator.generateLevel()
+        level.save("src/test/resources/testLevel1.kek")
+        Level.load("src/test/resources/testLevel1.kek")
+    }
+
+    @Test
+    fun loadWorksCheckIdentity() {
+        val depth = 4
+        val width = 10
+        val height = 10
+        val level = LevelGenerator.generate(depth, height, width)
+        level.save("src/test/resources/testLevel1.kek")
+        val loadedLevel = Level.load("src/test/resources/testLevel1.kek")
+        for (h in 0 until depth - 1) {
+            for (i in 0 until height) {
+                for (j in 0 until width) {
+                    val cell = level.getCell(i, j, h)
+                    val cellLoaded = loadedLevel.getCell(i, j, h)
+                    assertTrue(cellLoaded::class == cell::class)
+                    assertEquals(cell.coordinates, cellLoaded.coordinates)
+                }
+            }
+        }
     }
 
     @Test

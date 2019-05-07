@@ -1,5 +1,6 @@
 package ru.hse.supertux3.ui
 
+import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.levels.LevelLoader
 import ru.hse.supertux3.logic.GameState
 import java.io.File
@@ -7,7 +8,6 @@ import java.io.File
 /**
  * Util place for functions to call before game starts.
  */
-
 fun requestGameState(): GameState {
     clearScreen()
     val file = File(saveName)

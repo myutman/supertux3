@@ -55,6 +55,4 @@ class Player(
         armor += 1
         criticalChance += 5
     }
-
-    // some inventory fields will be added in future
 }

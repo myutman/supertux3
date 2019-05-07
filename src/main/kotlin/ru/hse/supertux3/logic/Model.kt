@@ -1,6 +1,7 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball

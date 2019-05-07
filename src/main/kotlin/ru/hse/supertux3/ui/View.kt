@@ -1,21 +1,38 @@
 package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
-import org.jline.terminal.Terminal
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.mobs.Mob
+import ru.hse.supertux3.logic.mobs.NPC
+import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.items.Inventory
+import org.jline.terminal.Terminal
+import kotlin.math.max
 import kotlin.math.min
 
+/*
+ * Class for moving cursor commands.
+ * @param state current game state consists of level and player information
+ * @param visual object for moving cursor and coloring symbols
+ */
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal) {
+
     init {
         redraw()
     }
 
+    /*
+     * Move up or down the ladder.
+     */
     fun moveLadder() {
         redraw()
     }
-
+  
+    /*
+     * Go to the given direction.
+     * @param direction direction to go to
+     */
     fun move(direction: Direction) {
         val prevPosition = state.level.getCell(state.player.position(), direction, -1)
         visual.run {
@@ -94,12 +111,15 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
     }
 
+    /*
+     * Redraw all the field.
+     */
     fun redraw() {
         clearScreen()
 
         val level = state.level
         val position = state.player.position()
-
+      
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
                 val cell = level.getCell(i, j, position.h)

@@ -15,3 +15,13 @@ data class GameState(val level: Level, val player: Player) {
 
     fun isGameFinished() = player.isDead() || isQuit
 }
+
+/**
+ * Enum for results of npc's (mostly player's) move.
+ */
+enum class MoveResult {
+    FAILED,
+    MOVED,
+    ATTACKED,
+    DIED
+}

@@ -9,10 +9,11 @@ import ru.hse.supertux3.logic.items.Item
 enum class Visibility {Visible, Hidden}
 
 /**
- * Basic class for cells that form level.
+ * Base class for cell that is the simplest part of level
+ * @param coordinates coordinates in level
+ * @param id unique id, it is used in console UI
  */
-open class Cell(@Json(ignored = true) val coordinates: Coordinates,
-                val id: String) {
+open class Cell(@Json(ignored = true) val coordinates: Coordinates, val id: String) {
     override fun toString() = id
 
     /**
@@ -22,64 +23,41 @@ open class Cell(@Json(ignored = true) val coordinates: Coordinates,
 }
 
 /**
- * Class for cells that can be stepped on.
+ * Floor is just a cell with additional features:
+ * 1) Any mob can stand here
+ * 2) Some items can lie here
  */
-abstract class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
+open class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
     /**
-     * List of items laying on the floor.
+     * List of items that lie in the floor
      */
     @Json
-    val items: MutableList<Item> = mutableListOf()
+    val items: MutableList<Int> = mutableListOf()
 
     /**
-     * Number of room this floor cell belongs to.
+     * Number of room that contains this floor, mostly for generation needs
      */
     @Json(ignored = true)
     var roomNumber = -1
-
+  
     /**
      * Mob (CellStander) that stands on this cell, or null there is no npc.
      */
-    @Json
+    @Json(ignored = true)
     var stander: CellStander? = null
 
-    /**
-     *
-     */
-    fun newRoom() {
-        roomNumber = nextRoomNumber
-        nextRoomNumber++
-    }
-
-    /**
-     * Some interaction with this floor cell.
-     */
-    abstract fun interact()
-
-    fun pickUp(): List<Item> = items
-
-    fun drop(newItems: MutableList<Item>) {
-        items.addAll(newItems)
-    }
-
-    override fun toString() = stander?.id ?: (if (items.isEmpty()) id else ":")
+    override fun toString() = stander?.id ?: id
 
     companion object {
-        fun empty(coordinates: Coordinates): Floor = object : Floor(coordinates, ".") {
+        /**
+         * Creates empty floor
+         */
+        fun empty(coordinates: Coordinates): Floor = Floor(coordinates, ".")
 
-            override fun interact() {
-                // do nothing
-            }
-        }
-
-        fun chest(coordinates: Coordinates): Floor = object : Floor(coordinates, "&") {
-
-            override fun interact() {
-                // do nothing
-            }
-        }
-
-        var nextRoomNumber = 0
+        /**
+         * Creates floor with chest(it's useless, cause we don't need to maintain items)
+         */
+        fun chest(coordinates: Coordinates): Floor = Floor(coordinates, "&")
     }
 }
 
@@ -92,28 +70,20 @@ abstract class CellStander(@Json(ignored = true)var cell: Cell, val id: String) 
         get() = cell.coordinates
 }
 
-class Wall(coordinates: Coordinates) : Cell(coordinates, "#") {
 
-    fun canBreak(): Boolean {
-        return false
-    }
+/**
+ * Mobs cant stand in this cells
+ */
+class Wall(coordinates: Coordinates) : Cell(coordinates, "#")
 
-    fun breakMe() {
+/**
+ * Mobs can go through it
+ */
+class Door(coordinates: Coordinates) : Floor(coordinates, "O")
 
-    }
-}
-
-class Door(coordinates: Coordinates) : Floor(coordinates, "O") {
-    override fun interact() {
-        // pass
-    }
-
-}
-
+/**
+ * You can stand on it, but you can also go to another stage or level with it
+ */
 class Ladder(coordinates: Coordinates, @Json val destination: Coordinates) : Floor(coordinates, "L") {
-    override fun interact() {
-        // pass
-    }
-
     override fun toString() = stander?.id ?: if (destination.h > coordinates.h) "v" else "^"
 }
