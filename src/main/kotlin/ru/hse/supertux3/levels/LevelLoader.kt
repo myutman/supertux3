@@ -1,4 +1,5 @@
 package ru.hse.supertux3.levels
+
 import ru.hse.supertux3.logic.GameState
 
 /**

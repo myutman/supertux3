@@ -1,8 +1,6 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
-import ru.hse.supertux3.logic.mobs.NPC
-import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
@@ -113,7 +111,7 @@ class Model(val state: GameState) {
             if (mob.isDead()) {
                 level.setCell(mob.position(), mob.cell)
                 (mob.cell as Floor).stander = null
-                (mob.cell as Floor).drop(mob.drop)
+                (mob.cell as Floor).items.addAll(mob.drop)
             }
         }
 

@@ -6,7 +6,7 @@ import ru.hse.supertux3.logic.items.Item
 /**
  * Enum for visibility state of cell.
  */
-enum class Visibility {Visible, Hidden}
+enum class Visibility { Visible, Hidden }
 
 /**
  * Base class for cell that is the simplest part of level
@@ -32,21 +32,21 @@ open class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
      * List of items that lie in the floor
      */
     @Json
-    val items: MutableList<Int> = mutableListOf()
+    val items: MutableList<Item> = mutableListOf()
 
     /**
      * Number of room that contains this floor, mostly for generation needs
      */
     @Json(ignored = true)
     var roomNumber = -1
-  
+
     /**
      * Mob (CellStander) that stands on this cell, or null there is no npc.
      */
     @Json(ignored = true)
     var stander: CellStander? = null
 
-    override fun toString() = stander?.id ?: id
+    override fun toString() = stander?.id ?: if (items.isEmpty()) id else "l"
 
     companion object {
         /**
@@ -64,7 +64,7 @@ open class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
 /**
  * Class for things that cover some cell (for example, mobs standing on floor).
  */
-abstract class CellStander(@Json(ignored = true)var cell: Cell, val id: String) {
+abstract class CellStander(@Json(ignored = true) var cell: Cell, val id: String) {
     @Json(ignored = true)
     val coordinates
         get() = cell.coordinates

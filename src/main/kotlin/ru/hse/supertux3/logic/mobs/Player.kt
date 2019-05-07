@@ -3,8 +3,6 @@ package ru.hse.supertux3.logic.mobs
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.items.Inventory
-import ru.hse.supertux3.logic.items.Wearable
-import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.strategy.Move
 
 /**
@@ -18,7 +16,7 @@ class Player(
     override var armor: Int = 5,
     override var criticalChance: Int = 10,
     val inventory: Inventory = Inventory()
-    ) : Mob(cell, "@") {
+) : Mob(cell, "@") {
     var xp: Int = 0
     var level: Int = 0
 

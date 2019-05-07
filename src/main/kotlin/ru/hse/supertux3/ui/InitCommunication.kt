@@ -1,6 +1,5 @@
 package ru.hse.supertux3.ui
 
-import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.levels.LevelLoader
 import ru.hse.supertux3.logic.GameState
 import java.io.File

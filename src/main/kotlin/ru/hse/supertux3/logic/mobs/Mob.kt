@@ -88,10 +88,10 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
      */
     open fun move(move: Move, level: Level): MoveData {
         val directionToMove: Map<Direction, (Coordinates) -> Coordinates> = mapOf(
-            Direction.UP to { position -> position.copy(i = position.i - move.r)},
-            Direction.DOWN to { position -> position.copy(i = position.i + move.r)},
-            Direction.LEFT to { position -> position.copy(j = position.j - move.r)},
-            Direction.RIGHT to { position -> position.copy(j = position.j + move.r)}
+            Direction.UP to { position -> position.copy(i = position.i - move.r) },
+            Direction.DOWN to { position -> position.copy(i = position.i + move.r) },
+            Direction.LEFT to { position -> position.copy(j = position.j - move.r) },
+            Direction.RIGHT to { position -> position.copy(j = position.j + move.r) }
         )
 
         val newPositionFunction = directionToMove[move.direction] ?: { position -> position }

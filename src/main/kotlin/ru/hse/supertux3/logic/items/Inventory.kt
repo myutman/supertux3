@@ -8,7 +8,9 @@ class Inventory {
     private var inventoryIndex = 0
 
     val inventoryCur: Int
-        get() { return inventoryIndex }
+        get() {
+            return inventoryIndex
+        }
 
     companion object {
         val unwornSlotNames: List<Char> = listOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9')
@@ -40,7 +42,7 @@ class Inventory {
             val index = Inventory.wornSlotNames.indexOf(slot)
             val equipped = equipped.toList()
             if (index >= equipped.size) {
-                throw RuntimeException(error)
+                throw RuntimeException(error) // TODO
             } else {
                 val item = equipped[index].second
                 return ItemInfo(item, true, index)

@@ -5,7 +5,6 @@ import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.NPC
-import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.items.Inventory
 import org.jline.terminal.Terminal
 import kotlin.math.max
@@ -28,7 +27,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     fun moveLadder() {
         redraw()
     }
-  
+
     /*
      * Go to the given direction.
      * @param direction direction to go to
@@ -119,7 +118,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
         val level = state.level
         val position = state.player.position()
-      
+
         for (i in 0 until level.height) {
             for (j in 0 until level.width) {
                 val cell = level.getCell(i, j, position.h)
