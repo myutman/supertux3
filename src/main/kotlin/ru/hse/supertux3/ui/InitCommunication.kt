@@ -1,29 +1,41 @@
 package ru.hse.supertux3.ui
 
-import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.levels.LevelLoader
+import ru.hse.supertux3.logic.GameState
+import java.io.File
 
 /**
  * Util place for functions to call before game starts.
  */
-
-fun requestLevel(): Level {
+fun requestGameState(): GameState {
     clearScreen()
-    println("Do you want to load level from file? " +
-            "If yes, write name of file. " +
-            "If no, press Enter.")
+    val file = File(saveName)
 
-    val file = readLine()
+    println("Press n to start a new game.")
+
+    val exists = if (file.exists()) {
+        println()
+        println("You have a saved game if you want to load it press l.")
+        true
+    } else {
+        false
+    }
+
     val levelLoader = LevelLoader()
 
-    val level = if (file.isNullOrEmpty()) {
-        println("Started level generating!")
-        levelLoader.generateLevel()
-    } else {
-        println("Fetching level from file!")
-        levelLoader.loadLevel(file)
+    while (true) {
+        val input = readChar()
+        if (exists && input == 'l') {
+            clearScreen()
+            println("Fetching level from file!")
+            return levelLoader.loadGameState(saveName)
+        }
+        if (input == 'n') {
+            clearScreen()
+            println("Started level generating!")
+            val level = levelLoader.generateLevel()
+            val player = level.createPlayer()
+            return GameState(level, player)
+        }
     }
-    Thread.sleep(1500)
-
-    return level
 }

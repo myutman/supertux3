@@ -2,7 +2,8 @@ package ru.hse.supertux3.levels
 
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
-import java.lang.Exception
+import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
+import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 import java.util.*
 import kotlin.math.max
 import kotlin.math.min
@@ -22,16 +23,17 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
     private val width = widthWithWalls - 2
     private val halfHeight = height / 2
     private val halfWidth = width / 2
-    private val roomsCount = max(Random.nextInt(
-        sqrt(halfHeight * halfWidth * depth.toDouble()).toInt(),
-        2 * sqrt(halfHeight * halfWidth * depth.toDouble()).toInt()
-    ), depth)
+    private val roomsCount = max(
+        Random.nextInt(
+            sqrt(halfHeight * halfWidth * depth.toDouble()).toInt(),
+            2 * sqrt(halfHeight * halfWidth * depth.toDouble()).toInt()
+        ), depth
+    )
     private val graph = Array(roomsCount) {
         mutableListOf<Pair<Int, Cell>>()
     }
     private val bfsQueue = LinkedList<Int>()
     private val used = Array(roomsCount) { false }
-
 
     companion object {
         /**
@@ -84,7 +86,8 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
                     level.randomCell()
                 } else {
                     level.getCell(
-                        Random.nextInt(1, halfHeight), Random.nextInt(1, halfWidth), i)
+                        Random.nextInt(1, halfHeight), Random.nextInt(1, halfWidth), i
+                    )
                 }
                 if (randomCell is Floor) {
                     if (randomCell.roomNumber >= 0) {
@@ -281,16 +284,20 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
     }
 
     private fun addMobs(level: Level) {
-        for (i in 1..roomsCount) {
+        val mobsCount = Random.nextInt(roomsCount, 2 * roomsCount)
+        for (i in 1..mobsCount) {
             val mob = Snowball(level.randomCell())
             val rand = Random.nextInt(1..3)
-            val strategy = when(rand) {
+            val strategy = when (rand) {
                 1 -> AggressiveStrategy()
-                2 -> AggressiveStrategy()
-                3 -> AggressiveStrategy()
+                2 -> NeutralStrategy()
+                3 -> CowardStrategy()
                 else -> AggressiveStrategy()
             }
+            mob.level = level.player?.level ?: 0
             mob.moveStrategy = strategy
+            val itemsCount = Random.nextInt(1, 4)
+            mob.drop.addAll(ItemsGenerator.generateItems(itemsCount, level.player?.level ?: 0))
             level.putMob(mob)
         }
     }

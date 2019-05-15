@@ -1,10 +1,17 @@
 package ru.hse.supertux3.levels
 
-import com.beust.klaxon.Json
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import ru.hse.supertux3.logic.items.*
 import ru.hse.supertux3.logic.mobs.Mob
+import ru.hse.supertux3.logic.mobs.NPC
+import ru.hse.supertux3.logic.mobs.Player
+import ru.hse.supertux3.logic.mobs.Snowball
+import ru.hse.supertux3.logic.mobs.decorators.MobDecorator
+import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
+import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
+import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 import java.io.File
 import java.util.*
 import kotlin.random.Random
@@ -12,7 +19,9 @@ import kotlin.random.Random
 /**
  * Data class to store coordinates in level
  */
-data class Coordinates(val i: Int, val j: Int, val h: Int, val levelId: Int)
+data class Coordinates(val i: Int, val j: Int, val h: Int, val levelId: Int) {
+    fun serialize() = "$i $j $h $levelId"
+}
 
 /**
  * Directions where you can go from cell
@@ -21,15 +30,21 @@ enum class Direction {
     UP, DOWN, RIGHT, LEFT
 }
 
+
 /**
  * This is one level in our game - depth of stages, which are just matrixes of cells
  */
 class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level.maxId++) {
-  
+
     /**
      * Mobs who are standing in this level
      */
-    val mobs = mutableListOf<Mob>()
+    val mobs = mutableListOf<NPC>()
+
+    /**
+     * Player, who stands in this level
+     */
+    var player: Player? = null
 
     /**
      * Just a 3D array representation of field,
@@ -38,11 +53,11 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     val field: Array<Array<Array<Cell>>> = Array(depth) { h ->
         Array(height) { i ->
             Array(width) { j ->
-                    if (i == 0 || j == 0 || i == height - 1 || j == width - 1){
-                        Wall(Coordinates(i, j, h, id))
-                    } else {
-                        Floor.empty(Coordinates(i, j, h, id))
-                    }
+                if (i == 0 || j == 0 || i == height - 1 || j == width - 1) {
+                    Wall(Coordinates(i, j, h, id))
+                } else {
+                    Floor.empty(Coordinates(i, j, h, id))
+                }
             }
         }
 
@@ -55,12 +70,14 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         val newWall = Wall(c)
         setCell(c, newWall)
     }
+
     /**
      * Set cell in coordinates
      */
     fun setCell(c: Coordinates, cell: Cell) {
         field[c.h][c.i][c.j] = cell
     }
+
 
     /**
      * Set cell in i j h coordinates
@@ -75,6 +92,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     fun getCell(c: Coordinates): Cell {
         return field[c.h][c.i][c.j]
     }
+
     /**
      * Get cell in i j h coordinates
      */
@@ -82,11 +100,12 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         return field[h][i][j]
     }
 
+
     /**
      * Get cell in coordinates, moved in some direction by some distance from start coordinate
      */
     fun getCell(c: Coordinates, direction: Direction, r: Int): Cell {
-        val (i,j) = getNewCoordinate(c, direction, r)
+        val (i, j) = getNewCoordinate(c, direction, r)
         return field[c.h][i][j]
     }
 
@@ -94,7 +113,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
      * Can you move to the coordinates, moved in some direction by some distance from start coordinate
      */
     fun canGo(c: Coordinates, direction: Direction, r: Int): Boolean {
-        val (i,j) = getNewCoordinate(c, direction, r)
+        val (i, j) = getNewCoordinate(c, direction, r)
         return i >= 0 || j >= 0 || i < height || j < width
     }
 
@@ -119,7 +138,8 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         Random.nextInt(1, height - 1),
         Random.nextInt(1, width - 1),
         Random.nextInt(0, depth),
-        id)
+        id
+    )
 
     fun randomFloor(): Floor {
         var maybeFloor = randomCell()
@@ -135,7 +155,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
             floor = randomFloor()
         }
         putMob(mob, floor.coordinates)
-        mobs.add(mob)
+        if (mob is NPC) {
+            mobs.add(mob)
+        }
     }
 
     fun putMob(mob: Mob, c: Coordinates): Boolean {
@@ -147,6 +169,11 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         } else {
             return false
         }
+    }
+
+    fun createPlayer(): Player {
+        val cell = randomFloor()
+        return Player(cell)
     }
 
     override fun toString(): String {
@@ -179,7 +206,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
          * Returns level, loaded from file
          */
         fun load(fileName: String): Level {
-            val jsonLevel =  json.parseJsonObject(File(fileName).reader())
+            val jsonLevel = json.parseJsonObject(File(fileName).reader())
             val height = jsonLevel.int("height")!!
             val width = jsonLevel.int("width")!!
             val depth = jsonLevel.int("depth")!!
@@ -192,19 +219,54 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                         val cellJson = field[h][i][j]
                         val id = cellJson.string("id")
                         val c = Coordinates(i, j, h, levelId)
-                        when (id) {
-                            "." -> level.setCell(c, Floor.empty(c))
-                            "&" -> level.setCell(c, Floor.chest(c))
-                            "#" -> level.setCell(c, Wall(c))
-                            "O" -> level.setCell(c, Door(c))
+                        val cell = when (id) {
+                            "." -> Floor.empty(c)
+                            "&" -> Floor.chest(c)
+                            "#" -> Wall(c)
+                            "O" -> Door(c)
                             "L" -> {
                                 val destJson = cellJson.obj("destination")!!
                                 val destination = Coordinates(
                                     destJson.int("i")!!,
                                     destJson.int("j")!!,
                                     destJson.int("h")!!,
-                                    levelId)
-                                level.setCell(c, Ladder(c, destination))
+                                    levelId
+                                )
+                                Ladder(c, destination)
+                            }
+                            else -> Wall(c)
+                        }
+                        level.setCell(c, cell)
+                        val stander = cellJson.obj("stander")
+                        if (stander != null) {
+                            val standerId = stander.string("id")
+                            val mob: Mob = when (standerId) {
+                                "ё" -> Snowball(cell)
+                                "@" -> Player(cell)
+                                else -> Snowball(cell)
+                            }
+                            if (cell is Floor) {
+                                cell.stander = mob
+                            }
+                            if (mob is Player) {
+                                level.player = mob
+                            } else if (mob is NPC) {
+                                level.mobs.add(mob)
+                            }
+                            mob.armor = stander.int("armor")!!
+                            mob.criticalChance = stander.int("criticalChance")!!
+                            mob.damage = stander.int("damage")!!
+                            mob.resistChance = stander.int("resistChance")!!
+                            mob.hp = stander.int("hp")!!
+                            mob.visibilityDepth = stander.int("visibilityDepth")!!
+                            if (mob is NPC) {
+                                mob.level = stander.int("level")!!
+                                mob.moveStrategy = when (stander.obj("moveStrategy")!!.string("id")) {
+                                    "N" -> NeutralStrategy()
+                                    "A" -> AggressiveStrategy()
+                                    "C" -> CowardStrategy()
+                                    else -> NeutralStrategy()
+                                }
                             }
                         }
                     }
@@ -212,6 +274,89 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
             }
 
             return level
+        }
+
+        private fun processStander(level: Level, cell: Cell, stander: JsonObject): Mob {
+            val standerId = stander.string("id")
+            val mob: Mob = when (standerId) {
+                "c" -> {
+                    val decorated = processStander(level, cell, stander.obj("npc")!!)
+                    MobDecorator(decorated as NPC, level)
+                }
+                "ё" -> Snowball(cell)
+                "@" -> Player(cell, inventory = processInventory(stander))
+                else -> Snowball(cell)
+            }
+
+            getMobCharacteristics(mob, stander)
+
+            if (mob is NPC) {
+                mob.level = stander.int("level")!!
+                mob.moveStrategy = when (stander.obj("moveStrategy")!!.string("id")) {
+                    "N" -> NeutralStrategy()
+                    "A" -> AggressiveStrategy()
+                    "C" -> CowardStrategy()
+                    else -> NeutralStrategy()
+                }
+                val drop = stander.array<JsonObject>("drop")!!
+                for (i in 0 until drop.size) {
+                    mob.drop.add(processItem(drop[i]))
+                }
+            }
+            if (mob is Player) {
+                mob.xp = stander.int("xp")!!
+                mob.level = stander.int("level")!!
+            }
+
+            return mob
+        }
+
+        private fun getMobCharacteristics(mob: Mob, jsonMob: JsonObject) {
+            mob.armor = jsonMob.int("armor")!!
+            mob.criticalChance = jsonMob.int("criticalChance")!!
+            mob.damage = jsonMob.int("damage")!!
+            mob.resistChance = jsonMob.int("resistChance")!!
+            mob.hp = jsonMob.int("hp")!!
+            mob.visibilityDepth = jsonMob.int("visibilityDepth")!!
+        }
+
+        private fun processInventory(stander: JsonObject): Inventory {
+            val inventory = Inventory()
+            val jsonInventory = stander.obj("inventory")!!
+            val jsonEquipped = jsonInventory.obj("equipped")!!
+            val jsonUnequipped = jsonInventory.array<JsonObject>("unequipped")!!
+            for (wearableType in WearableType.values()) {
+                val equippedItem = jsonEquipped.obj(wearableType.toString())
+                if (equippedItem != null) {
+                    inventory.equipped[wearableType] = processItem(equippedItem) as Wearable
+                }
+            }
+            for (i in 0 until jsonUnequipped.size) {
+                inventory.unequipped.add(processItem(jsonUnequipped[i]))
+            }
+            return inventory
+        }
+
+        private fun processItem(jsonItem: JsonObject): Item {
+            val id = jsonItem.string("id")!!
+            val description = jsonItem.string("description")!!
+            val name = jsonItem.string("name")!!
+            val type = WearableType.valueOf(jsonItem.string("type")!!)
+            return when (id) {
+                "B" -> {
+                    val builder = WearableBuilder(description, name, type)
+                    builder.criticalChance = jsonItem.int("criticalChance")!!
+                    builder.damage = jsonItem.int("damage")!!
+                    builder.armor = jsonItem.int("armor")!!
+                    builder.resistChance = jsonItem.int("resistChance")!!
+                    builder.build()
+                }
+                else -> object : Item(description, name, id) {
+                    override fun interact(level: Level) {
+                    }
+
+                }
+            }
         }
     }
 

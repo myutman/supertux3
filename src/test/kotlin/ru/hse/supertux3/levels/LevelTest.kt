@@ -20,7 +20,6 @@ class LevelTest {
         arena = Level.load("src/test/resources/arena.kek")
     }
 
-
     @Test
     fun bfsWorks() {
         val bfsStart = level1.getCell(2, 2, 0).coordinates
@@ -104,7 +103,10 @@ class LevelTest {
         val mob = Snowball(cell)
         (cell as Floor).stander = mob
         println(arena)
-        arena.save("src/test/resources/arenaTest.kek")
+        val testFile = "src/test/resources/arenaTest.kek"
+        arena.save(testFile)
+        println(Level.load(testFile))
+        File(testFile).delete()
     }
 
 }

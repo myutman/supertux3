@@ -6,7 +6,10 @@ import org.jline.terminal.TerminalBuilder
 import org.jline.utils.NonBlockingReader
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.Model
+import ru.hse.supertux3.ui.commands.*
+import java.io.File
 
+val saveName = ".save"
 var reader: NonBlockingReader? = null
 
 /*
@@ -21,6 +24,10 @@ fun readChar(): Char {
     return buffer[0]
 }
 
+fun deleteSave(saveName: String) {
+    File(saveName).delete()
+}
+
 /*
  * Clears screen.
  */
@@ -31,15 +38,10 @@ fun clearScreen() {
 fun main() {
     println("Welcome to Super Tux 3!")
 
-    val level = try {
-        requestLevel()
-    } catch (e: Exception) {
-        println("Error while loading from file! Are you sure file exists?")
-        return
-    }
-
     val attributes = Attributes()
     attributes.setLocalFlag(Attributes.LocalFlag.ECHO, false)
+    attributes.setLocalFlag(Attributes.LocalFlag.ECHOKE, true)
+    attributes.setLocalFlag(Attributes.LocalFlag.ECHOK, false)
 
     val terminal = TerminalBuilder.builder()
         .jna(true)
@@ -51,30 +53,49 @@ fun main() {
 
     reader = terminal.reader()
 
+    val state = try {
+        requestGameState()
+    } catch (e: Exception) {
+        println("Error while loading from file! Are you sure file exists?")
+        return
+    }
+
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
-    val model = Model(level)
-    val view = View(model.state, visual)
+    val model = Model(state)
+    val view = View(state, visual, terminal)
     model.view = view
+
+    val invoker = Invoker()
 
     visual.run {
 
-        while (true) {
+        while (!state.isGameFinished()) {
 
-            var quit = false
-            when (readChar()) {
-                'q' -> quit = true
-                'w' -> model.move(Direction.UP)
-                'a' -> model.move(Direction.LEFT)
-                'd' -> model.move(Direction.RIGHT)
-                's' -> model.move(Direction.DOWN)
-                'r' -> view.redraw()
-                'x' -> model.selfHarm()
-                ' ' -> model.moveLadder()
+            invoker.currentCommand = when (readChar()) {
+                'q' -> QuitCommand(state, saveName)
+                'w' -> MoveCommand(model, Direction.UP)
+                'a' -> MoveCommand(model, Direction.LEFT)
+                'd' -> MoveCommand(model, Direction.RIGHT)
+                's' -> MoveCommand(model, Direction.DOWN)
+                '.' -> StayCommand(model)
+                'r' -> RedrawCommand(view)
+                'x' -> SelfHarmCommand(model)
+                'l' -> LootCommand(model)
+                'o' -> PutOnCommand(model)
+                'p' -> TakeOffCommand(model)
+                'j' -> SlideUpCommand(view)
+                'k' -> SlideDownCommand(view)
+                '?' -> ShowItemInfoCommand(view)
+                'h' -> HelpCommand(view)
+                ' ' -> MoveLadderCommand(model)
+                else -> null
             }
 
-            if (quit || model.state.player.isDead()) {
-                break
+            invoker.run()
+
+            if (state.player.isDead()) {
+                deleteSave(saveName)
             }
         }
         clearScreen()

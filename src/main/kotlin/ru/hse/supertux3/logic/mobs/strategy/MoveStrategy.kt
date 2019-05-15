@@ -7,11 +7,11 @@ import ru.hse.supertux3.logic.mobs.Mob
 /**
  * Interface that determines how NPC moves on level.
  */
-interface MoveStrategy {
+abstract class MoveStrategy(val id: String) {
     /**
      * Function that returns move for npc on level.
      */
-    fun move(level: Level, mob: Mob): Move
+    abstract fun move(level: Level, mob: Mob): Move
 }
 
 /**
