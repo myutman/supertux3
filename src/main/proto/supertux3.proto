@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option java_package = "ru.hse.supertux3";
+option java_outer_classname = "SuperTux3Proto";
+
+message Cell {
+
+}
+
+message Command {
+
+}
+
+message Turn {
+    repeated Cell cells = 3;
+}
+
+
+
+message MakeTurnRequest {
+    Command command = 1;
+}
+
+message MakeTurnResponse {
+    Turn turn = 1;
+}
+
+
+message GetUpdateRequest {
+
+}
+
+message GetUpdateResponse {
+    Turn turn = 1;
+}
+
+message IsMyTurnRequest {
+
+}
+
+message IsMyTurnResponse {
+    bool myTurn = 1;
+}
+
+service SuperTux3 {
+    rpc GetUpdate (GetUpdateRequest) returns (GetUpdateResponse) {
+    }
+    rpc IsMyTurn (IsMyTurnRequest) returns (IsMyTurnResponse) {
+    }
+    rpc MakeTurn (MakeTurnRequest) returns (MakeTurnResponse) {
+    }
+}
