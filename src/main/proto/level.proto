@@ -27,6 +27,13 @@ message NPC {
     repeated Item drop = 3;
 }
 
+message CellStander {
+    string id = 1;
+    oneof Additional {
+        Mob mob = 2;
+    }
+}
+
 message Mob {
     int32 hp = 1;
     int32 resistChance = 2;
@@ -41,15 +48,26 @@ message Mob {
     }
 }
 
+message Ladder {
+    Coordinates destinationCoordinates = 1;
+    int32 levelId = 2;
+}
+
 message Cell {
     string id = 1;
     Coordinates coordinates = 2;
     oneof maybeStander {
-        Mob stander = 3;
+        CellStander stander = 3;
+    }
+    oneof Additional {
+        Ladder ladder = 4;
     }
 }
 
 message Level {
     repeated Cell cells = 1; // cell contains coordinates so we can just pass w * h * d cells
-    string id = 2;
+    int32 id = 2;
+    int32 height = 3;
+    int32 width = 4;
+    int32 depth = 5;
 }

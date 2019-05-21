@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs.strategy
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Mob
@@ -12,6 +13,8 @@ abstract class MoveStrategy(val id: String) {
      * Function that returns move for npc on level.
      */
     abstract fun move(level: Level, mob: Mob): Move
+
+    abstract fun toProto(): LevelOuterClass.MoveStrategy
 }
 
 /**

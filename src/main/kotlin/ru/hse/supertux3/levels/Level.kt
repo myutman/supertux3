@@ -3,6 +3,7 @@ package ru.hse.supertux3.levels
 import com.beust.klaxon.JsonArray
 import com.beust.klaxon.JsonObject
 import com.beust.klaxon.Klaxon
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.logic.items.*
 import ru.hse.supertux3.logic.mobs.Mob
 import ru.hse.supertux3.logic.mobs.NPC
@@ -15,12 +16,20 @@ import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 import java.io.File
 import java.util.*
 import kotlin.random.Random
+import kotlin.streams.toList
 
 /**
  * Data class to store coordinates in level
  */
 data class Coordinates(val i: Int, val j: Int, val h: Int, val levelId: Int) {
     fun serialize() = "$i $j $h $levelId"
+    fun toProto(): LevelOuterClass.Coordinates {
+        return LevelOuterClass.Coordinates.newBuilder()
+            .setI(i)
+            .setJ(j)
+            .setH(h)
+            .build()
+    }
 }
 
 /**
@@ -196,6 +205,20 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
      */
     fun save(fileName: String) {
         File(fileName).writeText(json.toJsonString(this))
+    }
+
+    fun toProto(): LevelOuterClass.Level {
+        val levelBuilder = LevelOuterClass.Level.newBuilder()
+            .setId(id)
+            .setWidth(width)
+            .setHeight(height)
+            .setDepth(depth)
+        val cells = Arrays.stream(field)
+            .flatMap(Arrays::stream)
+            .flatMap(Arrays::stream)
+            .toList()
+            .map{ it.toProto() }
+        return levelBuilder.addAllCells(cells).build()
     }
 
     companion object {

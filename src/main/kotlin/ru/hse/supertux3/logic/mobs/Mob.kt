@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.MoveResult
@@ -121,5 +122,18 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
 
         moveData.result = MoveResult.MOVED
         return moveData
+    }
+
+    override fun toProto(): LevelOuterClass.CellStander {
+        val stander = super.toProto()
+        val mob = LevelOuterClass.Mob.newBuilder()
+            .setArmor(armor)
+            .setCriticalChance(criticalChance)
+            .setHp(hp)
+            .setVisibilityDepth(visibilityDepth)
+            .setDamage(damage)
+            .setResistChance(resistChance)
+            .build()
+        return stander.toBuilder().setMob(mob).build()
     }
 }

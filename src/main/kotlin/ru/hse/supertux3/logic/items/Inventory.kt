@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.items
 
+import ru.hse.supertux3.InventoryOuterClass
 import java.lang.RuntimeException
 
 class Inventory {
@@ -59,5 +60,14 @@ class Inventory {
         } else {
             throw RuntimeException(error)
         }
+    }
+
+    fun toProto(): InventoryOuterClass.Inventory {
+        val equippedList = equipped.toList().map { it.second.toProto() }
+        val uneqquippedList = unequipped.map { it.toProto() }
+        return InventoryOuterClass.Inventory.newBuilder()
+            .addAllEquipped(equippedList)
+            .addAllUnequipped(uneqquippedList)
+            .build()
     }
 }

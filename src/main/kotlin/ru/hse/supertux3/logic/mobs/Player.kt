@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.items.Inventory
@@ -52,5 +53,19 @@ class Player(
         resistChance += 5
         armor += 1
         criticalChance += 5
+    }
+
+
+    open override fun toProto(): LevelOuterClass.CellStander {
+        val stander = super.toProto()
+        val mob = stander.mob
+        val player = LevelOuterClass.Player.newBuilder()
+            .setInventory(inventory.toProto())
+            .setLevel(level)
+            .setXp(xp)
+            .build()
+        return stander.toBuilder()
+            .setMob(mob.toBuilder().setPlayer(player).build())
+            .build()
     }
 }

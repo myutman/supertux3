@@ -1,6 +1,7 @@
 package ru.hse.supertux3.levels
 
 import com.beust.klaxon.Json
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.logic.items.Item
 
 /**
@@ -20,6 +21,13 @@ open class Cell(@Json(ignored = true) val coordinates: Coordinates, val id: Stri
      * Shows if this cell is visible by Player.
      */
     var visibility = Visibility.Hidden
+
+    open fun toProto(): LevelOuterClass.Cell {
+        return LevelOuterClass.Cell.newBuilder()
+            .setId(id)
+            .setCoordinates(coordinates.toProto())
+            .build()
+    }
 }
 
 /**
@@ -59,6 +67,16 @@ open class Floor(coordinates: Coordinates, id: String) : Cell(coordinates, id) {
          */
         fun chest(coordinates: Coordinates): Floor = Floor(coordinates, "&")
     }
+
+    override fun toProto(): LevelOuterClass.Cell {
+        val cell = super.toProto().toBuilder()
+        val curStander = stander
+        return if (curStander != null) {
+            cell.setStander(curStander.toProto()).build()
+        } else {
+            cell.build()
+        }
+    }
 }
 
 /**
@@ -68,6 +86,10 @@ abstract class CellStander(@Json(ignored = true) var cell: Cell, val id: String)
     @Json(ignored = true)
     val coordinates
         get() = cell.coordinates
+
+    open fun toProto(): LevelOuterClass.CellStander {
+        return LevelOuterClass.CellStander.newBuilder().setId(id).build()
+    }
 }
 
 
@@ -86,4 +108,13 @@ class Door(coordinates: Coordinates) : Floor(coordinates, "O")
  */
 class Ladder(coordinates: Coordinates, @Json val destination: Coordinates) : Floor(coordinates, "L") {
     override fun toString() = stander?.id ?: if (destination.h > coordinates.h) "v" else "^"
+
+    override fun toProto(): LevelOuterClass.Cell {
+        val cell = super.toProto()
+        val ladder = LevelOuterClass.Ladder.newBuilder()
+            .setDestinationCoordinates(destination.toProto())
+            .setLevelId(destination.levelId)
+            .build()
+        return cell.toBuilder().setLadder(ladder).build()
+    }
 }

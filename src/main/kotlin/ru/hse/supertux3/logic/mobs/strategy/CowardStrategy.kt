@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs.strategy
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.Coordinates
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.levels.Floor
@@ -31,5 +32,9 @@ class CowardStrategy : MoveStrategy("C") {
             }
         }
 
+    }
+
+    override fun toProto(): LevelOuterClass.MoveStrategy {
+        return LevelOuterClass.MoveStrategy.COWARD
     }
 }
