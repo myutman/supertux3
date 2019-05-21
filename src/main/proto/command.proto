@@ -1,0 +1,6 @@
+syntax = "proto3";
+option java_package = "ru.hse.supertux3";
+
+message Command {
+
+}

@@ -238,36 +238,8 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                         }
                         level.setCell(c, cell)
                         val stander = cellJson.obj("stander")
-                        if (stander != null) {
-                            val standerId = stander.string("id")
-                            val mob: Mob = when (standerId) {
-                                "ё" -> Snowball(cell)
-                                "@" -> Player(cell)
-                                else -> Snowball(cell)
-                            }
-                            if (cell is Floor) {
-                                cell.stander = mob
-                            }
-                            if (mob is Player) {
-                                level.player = mob
-                            } else if (mob is NPC) {
-                                level.mobs.add(mob)
-                            }
-                            mob.armor = stander.int("armor")!!
-                            mob.criticalChance = stander.int("criticalChance")!!
-                            mob.damage = stander.int("damage")!!
-                            mob.resistChance = stander.int("resistChance")!!
-                            mob.hp = stander.int("hp")!!
-                            mob.visibilityDepth = stander.int("visibilityDepth")!!
-                            if (mob is NPC) {
-                                mob.level = stander.int("level")!!
-                                mob.moveStrategy = when (stander.obj("moveStrategy")!!.string("id")) {
-                                    "N" -> NeutralStrategy()
-                                    "A" -> AggressiveStrategy()
-                                    "C" -> CowardStrategy()
-                                    else -> NeutralStrategy()
-                                }
-                            }
+                        if (cell is Floor && stander != null) {
+                            cell.stander = processStander(level, cell, stander)
                         }
                     }
                 }
