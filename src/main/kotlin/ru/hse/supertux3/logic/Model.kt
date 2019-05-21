@@ -1,10 +1,12 @@
 package ru.hse.supertux3.logic
 
 import ru.hse.supertux3.levels.*
+import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.View
 import ru.hse.supertux3.ui.readChar
+import java.lang.RuntimeException
 
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
@@ -20,14 +22,68 @@ class Model(val state: GameState) {
      */
     lateinit var view: View
 
+    private fun message(str: String) {
+        view.printMessage("$str${System.lineSeparator()}Press ESC to continue")
+        while (true) {
+            if (readChar().toInt() == 27) break
+        }
+        view.redraw()
+    }
+
     fun putOn() {
-        println("What do you want to put on?")
-        val c = readChar()
+        view.printMessage("What do you want to put on")
+        val slot = readChar()
+        val equipped = state.player.inventory.equipped
+        val unequipped = state.player.inventory.unequipped
+        try {
+            val info = state.player.inventory.getItemInfoBySlot(slot)
+            if (info.isEquipped) {
+                message("Item is already equipped")
+                return
+            }
+            val item = unequipped[info.index]
+            if (item !is Wearable) {
+                message("Item is not wearable")
+                return
+            }
+            if (equipped.containsKey(item.type)) {
+                message("${item.type} is already equipped")
+                return
+            }
+            item.putOn(state.player)
+            unequipped.removeAt(info.index)
+            equipped.put(item.type, item)
+            view.redraw()
+        } catch (e: RuntimeException) {
+            message(e.message!!)
+            return
+        }
+
+        afterAction()
     }
 
     fun putOff() {
-        println("What do you want to put off?")
+        view.printMessage("What do you want to put off")
+        val slot = readChar()
+        val equipped = state.player.inventory.equipped
+        val unequipped = state.player.inventory.unequipped
+        try {
+            val info = state.player.inventory.getItemInfoBySlot(slot)
+            if (!info.isEquipped) {
+                message("Item is not equipped")
+                return
+            }
+            val entry = equipped.toList()[info.index]
+            entry.second.takeOff(state.player)
+            equipped.remove(entry.first)
+            unequipped.add(state.player.inventory.inventoryCur, entry.second)
+            view.redraw()
+        } catch (e: RuntimeException) {
+            message(e.message!!)
+            return
+        }
 
+        afterAction()
     }
 
     fun loot() {

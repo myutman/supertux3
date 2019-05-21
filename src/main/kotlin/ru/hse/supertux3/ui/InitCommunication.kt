@@ -39,3 +39,9 @@ fun requestGameState(): GameState {
         }
     }
 }
+
+fun getGameType(): GameType {
+    // TODO
+
+    return GameType.SINGLEPLAYER
+}

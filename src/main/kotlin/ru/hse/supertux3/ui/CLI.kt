@@ -2,6 +2,7 @@ package ru.hse.supertux3.ui
 
 import com.github.ajalt.mordant.TermColors
 import org.jline.terminal.Attributes
+import org.jline.terminal.Terminal
 import org.jline.terminal.TerminalBuilder
 import org.jline.utils.NonBlockingReader
 import ru.hse.supertux3.levels.Direction
@@ -53,6 +54,15 @@ fun main() {
 
     reader = terminal.reader()
 
+    val gameType = getGameType();
+    if (gameType == GameType.SINGLEPLAYER) {
+        processSinglePlayer(terminal)
+    } else {
+        processMultiPlayer(terminal)
+    }
+}
+
+fun processSinglePlayer(terminal: Terminal) {
     val state = try {
         requestGameState()
     } catch (e: Exception) {
@@ -100,4 +110,28 @@ fun main() {
         }
         clearScreen()
     }
+}
+
+
+fun processMultiPlayer(terminal: Terminal) {
+    // TODO
+
+    // request server
+    // connect
+    // get state
+    // create View
+    // start game
+    // while (true)
+    //     request isMyTurn
+    //     if my turn, some controller logic with commands, get updates
+    //
+    //     save updates to level (maybe apply them to player)
+    //     drawBeingSeen()
+    //     maybe die
+
+    /**
+     * Some things???:
+     * commands are responsible for response to server
+     * visibility is ok?
+     */
 }
