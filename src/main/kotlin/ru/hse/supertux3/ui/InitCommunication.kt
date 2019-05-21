@@ -41,7 +41,39 @@ fun requestGameState(): GameState {
 }
 
 fun getGameType(): GameType {
-    // TODO
+    clearScreen()
 
-    return GameType.SINGLEPLAYER
+    println("Press s to play in singleplayer mode or m to start multiplayer session.")
+
+    while (true) {
+        val input = readChar()
+        if (input == 'm') {
+            return GameType.MULTIPLAYER
+        }
+        if (input == 's') {
+            return GameType.SINGLEPLAYER
+        }
+    }
+}
+
+fun getRole(): MultiplayerRole {
+    return MultiplayerRole.JOINER
+}
+
+fun getHost(): String {
+    println("Enter hostname: ")
+    return readLine()!!
+}
+
+fun getPort(): Int {
+    while (true) {
+        println("Enter port number: ")
+        val portNumber: Int? = readLine()?.toIntOrNull()
+        if (portNumber == null || portNumber < 1000 || portNumber > 65535) {
+            println("Incorrect input!")
+        } else {
+            return portNumber
+        }
+
+    }
 }
