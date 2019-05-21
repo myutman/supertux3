@@ -3,13 +3,25 @@ package ru.hse.supertux3.multiplayer
 import io.grpc.stub.StreamObserver
 import ru.hse.supertux3.SuperTux3Grpc
 import ru.hse.supertux3.SuperTux3Proto
+import java.io.IOException
 
 class SuperTux3Service: SuperTux3Grpc.SuperTux3ImplBase() {
+
+    val games = mutableMapOf<String, Game>()
+
     override fun createGame(
         request: SuperTux3Proto.CreateGameRequest,
         responseObserver: StreamObserver<SuperTux3Proto.CreateGameResponse>
     ) {
-        super.createGame(request, responseObserver)
+        if (request.gameId in games) {
+            responseObserver.onError(IOException("Game already exists"))
+            return
+        }
+        val game = Game(request.gameId)
+        games[request.gameId] = game
+        game.addUser()
+        responseObserver.onNext(SuperTux3Proto.CreateGameResponse.getDefaultInstance())
+        responseObserver.onCompleted()
     }
 
     override fun startGame(

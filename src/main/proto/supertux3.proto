@@ -42,7 +42,7 @@ message JoinGameRequest {
 }
 
 message JoinGameResponse {
-    int32 userNumber = 1;
+    int32 userId = 1;
     Level level = 2;
 }
 
@@ -58,7 +58,7 @@ message StartGameRequest {
 }
 
 message StartGameResponse {
-    int32 userNumber = 1;
+    int32 userId = 1;
     Level level = 2;
 }
 
