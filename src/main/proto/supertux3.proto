@@ -35,11 +35,44 @@ message IsMyTurnResponse {
     bool myTurn = 1;
 }
 
+message JoinGameRequest {
+    string gameId = 1;
+}
+
+message JoinGameResponse {
+    int32 userNumber = 1;
+    Level level = 2;
+}
+
+message CreateGameRequest {
+    string gameId = 1;
+}
+
+message CreateGameResponse {
+}
+
+message StartGameRequest {
+    string gameId = 1;
+}
+
+message StartGameResponse {
+    int32 userNumber = 1;
+    Level level = 2;
+}
+
+
 service SuperTux3 {
     rpc GetUpdate (GetUpdateRequest) returns (GetUpdateResponse) {
     }
     rpc IsMyTurn (IsMyTurnRequest) returns (IsMyTurnResponse) {
     }
     rpc MakeTurn (MakeTurnRequest) returns (MakeTurnResponse) {
+    }
+    rpc JoinGame (JoinGameRequest) returns (JoinGameResponse) {
+    }
+    rpc CreateGame (CreateGameRequest) returns (CreateGameResponse) {
+    }
+
+    rpc StartGame (StartGameRequest) returns (StartGameResponse) {
     }
 }
