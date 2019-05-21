@@ -11,4 +11,4 @@ jdk:
 os:
   - linux
 script:
-- gradle test
+- ./gradlew test
