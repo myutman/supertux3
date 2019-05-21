@@ -26,6 +26,7 @@ open class Cell(val coordinates: Coordinates, val id: String) {
         return LevelOuterClass.Cell.newBuilder()
             .setId(id)
             .setCoordinates(coordinates.toProto())
+            .setVisibility(visibility.toString())
             .build()
     }
 }

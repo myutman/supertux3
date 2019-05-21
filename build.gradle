@@ -72,3 +72,11 @@ protobuf {
     }
 }
 
+jar {
+    manifest {
+        attributes(
+                'Main-Class': 'ru.hse.supertux3.ui.CLIKt'
+        )
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}

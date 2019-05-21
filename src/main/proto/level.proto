@@ -58,6 +58,7 @@ message Cell {
     oneof Additional {
         Ladder ladder = 4;
     }
+    string visibility = 5;
 }
 
 message Level {

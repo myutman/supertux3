@@ -21,7 +21,11 @@ abstract class Item(val description: String, val name: String, val id: String) {
     }
 
     open fun toProto(): InventoryOuterClass.Item {
-        return InventoryOuterClass.Item.getDefaultInstance()
+        return InventoryOuterClass.Item.newBuilder()
+            .setDescription(description)
+            .setId(id)
+            .setName(name)
+            .build()
     }
 }
 
@@ -75,15 +79,15 @@ abstract class Wearable(
     }
 
     override fun toProto(): InventoryOuterClass.Item {
+        val item = super.toProto()
         val wearable = InventoryOuterClass.Wearable.newBuilder()
             .setArmor(armor)
             .setCriticalChance(criticalChance)
             .setDamage(damage)
             .setResistChance(resistChance)
+            .setType(type.toString())
             .build()
-        return InventoryOuterClass.Item.newBuilder()
-            .setWearable(wearable)
-            .build()
+        return item.toBuilder().setWearable(wearable).build()
     }
 }
 

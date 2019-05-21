@@ -66,6 +66,7 @@ fun processSinglePlayer(terminal: Terminal) {
     val state = try {
         requestGameState()
     } catch (e: Exception) {
+        e.printStackTrace()
         println("Error while loading from file! Are you sure file exists?")
         return
     }

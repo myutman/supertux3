@@ -261,9 +261,16 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                     }
                     else -> Wall(c)
                 }
+                cell.visibility = Visibility.valueOf(cellProto.visibility)
                 level.setCell(c, cell)
                 if (cell is Floor && cellProto.hasStander()) {
                     cell.stander = processStander(level, cell, cellProto.stander)
+                    val mob = cell.stander
+                    if (mob is NPC) {
+                        level.mobs.add(mob)
+                    } else if (mob is Player){
+                        level.player = mob
+                    }
                 }
             }
 
