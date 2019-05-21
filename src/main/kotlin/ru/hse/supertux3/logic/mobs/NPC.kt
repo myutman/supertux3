@@ -31,16 +31,13 @@ abstract class NPC(cell: Cell, id: String) : Mob(cell, id) {
      */
     abstract val drop: MutableList<Item>
 
-    override fun toProto(): LevelOuterClass.CellStander {
-        val stander = super.toProto()
-        val mob = stander.mob
+    override fun toProto(): LevelOuterClass.Mob {
+        val mob = super.toProto()
         val npc = LevelOuterClass.NPC.newBuilder()
             .setLevel(level)
             .setStrategy(moveStrategy.toProto())
             .addAllDrop(drop.map { it.toProto() })
             .build()
-        return stander.toBuilder()
-            .setMob(mob.toBuilder().setNpc(npc).build())
-            .build()
+        return mob.toBuilder().setNpc(npc).build()
     }
 }

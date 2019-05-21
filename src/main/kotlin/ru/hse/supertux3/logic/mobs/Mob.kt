@@ -14,7 +14,11 @@ import java.lang.Integer.max
  * - player
  * - non-playable characters.
  */
-abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
+abstract class Mob(var cell: Cell, val id: String){
+
+    val coordinates: Coordinates
+        get() = cell.coordinates
+
     /**
      * Base health points of creature.
      */
@@ -124,16 +128,15 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
         return moveData
     }
 
-    override fun toProto(): LevelOuterClass.CellStander {
-        val stander = super.toProto()
-        val mob = LevelOuterClass.Mob.newBuilder()
+    open fun toProto(): LevelOuterClass.Mob {
+        return LevelOuterClass.Mob.newBuilder()
             .setArmor(armor)
             .setCriticalChance(criticalChance)
             .setHp(hp)
             .setVisibilityDepth(visibilityDepth)
             .setDamage(damage)
             .setResistChance(resistChance)
+            .setId(id)
             .build()
-        return stander.toBuilder().setMob(mob).build()
     }
 }

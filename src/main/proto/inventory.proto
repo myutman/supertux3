@@ -16,7 +16,7 @@ message Wearable {
     int32 armor = 2;
     int32 damage = 3;
     int32 criticalChance = 4;
-    WearableType type = 5;
+    string type = 5;
 }
 
 message Item {

@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs.decorators
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
@@ -89,5 +90,11 @@ class MobDecorator(val npc: NPC, level: Level) : NPC(npc.cell, "c") {
             undecorate(level)
         }
         return moveData
+    }
+
+    override fun toProto(): LevelOuterClass.Mob {
+        val mob = npc.toProto()
+        val npcProto = mob.npc.toBuilder().setIsConfused(true).build()
+        return mob.toBuilder().setNpc(npcProto).build()
     }
 }

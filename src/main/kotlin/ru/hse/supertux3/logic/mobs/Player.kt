@@ -56,16 +56,13 @@ class Player(
     }
 
 
-    open override fun toProto(): LevelOuterClass.CellStander {
-        val stander = super.toProto()
-        val mob = stander.mob
+    override fun toProto(): LevelOuterClass.Mob {
+        val mob = super.toProto()
         val player = LevelOuterClass.Player.newBuilder()
             .setInventory(inventory.toProto())
             .setLevel(level)
             .setXp(xp)
             .build()
-        return stander.toBuilder()
-            .setMob(mob.toBuilder().setPlayer(player).build())
-            .build()
+        return mob.toBuilder().setPlayer(player).build()
     }
 }

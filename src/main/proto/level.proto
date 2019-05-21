@@ -25,14 +25,9 @@ message NPC {
     int32 level = 1;
     MoveStrategy strategy = 2;
     repeated Item drop = 3;
+    bool isConfused = 4;
 }
 
-message CellStander {
-    string id = 1;
-    oneof Additional {
-        Mob mob = 2;
-    }
-}
 
 message Mob {
     int32 hp = 1;
@@ -46,6 +41,7 @@ message Mob {
         NPC npc = 7;
         Player player = 8;
     }
+    string id = 9;
 }
 
 message Ladder {
@@ -57,7 +53,7 @@ message Cell {
     string id = 1;
     Coordinates coordinates = 2;
     oneof maybeStander {
-        CellStander stander = 3;
+        Mob stander = 3;
     }
     oneof Additional {
         Ladder ladder = 4;

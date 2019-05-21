@@ -48,7 +48,6 @@ dependencies {
     compile group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.+'
 
 
-    compile 'com.beust:klaxon:5.0.1'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
     compile group: 'org.jline', name: 'jline', version: '3.10.0'
     compile 'com.github.ajalt:mordant:1.2.0'
