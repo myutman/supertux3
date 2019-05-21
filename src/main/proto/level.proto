@@ -13,6 +13,7 @@ message Player {
     int32 level = 1;
     int32 xp = 2;
     Inventory inventory = 3;
+    int32 userId = 4;
 }
 
 enum MoveStrategy {
@@ -58,7 +59,6 @@ message Cell {
     oneof Additional {
         Ladder ladder = 4;
     }
-    string visibility = 5;
 }
 
 message Level {

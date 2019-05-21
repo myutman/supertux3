@@ -11,6 +11,7 @@ import ru.hse.supertux3.logic.mobs.strategy.Move
  */
 class Player(
     cell: Cell,
+    val userId: Int = 0,
     override var hp: Int = 100,
     override var damage: Int = 15,
     override var resistChance: Int = 10,

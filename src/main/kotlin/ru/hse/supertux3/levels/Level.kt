@@ -56,7 +56,13 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     /**
      * Player, who stands in this level
      */
-    var player: Player? = null
+    var players = mutableListOf<Player>()
+
+    /**
+     * The one and only player in singleplayer
+     */
+    val player: Player?
+        get() = if (players.isEmpty()) null else players.first()
 
     /**
      * Just a 3D array representation of field,
@@ -183,9 +189,11 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         }
     }
 
-    fun createPlayer(): Player {
+    fun createPlayer(userId: Int = 0): Player {
         val cell = randomFloor()
-        return Player(cell)
+        val player = Player(cell, userId = userId)
+        players.add(player)
+        return player
     }
 
     override fun toString(): String {
@@ -261,7 +269,6 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                     }
                     else -> Wall(c)
                 }
-                cell.visibility = Visibility.valueOf(cellProto.visibility)
                 level.setCell(c, cell)
                 if (cell is Floor && cellProto.hasStander()) {
                     cell.stander = processStander(level, cell, cellProto.stander)
@@ -269,7 +276,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                     if (mob is NPC) {
                         level.mobs.add(mob)
                     } else if (mob is Player){
-                        level.player = mob
+                        level.players.add(mob)
                     }
                 }
             }

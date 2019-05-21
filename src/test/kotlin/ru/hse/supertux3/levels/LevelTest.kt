@@ -1,5 +1,6 @@
 package ru.hse.supertux3.levels
 
+import org.junit.AfterClass
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -16,6 +17,13 @@ class LevelTest {
     @Before
     fun load() {
         arena = loadArena()
+    }
+    companion object {
+        @JvmStatic
+        @AfterClass
+        fun deleteArena() {
+            File("src/test/resources/arena.kek").delete()
+        }
     }
 
     private fun loadArena(): Level {

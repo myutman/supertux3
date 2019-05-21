@@ -11,7 +11,8 @@ message Turn {
 
 
 message MakeTurnRequest {
-    Command command = 1;
+    string gameId = 1;
+    Command command = 2;
 }
 
 message MakeTurnResponse {
@@ -20,7 +21,7 @@ message MakeTurnResponse {
 
 
 message GetUpdateRequest {
-
+    string gameId = 1;
 }
 
 message GetUpdateResponse {
@@ -28,6 +29,7 @@ message GetUpdateResponse {
 }
 
 message IsMyTurnRequest {
+    string gameId = 1;
 
 }
 

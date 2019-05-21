@@ -294,10 +294,11 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
                 3 -> CowardStrategy()
                 else -> AggressiveStrategy()
             }
-            mob.level = level.player?.level ?: 0
+            val playerLevel = level.player?.level ?: 0
+            mob.level = playerLevel
             mob.moveStrategy = strategy
             val itemsCount = Random.nextInt(1, 4)
-            mob.drop.addAll(ItemsGenerator.generateItems(itemsCount, level.player?.level ?: 0))
+            mob.drop.addAll(ItemsGenerator.generateItems(itemsCount, playerLevel))
             level.putMob(mob)
         }
     }
