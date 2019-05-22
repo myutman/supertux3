@@ -49,5 +49,6 @@ message Command {
         LootCommand loot = 4;
         PutOnCommand putOn = 5;
         TakeOffCommand takeOff = 6;
+        MoveLadderCommand moveLadder = 7;
     }
 }
