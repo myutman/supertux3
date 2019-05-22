@@ -5,7 +5,7 @@ import ru.hse.supertux3.SuperTux3Grpc
 import ru.hse.supertux3.SuperTux3Proto
 import java.io.IOException
 
-class SuperTux3Service: SuperTux3Grpc.SuperTux3ImplBase() {
+class SuperTux3Service : SuperTux3Grpc.SuperTux3ImplBase() {
 
     val games = mutableMapOf<String, Game>()
 
@@ -19,7 +19,6 @@ class SuperTux3Service: SuperTux3Grpc.SuperTux3ImplBase() {
         }
         val game = Game(request.gameId)
         games[request.gameId] = game
-        game.addUser()
         responseObserver.onNext(SuperTux3Proto.CreateGameResponse.getDefaultInstance())
         responseObserver.onCompleted()
     }
@@ -27,38 +26,87 @@ class SuperTux3Service: SuperTux3Grpc.SuperTux3ImplBase() {
     override fun startGame(
         request: SuperTux3Proto.StartGameRequest,
         responseObserver: StreamObserver<SuperTux3Proto.StartGameResponse>
-    ) {
-        super.startGame(request, responseObserver)
+    ) = withGame(request.gameId, responseObserver) { game ->
+        val userId = game.start()
+        responseObserver.onNext(
+            SuperTux3Proto.StartGameResponse.newBuilder()
+                .setLevel(game.level.toProto())
+                .setUserId(userId)
+                .build()
+        )
+        responseObserver.onCompleted()
     }
 
     override fun joinGame(
         request: SuperTux3Proto.JoinGameRequest,
         responseObserver: StreamObserver<SuperTux3Proto.JoinGameResponse>
-    ) {
-        super.joinGame(request, responseObserver)
-    }
-
-    override fun getUpdate(
-        request: SuperTux3Proto.GetUpdateRequest,
-        responseObserver: StreamObserver<SuperTux3Proto.GetUpdateResponse>
-    ) {
-
+    ) = withGame(request.gameId, responseObserver) { game ->
+        val userId = game.join()
+        responseObserver.onNext(
+            SuperTux3Proto.JoinGameResponse.newBuilder()
+                .setLevel(game.level.toProto())
+                .setUserId(userId)
+                .build()
+        )
+        responseObserver.onCompleted()
     }
 
     override fun isMyTurn(
         request: SuperTux3Proto.IsMyTurnRequest,
         responseObserver: StreamObserver<SuperTux3Proto.IsMyTurnResponse>
-    ) {
-        super.isMyTurn(request, responseObserver)
+    ) = withGame(request.gameId, responseObserver) { game ->
+        val isMyTurn = game.isMyTurn(request.userId)
+        responseObserver.onNext(
+            SuperTux3Proto.IsMyTurnResponse.newBuilder()
+                .setMyTurn(isMyTurn)
+                .build()
+        )
+        responseObserver.onCompleted()
     }
 
+    override fun getUpdate(
+        request: SuperTux3Proto.GetUpdateRequest,
+        responseObserver: StreamObserver<SuperTux3Proto.GetUpdateResponse>
+    ) = withGame(request.gameId, responseObserver) { game ->
+        val cells = game.getUpdate()
+        val turn = SuperTux3Proto.Turn.newBuilder()
+            .addAllCells(cells.map { it.toProto() })
+            .build()
+        responseObserver.onNext(
+            SuperTux3Proto.GetUpdateResponse.newBuilder()
+                .setTurn(turn)
+                .build()
+        )
+        responseObserver.onCompleted()
+    }
 
 
     override fun makeTurn(
         request: SuperTux3Proto.MakeTurnRequest,
         responseObserver: StreamObserver<SuperTux3Proto.MakeTurnResponse>
-    ) {
-        super.makeTurn(request, responseObserver)
+    ) = withGame(request.gameId, responseObserver) { game ->
+        val cells = game.makeTurn(request.userId, request.command)
+        val turn = SuperTux3Proto.Turn.newBuilder()
+            .addAllCells(cells.map { it.toProto() })
+            .build()
+        responseObserver.onNext(
+            SuperTux3Proto.MakeTurnResponse.newBuilder()
+                .setTurn(turn)
+                .build()
+        )
+        responseObserver.onCompleted()
     }
 
+
+    private fun withGame(
+        gameId: String, responseObserver: StreamObserver<*>,
+        exec: (Game) -> Unit
+    ) {
+        val game = games[gameId]
+        if (game != null) {
+            exec(game)
+        } else {
+            responseObserver.onError(IOException("Game not exists"))
+        }
+    }
 }
