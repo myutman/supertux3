@@ -9,6 +9,14 @@ import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.ui.commands.*
 import java.io.File
+import io.grpc.ManagedChannel
+import io.grpc.ManagedChannelBuilder
+import ru.hse.supertux3.SuperTux3Grpc
+import ru.hse.supertux3.SuperTux3Proto
+import ru.hse.supertux3.levels.Level
+import ru.hse.supertux3.logic.GameState
+import java.util.concurrent.TimeUnit
+
 
 val saveName = ".save"
 var reader: NonBlockingReader? = null
@@ -115,24 +123,65 @@ fun processSinglePlayer(terminal: Terminal) {
 
 
 fun processMultiPlayer(terminal: Terminal) {
-    // TODO
+    val role = getRole()
 
-    // request server
-    // connect
-    // get state
-    // create View
+    val host = getHost()
+    val port = getPort()
+    val channel = ManagedChannelBuilder.forAddress(host, port).build()
+    val stub = SuperTux3Grpc.newBlockingStub(channel)
+
+    val userNumber: Int
+    val level: Level
+
+    if (role == MultiplayerRole.JOINER || role == MultiplayerRole.LOBBYIST) {
+        val gameId = getId()
+        println("Wait for response. It may take time.")
+        val response = stub.joinGame(SuperTux3Proto.JoinGameRequest.newBuilder().setGameId(gameId).build())
+        level = Level.load(response.level)
+        userNumber = response.userNumber
+    } else {
+        // idk
+        // some shit, but eventually we'll get level and userNumber
+        val response = stub.joinGame(SuperTux3Proto.JoinGameRequest.newBuilder().setGameId("-0").build())
+        level = Level.load(response.level)
+        userNumber = response.userNumber
+    }
+    val player = level.players.find { player -> player.userId == userNumber }
+    if (player == null) {
+        println("ERROROR: server sent userId that didn't match any userId in Level.")
+        return
+    }
+
+    val state = GameState(level, player)
+    val visual = TermColors(TermColors.Level.TRUECOLOR)
+    val view = View(state, visual, terminal)
+
     // start game
     // while (true)
     //     request isMyTurn
     //     if my turn, some controller logic with commands, get updates
     //
-    //     save updates to level (maybe apply them to player)
-    //     drawBeingSeen()
-    //     maybe die
+
+    while (true) {
+
+        val isMyTurn = stub.isMyTurn(SuperTux3Proto.IsMyTurnRequest.newBuilder().build()).myTurn
+        if (isMyTurn) {
+            // some controller logic + send request
+        }
+
+        val updates = stub.getUpdate(SuperTux3Proto.GetUpdateRequest.newBuilder().build())
+
+
+        //     save updates to level (maybe apply them to player)
+        //     drawBeingSeen()
+        //     maybe die
+        break
+    }
 
     /**
      * Some things???:
      * commands are responsible for response to server
-     * visibility is ok?
      */
+
+    channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);
 }

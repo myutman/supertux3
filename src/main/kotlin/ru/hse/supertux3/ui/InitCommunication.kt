@@ -77,3 +77,9 @@ fun getPort(): Int {
 
     }
 }
+
+fun getId(): String {
+    println("Enter gameId: ")
+    return readLine()!!
+}
+
