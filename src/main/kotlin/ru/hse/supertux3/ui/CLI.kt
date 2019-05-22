@@ -93,8 +93,26 @@ fun processSinglePlayer(terminal: Terminal) {
                 'r' -> RedrawCommand(view)
                 'x' -> SelfHarmCommand(model)
                 'l' -> LootCommand(model)
-                'o' -> PutOnCommand(model)
-                'p' -> TakeOffCommand(model)
+                'o' -> {
+                    view.printMessage("What do you want to put on")
+                    val slotChar = readChar()
+                    val index = model.getSlotToPutOn(slotChar)
+                    if (index == -1) {
+                        EmptyCommand()
+                    } else {
+                        PutOnCommand(model, index)
+                    }
+                }
+                'p' -> {
+                    view.printMessage("What do you want to take off")
+                    val slotChar = readChar()
+                    val type = model.getSlotToTakeOff(slotChar)
+                    if (type == null) {
+                        EmptyCommand()
+                    } else {
+                        TakeOffCommand(model, type)
+                    }
+                }
                 'j' -> SlideUpCommand(view)
                 'k' -> SlideDownCommand(view)
                 '?' -> ShowItemInfoCommand(view)
