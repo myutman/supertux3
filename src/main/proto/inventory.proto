@@ -2,15 +2,6 @@ syntax = "proto3";
 
 option java_package = "ru.hse.supertux3";
 
-enum WearableType {
-    HAT = 0;
-    JACKET = 1;
-    GLOVES = 2;
-    PANTS = 3;
-    SHOES = 4;
-    WEAPON = 5;
-}
-
 message Wearable {
     int32 resistChance = 1;
     int32 armor = 2;

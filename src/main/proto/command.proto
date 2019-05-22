@@ -1,6 +1,53 @@
 syntax = "proto3";
 option java_package = "ru.hse.supertux3";
 
-message Command {
+enum Direction {
+    UP = 0;
+    DOWN = 1;
+    LEFT = 2;
+    RIGHT = 3;
+}
 
+enum WearableType {
+    HAT = 0;
+    JACKET = 1;
+    GLOVES = 2;
+    PANTS = 3;
+    SHOES = 4;
+    WEAPON = 5;
+}
+
+message MoveCommand {
+    Direction direction = 1;
+}
+
+message StayCommand {
+
+}
+
+message LootCommand {
+
+}
+
+message PutOnCommand {
+    int32 index = 1;
+}
+
+message TakeOffCommand{
+    WearableType type = 1;
+}
+
+message MoveLadderCommand {
+
+}
+
+message Command {
+    int32 userId = 1;
+    oneof command {
+        MoveCommand move = 2;
+        StayCommand stay = 3;
+        LootCommand loot = 4;
+        PutOnCommand putOn = 5;
+        TakeOffCommand takeOff = 6;
+    }
 }

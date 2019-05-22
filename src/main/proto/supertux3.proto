@@ -13,6 +13,7 @@ message Turn {
 message MakeTurnRequest {
     string gameId = 1;
     Command command = 2;
+    int32 userId = 3;
 }
 
 message MakeTurnResponse {
@@ -22,6 +23,7 @@ message MakeTurnResponse {
 
 message GetUpdateRequest {
     string gameId = 1;
+    int32 userId = 2;
 }
 
 message GetUpdateResponse {
@@ -30,7 +32,7 @@ message GetUpdateResponse {
 
 message IsMyTurnRequest {
     string gameId = 1;
-
+    int32 userId = 2;
 }
 
 message IsMyTurnResponse {
@@ -74,7 +76,6 @@ service SuperTux3 {
     }
     rpc CreateGame (CreateGameRequest) returns (CreateGameResponse) {
     }
-
     rpc StartGame (StartGameRequest) returns (StartGameResponse) {
     }
 }
