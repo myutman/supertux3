@@ -49,13 +49,27 @@ class Game(val id: String) {
         return userId == usersPlay[curTurnPlayer]
     }
 
-    private fun applyCommand(userId: Int, command: CommandOuterClass.Command): List<Cell> {
+    private fun applyCommand(command: CommandOuterClass.Command): List<Cell> {
+        val userId = command.userId
+        if (command.hasLoot()) {
+
+        } else if (command.hasMove()) {
+
+        } else if (command.hasStay()) {
+
+        } else if (command.hasMoveLadder()) {
+
+        } else if (command.hasPutOn()) {
+
+        } else if (command.hasTakeOff()) {
+
+        }
         TODO("applying command to level, returning list of cells inside")
     }
 
     fun makeTurn(userId: Int, command: CommandOuterClass.Command): List<Cell> {
         currentTurn.clear()
-        currentTurn.addAll(applyCommand(userId, command))
+        currentTurn.addAll(applyCommand(command))
         curTurnPlayer++
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
