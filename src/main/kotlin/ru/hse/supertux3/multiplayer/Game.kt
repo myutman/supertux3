@@ -8,6 +8,7 @@ import ru.hse.supertux3.levels.LevelLoader
 import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.logic.items.WearableType
+import ru.hse.supertux3.ui.FakeView
 import ru.hse.supertux3.ui.commands.*
 import java.util.concurrent.CyclicBarrier
 
@@ -77,6 +78,7 @@ class Game(val id: String) {
         val curPlayer = level.players[userId]
         val changed = ArrayList<Cell>()
         val model = Model(GameState(level, curPlayer))
+        model.view = FakeView()
         val modelCommand: Command = if (command.hasLoot()) {
             changed.add(curPlayer.cell)
             LootCommand(model)

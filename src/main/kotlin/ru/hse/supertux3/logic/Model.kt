@@ -5,9 +5,8 @@ import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
-import ru.hse.supertux3.ui.View
+import ru.hse.supertux3.ui.ViewLike
 import ru.hse.supertux3.ui.readChar
-import java.lang.RuntimeException
 
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
@@ -21,7 +20,7 @@ class Model(val state: GameState) {
     /**
      * View to request to redraw everything.
      */
-    lateinit var view: View
+    lateinit var view: ViewLike
 
     private fun message(str: String) {
         view.printMessage("$str${System.lineSeparator()}Press ESC to continue")

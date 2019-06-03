@@ -10,12 +10,77 @@ import org.jline.terminal.Terminal
 import kotlin.math.max
 import kotlin.math.min
 
+interface ViewLike {
+    fun moveLadder()
+    fun move(direction: Direction)
+    fun afterAction()
+    fun attack()
+    fun attacked()
+    fun died()
+    fun printMessage(str: String)
+    fun redraw()
+    fun lazyRedraw(cells: List<Cell>)
+    fun slideDown()
+    fun slideUp()
+    fun showInventoryMessage()
+}
+
+class FakeView: ViewLike {
+    override fun moveLadder() {
+
+    }
+
+    override fun move(direction: Direction) {
+
+    }
+
+    override fun afterAction() {
+
+    }
+
+    override fun attack() {
+
+    }
+
+    override fun attacked() {
+
+    }
+
+    override fun died() {
+
+    }
+
+    override fun printMessage(str: String) {
+
+    }
+
+    override fun redraw() {
+
+    }
+
+    override fun lazyRedraw(cells: List<Cell>) {
+
+    }
+
+    override fun slideDown() {
+
+    }
+
+    override fun slideUp() {
+
+    }
+
+    override fun showInventoryMessage() {
+
+    }
+}
+
 /*
  * Class for moving cursor commands.
  * @param state current game state consists of level and player information
  * @param visual object for moving cursor and coloring symbols
  */
-class View(val state: GameState, val visual: TermColors, val terminal: Terminal) {
+class View(val state: GameState, val visual: TermColors, val terminal: Terminal): ViewLike {
 
     init {
         redraw()
@@ -24,7 +89,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     /*
      * Move up or down the ladder.
      */
-    fun moveLadder() {
+    override fun moveLadder() {
         redraw()
     }
 
@@ -32,7 +97,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
      * Go to the given direction.
      * @param direction direction to go to
      */
-    fun move(direction: Direction) {
+    override fun move(direction: Direction) {
         val prevPosition = state.level.getCell(state.player.position(), direction, -1)
         visual.run {
             print(prevPosition)
@@ -52,7 +117,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         clearAttacked()
     }
 
-    fun afterAction() {
+    override fun afterAction() {
         drawBeingSeen()
 
         visual.run {
@@ -63,17 +128,17 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printPos()
     }
 
-    fun attack() {
+    override fun attack() {
         printUsrInfo()
         printStrInLine("You attacked", 2)
     }
 
-    fun attacked() {
+    override fun attacked() {
         printUsrInfo()
         printAttacked()
     }
 
-    fun died() {
+    override fun died() {
         clearScreen()
         print(buildString {
             append(
@@ -89,7 +154,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         readChar()
     }
 
-    fun printMessage(str: String) {
+    override fun printMessage(str: String) {
         printStrInLine(str, 5)
     }
 
@@ -113,7 +178,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     /*
      * Redraw all the field.
      */
-    fun redraw() {
+    override fun redraw() {
         clearScreen()
 
         val level = state.level
@@ -161,7 +226,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printInventoryInfo()
     }
 
-    fun lazyRedraw(cells: List<Cell>) {
+    override fun lazyRedraw(cells: List<Cell>) {
         for (cell in cells) {
             if (cell.coordinates.h == state.player.coordinates.h) {
 
@@ -276,17 +341,17 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printStrInLine(str, 0)
     }
 
-    fun slideDown() {
+    override fun slideDown() {
         if (state.player.inventory.slideDown())
             redraw()
     }
 
-    fun slideUp() {
+    override fun slideUp() {
         if (state.player.inventory.slideUp())
             redraw()
     }
 
-    fun showInventoryMessage() {
+    override fun showInventoryMessage() {
         val str = "What item do you want to know about?"
         printStrInLine(str, 4)
     }
