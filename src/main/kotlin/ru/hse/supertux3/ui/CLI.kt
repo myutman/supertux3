@@ -9,8 +9,8 @@ import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.ui.commands.*
 import java.io.File
-import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
+import ru.hse.supertux3.CommandOuterClass
 import ru.hse.supertux3.SuperTux3Grpc
 import ru.hse.supertux3.SuperTux3Proto
 import ru.hse.supertux3.levels.Cell
@@ -148,6 +148,7 @@ fun processMultiPlayer(terminal: Terminal) {
 
     val host = getHost()
     val port = getPort()
+
     val channel = ManagedChannelBuilder.forAddress(host, port).build()
     val stub = SuperTux3Grpc.newBlockingStub(channel)
 
@@ -161,11 +162,17 @@ fun processMultiPlayer(terminal: Terminal) {
         level = Level.load(response.level)
         userNumber = response.userId
     } else {
-        // TODO: idk, some shit, but eventually we'll get level and userNumber
-        val response = stub.joinGame(SuperTux3Proto.JoinGameRequest.newBuilder().setGameId("-0").build())
+        val gameId = getId()
+        stub.createGame(SuperTux3Proto.CreateGameRequest.newBuilder().setGameId(gameId).build())
+
+        println("Enter the same id to start game.")
+        val secondGameId = getId()
+        // TODO: do this better
+        val response = stub.startGame(SuperTux3Proto.StartGameRequest.newBuilder().setGameId(gameId).build())
         level = Level.load(response.level)
         userNumber = response.userId
     }
+
     val player = level.players.find { player -> player.userId == userNumber }
     if (player == null) {
         println("ERROROR: server sent userId that didn't match any userId in Level.")
@@ -175,18 +182,26 @@ fun processMultiPlayer(terminal: Terminal) {
     val state = GameState(level, player)
     val visual = TermColors(TermColors.Level.TRUECOLOR)
     val view = View(state, visual, terminal)
-    val invoker = Invoker()
 
     while (true) {
         val isMyTurn = stub.isMyTurn(SuperTux3Proto.IsMyTurnRequest.newBuilder().build()).myTurn
+        val updatesTurn: SuperTux3Proto.Turn
         if (isMyTurn) {
-            invoker.currentCommand = when (readChar()) {
-                // TODO: write mp commands
+            val currentCommandBuilder = CommandOuterClass.Command.newBuilder()
+            when (readChar()) {
+                'w' -> currentCommandBuilder.setMove(
+                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.UP)
+                )
+                'a' -> currentCommandBuilder.setMove(
+                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.LEFT)
+                )
+                's' -> currentCommandBuilder.setMove(
+                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.DOWN)
+                )
+                'd' -> currentCommandBuilder.setMove(
+                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.RIGHT)
+                )
                 /*'q' -> QuitCommand(state, saveName)
-                'w' -> MoveCommand(model, Direction.UP)
-                'a' -> MoveCommand(model, Direction.LEFT)
-                'd' -> MoveCommand(model, Direction.RIGHT)
-                's' -> MoveCommand(model, Direction.DOWN)
                 ' ' -> MoveLadderCommand(model)
                 '.' -> StayCommand(model)
                 'l' -> LootCommand(model)
@@ -218,11 +233,13 @@ fun processMultiPlayer(terminal: Terminal) {
                 'h' -> HelpCommand(view)
                 else -> null
             }
-
-            invoker.run()
+            val command = currentCommandBuilder.build()
+            val turnResponse = stub.makeTurn(SuperTux3Proto.MakeTurnRequest.newBuilder().setCommand(command).build())
+            updatesTurn = turnResponse.turn
+        } else {
+            updatesTurn = stub.getUpdate(SuperTux3Proto.GetUpdateRequest.newBuilder().build()).turn
         }
 
-        val updatesTurn = stub.getUpdate(SuperTux3Proto.GetUpdateRequest.newBuilder().build()).turn
         val cellsList = ArrayList<Cell>()
         for (proto in updatesTurn.cellsList) {
             val cell = Level.loadCell(state.level, proto)
@@ -232,7 +249,7 @@ fun processMultiPlayer(terminal: Terminal) {
                 val cellPlayer = cell.stander as Player
                 if (cellPlayer.userId == userNumber) {
                     state.player.copyFrom(cellPlayer)
-
+                    // TODO: inventory
                 }
             }
 
