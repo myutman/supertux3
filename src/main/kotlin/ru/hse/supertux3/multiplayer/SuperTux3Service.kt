@@ -21,6 +21,7 @@ class SuperTux3Service : SuperTux3Grpc.SuperTux3ImplBase() {
             return
         }
         val game = Game(request.gameId)
+        println("Created game with id=${request.gameId}")
         games[request.gameId] = game
         responseObserver.onNext(SuperTux3Proto.CreateGameResponse.getDefaultInstance())
         responseObserver.onCompleted()

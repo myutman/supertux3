@@ -22,8 +22,8 @@ class Game(val id: String) {
     private var nextId = 0
 
     private val joinCondition = Object()
-    private var takeTurnBarrier = CyclicBarrier(0)
-    private var makeTurnBarrier = CyclicBarrier(0)
+    private var takeTurnBarrier = CyclicBarrier(2)
+    private var makeTurnBarrier = CyclicBarrier(2)
 
     private val usersPlay = mutableListOf<Int>()
 

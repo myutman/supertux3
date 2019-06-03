@@ -78,9 +78,11 @@ fun getHost(): String {
     println("Enter hostname: ")
     while (true) {
         val hostname: String? = lineReader.readLine()
-        if (hostname != null) {
-            return hostname
+        if (hostname.isNullOrBlank()) {
+            println("127.0.0.1")
+            return "127.0.0.1"
         }
+        return hostname
     }
 }
 
@@ -88,7 +90,11 @@ fun getPort(): Int {
     while (true) {
         println("Enter port number: ")
         val portNumber: Int? = lineReader.readLine()?.toIntOrNull()
-        if (portNumber == null || portNumber < 1000 || portNumber > 65535) {
+        if (portNumber == null) {
+            println(9805)
+            return 9805
+        }
+        if (portNumber < 1000 || portNumber > 65535) {
             println("Incorrect input!")
         } else {
             return portNumber
