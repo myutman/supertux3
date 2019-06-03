@@ -127,15 +127,19 @@ class Game(val id: String) {
      */
     fun makeTurn(userId: Int, command: CommandOuterClass.Command): List<Cell> {
         println("MAKE TURN userId=$userId")
+        if (usersPlay[curTurnPlayer] != userId) {
+            return emptyList()
+        }
+        curTurnPlayer++
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
-        curTurnPlayer++
+        val oldBarrier = makeTurnBarrier
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
             currentTurn.addAll(moveMobs())
             curTurnPlayer = 0
         }
-        makeTurnBarrier.await()
+        oldBarrier.await()
         return currentTurn
     }
 
@@ -166,8 +170,8 @@ class Game(val id: String) {
     /**
      * Getting update(another player turn or mobs turns)
      */
-    fun getUpdate(): List<Cell> {
-        println("GET UPDATE")
+    fun getUpdate(userId: Int): List<Cell> {
+        println("GET UPDATE userId=$userId")
         makeTurnBarrier.await()
         return currentTurn
     }

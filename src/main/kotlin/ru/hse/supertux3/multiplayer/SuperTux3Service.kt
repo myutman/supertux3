@@ -72,7 +72,7 @@ class SuperTux3Service : SuperTux3Grpc.SuperTux3ImplBase() {
         request: SuperTux3Proto.GetUpdateRequest,
         responseObserver: StreamObserver<SuperTux3Proto.GetUpdateResponse>
     ) = withGame(request.gameId, responseObserver) { game ->
-        val cells = game.getUpdate()
+        val cells = game.getUpdate(request.userId)
         val turn = SuperTux3Proto.Turn.newBuilder()
             .addAllCells(cells.map { it.toProto() })
             .build()
