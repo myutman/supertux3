@@ -59,7 +59,19 @@ fun getGameType(): GameType {
 }
 
 fun getRole(): MultiplayerRole {
-    return MultiplayerRole.JOINER
+    println("Press 'c' to create game, 'j' to join or l to join in lobby.")
+    while (true) {
+        val input = readChar()
+        if (input == 'c') {
+            return MultiplayerRole.CREATOR
+        }
+        if (input == 'j') {
+            return MultiplayerRole.JOINER
+        }
+        if (input == 'l') {
+            return MultiplayerRole.LOBBYIST
+        }
+    }
 }
 
 fun getHost(): String {
