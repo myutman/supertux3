@@ -38,7 +38,7 @@ fun main(args: Array<String>) = mainBody {
 
 class SuperTux3ServerArgs(parser: ArgParser) {
     val port: Int by parser.storing(
-        "--port",
+        "--port", "-p",
         help = "port to listen on (default 9805)"
     ) { toInt() }.default { 9805 }
 }
