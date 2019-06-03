@@ -130,10 +130,10 @@ class Game(val id: String) {
         if (usersPlay[curTurnPlayer] != userId) {
             return emptyList()
         }
-        curTurnPlayer++
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
         val oldBarrier = makeTurnBarrier
+        curTurnPlayer++
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
             currentTurn.addAll(moveMobs())
