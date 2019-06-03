@@ -284,7 +284,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                 val mob = cell.stander
                 if (mob is NPC) {
                     level.mobs.add(mob)
-                } else if (mob is Player){
+                } else if (mob is Player) {
                     level.players.add(mob)
                 }
             }
@@ -294,7 +294,10 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         private fun processStander(level: Level, cell: Cell, stander: LevelOuterClass.Mob): Mob {
             val mob: Mob = when (stander.id) {
                 "ё" -> Snowball(cell)
-                "@" -> Player(cell, inventory = processInventory(stander.player.inventory))
+                "@" -> Player(
+                    cell, userId = stander.player.userId,
+                    inventory = processInventory(stander.player.inventory)
+                )
                 else -> Snowball(cell)
             }
 

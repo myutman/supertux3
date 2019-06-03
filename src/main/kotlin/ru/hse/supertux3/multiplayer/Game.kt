@@ -68,9 +68,7 @@ class Game(val id: String) {
      */
     fun isMyTurn(userId: Int): Boolean {
         takeTurnBarrier.await()
-        if (userId == usersPlay[curTurnPlayer]) {
-            println("NEXT TURN userId=$userId")
-        }
+        println("IS MY TURN userId=$userId, next turn id=${usersPlay[curTurnPlayer]}")
         return userId == usersPlay[curTurnPlayer]
     }
 
@@ -129,11 +127,11 @@ class Game(val id: String) {
         println("MAKE TURN userId=$userId")
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
-        curTurnPlayer++
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
             currentTurn.addAll(moveMobs())
         }
+        curTurnPlayer++
         makeTurnBarrier.await()
         return currentTurn
     }
@@ -150,19 +148,23 @@ class Game(val id: String) {
     }
 
     private fun goNextCycle() {
-        println("Starting next cycle")
-        curTurnPlayer = 0
-        usersPlay.addAll(usersJoin)
-        usersJoin.clear()
-        takeTurnBarrier = CyclicBarrier(usersPlay.size)
-        makeTurnBarrier = CyclicBarrier(usersPlay.size)
-        joinCondition.notifyAll()
+        synchronized(joinCondition) {
+            println("Starting next cycle")
+            curTurnPlayer = 0
+            usersPlay.addAll(usersJoin)
+            usersJoin.forEach { level.createPlayer(it) }
+            usersJoin.clear()
+            takeTurnBarrier = CyclicBarrier(usersPlay.size)
+            makeTurnBarrier = CyclicBarrier(usersPlay.size)
+            joinCondition.notifyAll()
+        }
     }
 
     /**
      * Getting update(another player turn or mobs turns)
      */
     fun getUpdate(): List<Cell> {
+        println("GET UPDATE")
         makeTurnBarrier.await()
         return currentTurn
     }

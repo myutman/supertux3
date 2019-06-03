@@ -63,6 +63,7 @@ class Player(
             .setInventory(inventory.toProto())
             .setLevel(level)
             .setXp(xp)
+            .setUserId(userId)
             .build()
         return mob.toBuilder().setPlayer(player).build()
     }
