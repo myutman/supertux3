@@ -11,8 +11,13 @@ import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.ui.commands.*
 import java.util.concurrent.CyclicBarrier
 
-
+/**
+ * Representation of one multiplayer game
+ */
 class Game(val id: String) {
+    /**
+     * Level where all players will play
+     */
     val level = LevelLoader().generateLevel()
     private var nextId = 0
 
@@ -34,24 +39,38 @@ class Game(val id: String) {
 
     private val currentTurn = mutableListOf<Cell>()
 
+    /**
+     * Starting created game with all joined users
+     */
     fun start(): Int {
         synchronized(joinCondition) {
             val userId = newUser()
+            println("START userId=$userId")
             goNextCycle()
             return userId
         }
     }
 
+    /**
+     * Join game, awaiting for host to start
+     */
     fun join(): Int {
         synchronized(joinCondition) {
             val userId = newUser()
+            println("JOIN userId=$userId")
             joinCondition.wait()
             return userId
         }
     }
 
+    /**
+     * Returns true if it is a userId player turn
+     */
     fun isMyTurn(userId: Int): Boolean {
         takeTurnBarrier.await()
+        if (userId == usersPlay[curTurnPlayer]) {
+            println("NEXT TURN userId=$userId")
+        }
         return userId == usersPlay[curTurnPlayer]
     }
 
@@ -103,7 +122,11 @@ class Game(val id: String) {
         return changed
     }
 
+    /**
+     * Make turn using command
+     */
     fun makeTurn(userId: Int, command: CommandOuterClass.Command): List<Cell> {
+        println("MAKE TURN userId=$userId")
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
         curTurnPlayer++
@@ -127,15 +150,18 @@ class Game(val id: String) {
     }
 
     private fun goNextCycle() {
+        println("Starting next cycle")
         curTurnPlayer = 0
         usersPlay.addAll(usersJoin)
         usersJoin.clear()
         takeTurnBarrier = CyclicBarrier(usersPlay.size)
         makeTurnBarrier = CyclicBarrier(usersPlay.size)
         joinCondition.notifyAll()
-
     }
 
+    /**
+     * Getting update(another player turn or mobs turns)
+     */
     fun getUpdate(): List<Cell> {
         makeTurnBarrier.await()
         return currentTurn
