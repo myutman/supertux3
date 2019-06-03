@@ -64,7 +64,6 @@ fun getRole(): MultiplayerRole {
 
 fun getHost(): String {
     println("Enter hostname: ")
-    val lineReader = LineReaderBuilder.builder().terminal(terminal).build()
     while (true) {
         val hostname: String? = lineReader.readLine()
         if (hostname != null) {
@@ -74,7 +73,6 @@ fun getHost(): String {
 }
 
 fun getPort(): Int {
-    val lineReader = LineReaderBuilder.builder().terminal(terminal).build()
     while (true) {
         println("Enter port number: ")
         val portNumber: Int? = lineReader.readLine()?.toIntOrNull()
@@ -88,7 +86,6 @@ fun getPort(): Int {
 
 fun getId(): String {
     println("Enter gameId: ")
-    val lineReader = LineReaderBuilder.builder().terminal(terminal).build()
     while (true) {
         val id: String? = lineReader.readLine()
         if (id != null) {
