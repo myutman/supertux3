@@ -2,7 +2,13 @@ package ru.hse.supertux3.multiplayer
 
 import ru.hse.supertux3.CommandOuterClass
 import ru.hse.supertux3.levels.Cell
+import ru.hse.supertux3.levels.Direction
+import ru.hse.supertux3.levels.Ladder
 import ru.hse.supertux3.levels.LevelLoader
+import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.Model
+import ru.hse.supertux3.logic.items.WearableType
+import ru.hse.supertux3.ui.commands.*
 import java.util.concurrent.CyclicBarrier
 
 
@@ -51,20 +57,50 @@ class Game(val id: String) {
 
     private fun applyCommand(command: CommandOuterClass.Command): List<Cell> {
         val userId = command.userId
-        if (command.hasLoot()) {
-
+        val curPlayer = level.players[userId]
+        val changed = ArrayList<Cell>()
+        val model = Model(GameState(level, curPlayer))
+        val modelCommand: Command = if (command.hasLoot()) {
+            changed.add(curPlayer.cell)
+            LootCommand(model)
         } else if (command.hasMove()) {
-
+            changed.add(curPlayer.cell)
+            val direction = when (command.move.direction) {
+                CommandOuterClass.Direction.UP -> Direction.UP
+                CommandOuterClass.Direction.DOWN -> Direction.DOWN
+                CommandOuterClass.Direction.LEFT -> Direction.LEFT
+                CommandOuterClass.Direction.RIGHT -> Direction.RIGHT
+                else -> null
+            }
+            val data = curPlayer.processMove(direction!!, level)
+            changed.add(level.getCell(data.destination))
+            MoveCommand(model, direction)
         } else if (command.hasStay()) {
-
+            StayCommand(model)
         } else if (command.hasMoveLadder()) {
-
+            changed.add(curPlayer.cell)
+            changed.add(level.getCell((curPlayer.cell as Ladder).destination))
+            MoveLadderCommand(model)
         } else if (command.hasPutOn()) {
-
+            changed.add(curPlayer.cell)
+            PutOnCommand(model, command.putOn.index)
         } else if (command.hasTakeOff()) {
-
+            val type = when (command.takeOff.type) {
+                CommandOuterClass.WearableType.HAT -> WearableType.HAT
+                CommandOuterClass.WearableType.JACKET -> WearableType.JACKET
+                CommandOuterClass.WearableType.GLOVES -> WearableType.GLOVES
+                CommandOuterClass.WearableType.PANTS -> WearableType.PANTS
+                CommandOuterClass.WearableType.SHOES -> WearableType.SHOES
+                CommandOuterClass.WearableType.WEAPON -> WearableType.WEAPON
+                else -> null
+            }
+            changed.add(curPlayer.cell)
+            TakeOffCommand(model, type!!)
+        } else {
+            EmptyCommand()
         }
-        TODO("applying command to level, returning list of cells inside")
+        modelCommand.execute()
+        return changed
     }
 
     fun makeTurn(userId: Int, command: CommandOuterClass.Command): List<Cell> {
