@@ -18,6 +18,8 @@ apply plugin: 'kotlin'
 apply plugin: 'com.google.protobuf'
 apply plugin: 'idea'
 
+apply plugin: 'application'
+
 
 group 'ru.hse.supertux3'
 version '1.0-SNAPSHOT'
@@ -49,6 +51,7 @@ dependencies {
     compile "io.grpc:grpc-testing:1.+"
     compile group: 'javax.annotation', name: 'javax.annotation-api', version: '1.3.2'
     compile group: 'io.netty', name: 'netty-tcnative-boringssl-static', version: '2.0.+'
+    compile "com.xenomachina:kotlin-argparser:2.0.+"
 
 
     compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
@@ -82,4 +85,26 @@ jar {
         )
     }
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+}
+
+startScripts.enabled = false
+
+task superTux3Server(type: CreateStartScripts) {
+    mainClassName = 'ru.hse.supertux3.multiplayer.SuperTux3ServerKt'
+    applicationName = 'super-tux3-server'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+task superTux3Client(type: CreateStartScripts) {
+    mainClassName = 'ru.hse.supertux3.ui.CLIKt'
+    applicationName = 'super-tux3-client'
+    outputDir = new File(project.buildDir, 'tmp')
+    classpath = jar.outputs.files + project.configurations.runtime
+}
+
+applicationDistribution.into('bin') {
+    from(superTux3Client)
+    from(superTux3Server)
+    fileMode = 0755
 }

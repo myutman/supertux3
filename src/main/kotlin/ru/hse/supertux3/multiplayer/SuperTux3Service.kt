@@ -5,9 +5,12 @@ import ru.hse.supertux3.SuperTux3Grpc
 import ru.hse.supertux3.SuperTux3Proto
 import java.io.IOException
 
+/**
+ * Service for SuperTux3 server
+ */
 class SuperTux3Service : SuperTux3Grpc.SuperTux3ImplBase() {
 
-    val games = mutableMapOf<String, Game>()
+    private val games = mutableMapOf<String, Game>()
 
     override fun createGame(
         request: SuperTux3Proto.CreateGameRequest,
