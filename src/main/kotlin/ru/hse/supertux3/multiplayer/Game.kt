@@ -129,11 +129,12 @@ class Game(val id: String) {
         println("MAKE TURN userId=$userId")
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
+        curTurnPlayer++
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
             currentTurn.addAll(moveMobs())
+            curTurnPlayer = 0
         }
-        curTurnPlayer++
         makeTurnBarrier.await()
         return currentTurn
     }

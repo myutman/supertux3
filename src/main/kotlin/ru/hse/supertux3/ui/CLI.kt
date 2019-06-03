@@ -19,6 +19,7 @@ import ru.hse.supertux3.levels.Cell
 import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.Player
 import java.util.concurrent.TimeUnit
 
@@ -185,6 +186,8 @@ fun processMultiPlayer(terminal: Terminal) {
     val state = GameState(level, player)
     val visual = TermColors(TermColors.Level.TRUECOLOR)
     val view = View(state, visual, terminal)
+    val model = Model(state)
+    model.view = view
 
     while (true) {
         val isMyTurn = stub.isMyTurn(SuperTux3Proto.IsMyTurnRequest.newBuilder()
@@ -194,23 +197,45 @@ fun processMultiPlayer(terminal: Terminal) {
         val updatesTurn: SuperTux3Proto.Turn
         if (isMyTurn) {
             val currentCommandBuilder = CommandOuterClass.Command.newBuilder()
-            when (readChar()) {
-                'w' -> currentCommandBuilder.setMove(
-                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.UP)
-                )
-                'a' -> currentCommandBuilder.setMove(
-                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.LEFT)
-                )
-                's' -> currentCommandBuilder.setMove(
-                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.DOWN)
-                )
-                'd' -> currentCommandBuilder.setMove(
-                    CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.RIGHT)
-                )
-                /*'q' -> QuitCommand(state, saveName)
+            val cmd: Command? = when (readChar()) {
+                'w' -> {
+                    currentCommandBuilder.setMove(
+                        CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.UP)
+                    )
+                    MoveCommand(model, Direction.UP)
+                }
+                'a' -> {
+                    currentCommandBuilder.setMove(
+                        CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.LEFT)
+                    )
+                    MoveCommand(model, Direction.LEFT)
+                }
+                's' -> {
+                    currentCommandBuilder.setMove(
+                        CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.DOWN)
+                    )
+                    MoveCommand(model, Direction.DOWN)
+                }
+                'd' -> {
+                    currentCommandBuilder.setMove(
+                        CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.RIGHT)
+                    )
+                    MoveCommand(model, Direction.RIGHT)
+                }
+                'q' -> QuitCommand(state, saveName)
                 ' ' -> MoveLadderCommand(model)
-                '.' -> StayCommand(model)
-                'l' -> LootCommand(model)
+                '.' -> {
+                    currentCommandBuilder.setStay(
+                        CommandOuterClass.StayCommand.newBuilder()
+                    )
+                    StayCommand(model)
+                }
+                'l' -> {
+                    currentCommandBuilder.setLoot(
+                        CommandOuterClass.LootCommand.newBuilder()
+                    )
+                    LootCommand(model)
+                }
                 'o' -> {
                     view.printMessage("What do you want to put on")
                     val slotChar = readChar()
@@ -218,6 +243,9 @@ fun processMultiPlayer(terminal: Terminal) {
                     if (index == -1) {
                         EmptyCommand()
                     } else {
+                        currentCommandBuilder.setPutOn(
+                            CommandOuterClass.PutOnCommand.newBuilder().setIndex(index)
+                        )
                         PutOnCommand(model, index)
                     }
                 }
@@ -228,9 +256,21 @@ fun processMultiPlayer(terminal: Terminal) {
                     if (type == null) {
                         EmptyCommand()
                     } else {
+                        val protoType = when (type) {
+                            WearableType.HAT -> CommandOuterClass.WearableType.HAT
+                            WearableType.JACKET -> CommandOuterClass.WearableType.JACKET
+                            WearableType.GLOVES -> CommandOuterClass.WearableType.GLOVES
+                            WearableType.PANTS -> CommandOuterClass.WearableType.PANTS
+                            WearableType.SHOES -> CommandOuterClass.WearableType.SHOES
+                            WearableType.WEAPON -> CommandOuterClass.WearableType.WEAPON
+                            else -> null
+                        }
+                        currentCommandBuilder.setTakeOff(
+                            CommandOuterClass.TakeOffCommand.newBuilder().setType(protoType!!)
+                        )
                         TakeOffCommand(model, type)
                     }
-                }*/
+                }
 
                 'r' -> RedrawCommand(view)
                 'j' -> SlideUpCommand(view)
@@ -239,6 +279,7 @@ fun processMultiPlayer(terminal: Terminal) {
                 'h' -> HelpCommand(view)
                 else -> null
             }
+            cmd?.execute()
             val command = currentCommandBuilder.build()
             val turnResponse = stub.makeTurn(SuperTux3Proto.MakeTurnRequest.newBuilder()
                 .setGameId(gameId)

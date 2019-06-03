@@ -159,6 +159,9 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     }
 
     private fun drawCell(new: Cell, str: String = "") {
+        if (new.visibility == Visibility.Hidden) {
+            return
+        }
         val cur = state.player.position()
         val coordinates = new.coordinates
         val right = coordinates.j - cur.j
@@ -229,7 +232,13 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     override fun lazyRedraw(cells: List<Cell>) {
         for (cell in cells) {
             if (cell.coordinates.h == state.player.coordinates.h) {
-
+                if (cell.coordinates == state.player.coordinates) {
+                    visual.run {
+                        drawCell(cell, red("@"))
+                    }
+                } else {
+                    drawCell(cell)
+                }
             }
         }
     }
