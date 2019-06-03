@@ -109,14 +109,21 @@ class Game(val id: String) {
         curTurnPlayer++
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
-            moveMobs()
+            currentTurn.addAll(moveMobs())
         }
         makeTurnBarrier.await()
         return currentTurn
     }
 
-    private fun moveMobs() {
-        TODO("moving NPC in level")
+    private fun moveMobs(): List<Cell> {
+        val changed = ArrayList<Cell>()
+        for (mob in level.mobs) {
+            level.bfs(mob.coordinates, 1) {
+                changed.add(it)
+            }
+            mob.move(level)
+        }
+        return changed
     }
 
     private fun goNextCycle() {
