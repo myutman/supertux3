@@ -252,41 +252,47 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
             val level = Level(levelProto.depth, levelProto.height, levelProto.width, levelProto.id)
 
             for (cellProto in levelProto.cellsList) {
-                val id = cellProto.id
-                val c = Coordinates.fromProto(levelProto.id, cellProto.coordinates)
-                val cell = when (id) {
-                    "." -> Floor.empty(c)
-                    "&" -> Floor.chest(c)
-                    "#" -> Wall(c)
-                    "O" -> Door(c)
-                    "L" -> {
-                        val ladderProto = cellProto.ladder
-                        val destination = Coordinates.fromProto(
-                            ladderProto.levelId,
-                            ladderProto.destinationCoordinates
-                        )
-                        Ladder(c, destination)
-                    }
-                    else -> Wall(c)
-                }
+                val cell = loadCell(level, cellProto)
+                val c = Coordinates.fromProto(level.id, cellProto.coordinates)
                 level.setCell(c, cell)
-                if (cell is Floor && cellProto.hasStander()) {
-                    cell.stander = processStander(level, cell, cellProto.stander)
-                    val mob = cell.stander
-                    if (mob is NPC) {
-                        level.mobs.add(mob)
-                    } else if (mob is Player){
-                        level.players.add(mob)
-                    }
-                }
             }
 
             return level
         }
 
+        fun loadCell(level: Level, cellProto: LevelOuterClass.Cell): Cell {
+            val id = cellProto.id
+            val c = Coordinates.fromProto(level.id, cellProto.coordinates)
+            val cell = when (id) {
+                "." -> Floor.empty(c)
+                "&" -> Floor.chest(c)
+                "#" -> Wall(c)
+                "O" -> Door(c)
+                "L" -> {
+                    val ladderProto = cellProto.ladder
+                    val destination = Coordinates.fromProto(
+                        ladderProto.levelId,
+                        ladderProto.destinationCoordinates
+                    )
+                    Ladder(c, destination)
+                }
+                else -> Wall(c)
+            }
+
+            if (cell is Floor && cellProto.hasStander()) {
+                cell.stander = processStander(level, cell, cellProto.stander)
+                val mob = cell.stander
+                if (mob is NPC) {
+                    level.mobs.add(mob)
+                } else if (mob is Player){
+                    level.players.add(mob)
+                }
+            }
+            return cell
+        }
+
         private fun processStander(level: Level, cell: Cell, stander: LevelOuterClass.Mob): Mob {
-            val standerId = stander.id
-            val mob: Mob = when (standerId) {
+            val mob: Mob = when (stander.id) {
                 "ё" -> Snowball(cell)
                 "@" -> Player(cell, inventory = processInventory(stander.player.inventory))
                 else -> Snowball(cell)

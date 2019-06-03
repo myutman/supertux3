@@ -13,8 +13,11 @@ import io.grpc.ManagedChannel
 import io.grpc.ManagedChannelBuilder
 import ru.hse.supertux3.SuperTux3Grpc
 import ru.hse.supertux3.SuperTux3Proto
+import ru.hse.supertux3.levels.Cell
+import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.mobs.Player
 import java.util.concurrent.TimeUnit
 
 
@@ -156,13 +159,12 @@ fun processMultiPlayer(terminal: Terminal) {
         println("Wait for response. It may take time.")
         val response = stub.joinGame(SuperTux3Proto.JoinGameRequest.newBuilder().setGameId(gameId).build())
         level = Level.load(response.level)
-        userNumber = response.userNumber
+        userNumber = response.userId
     } else {
-        // idk
-        // some shit, but eventually we'll get level and userNumber
+        // TODO: idk, some shit, but eventually we'll get level and userNumber
         val response = stub.joinGame(SuperTux3Proto.JoinGameRequest.newBuilder().setGameId("-0").build())
         level = Level.load(response.level)
-        userNumber = response.userNumber
+        userNumber = response.userId
     }
     val player = level.players.find { player -> player.userId == userNumber }
     if (player == null) {
@@ -173,33 +175,78 @@ fun processMultiPlayer(terminal: Terminal) {
     val state = GameState(level, player)
     val visual = TermColors(TermColors.Level.TRUECOLOR)
     val view = View(state, visual, terminal)
-
-    // start game
-    // while (true)
-    //     request isMyTurn
-    //     if my turn, some controller logic with commands, get updates
-    //
+    val invoker = Invoker()
 
     while (true) {
-
         val isMyTurn = stub.isMyTurn(SuperTux3Proto.IsMyTurnRequest.newBuilder().build()).myTurn
         if (isMyTurn) {
-            // some controller logic + send request
+            invoker.currentCommand = when (readChar()) {
+                // TODO: write mp commands
+                /*'q' -> QuitCommand(state, saveName)
+                'w' -> MoveCommand(model, Direction.UP)
+                'a' -> MoveCommand(model, Direction.LEFT)
+                'd' -> MoveCommand(model, Direction.RIGHT)
+                's' -> MoveCommand(model, Direction.DOWN)
+                ' ' -> MoveLadderCommand(model)
+                '.' -> StayCommand(model)
+                'l' -> LootCommand(model)
+                'o' -> {
+                    view.printMessage("What do you want to put on")
+                    val slotChar = readChar()
+                    val index = model.getSlotToPutOn(slotChar)
+                    if (index == -1) {
+                        EmptyCommand()
+                    } else {
+                        PutOnCommand(model, index)
+                    }
+                }
+                'p' -> {
+                    view.printMessage("What do you want to take off")
+                    val slotChar = readChar()
+                    val type = model.getSlotToTakeOff(slotChar)
+                    if (type == null) {
+                        EmptyCommand()
+                    } else {
+                        TakeOffCommand(model, type)
+                    }
+                }*/
+
+                'r' -> RedrawCommand(view)
+                'j' -> SlideUpCommand(view)
+                'k' -> SlideDownCommand(view)
+                '?' -> ShowItemInfoCommand(view)
+                'h' -> HelpCommand(view)
+                else -> null
+            }
+
+            invoker.run()
         }
 
-        val updates = stub.getUpdate(SuperTux3Proto.GetUpdateRequest.newBuilder().build())
+        val updatesTurn = stub.getUpdate(SuperTux3Proto.GetUpdateRequest.newBuilder().build()).turn
+        val cellsList = ArrayList<Cell>()
+        for (proto in updatesTurn.cellsList) {
+            val cell = Level.loadCell(state.level, proto)
 
+            // check if our player; if yes then update player
+            if (cell is Floor && cell.stander is Player) {
+                val cellPlayer = cell.stander as Player
+                if (cellPlayer.userId == userNumber) {
+                    state.player.copyFrom(cellPlayer)
 
-        //     save updates to level (maybe apply them to player)
-        //     drawBeingSeen()
-        //     maybe die
-        break
+                }
+            }
+
+            level.setCell(cell.coordinates, cell)
+            cellsList.add(cell)
+        }
+
+        view.lazyRedraw(cellsList)
+
+        if (state.player.isDead()) {
+            view.died()
+            break
+        }
     }
 
-    /**
-     * Some things???:
-     * commands are responsible for response to server
-     */
-
-    channel.shutdown().awaitTermination(3, TimeUnit.SECONDS);
+    channel.shutdown().awaitTermination(3, TimeUnit.SECONDS)
 }

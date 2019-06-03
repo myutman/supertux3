@@ -66,4 +66,14 @@ class Player(
             .build()
         return mob.toBuilder().setPlayer(player).build()
     }
+
+    fun copyFrom(stander: Player) {
+        hp = stander.hp
+        damage = stander.damage
+        resistChance = stander.resistChance
+        armor = stander.armor
+        criticalChance = stander.criticalChance
+        xp = stander.xp
+        level = stander.level
+    }
 }

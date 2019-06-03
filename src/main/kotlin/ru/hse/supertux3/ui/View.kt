@@ -161,6 +161,14 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printInventoryInfo()
     }
 
+    fun lazyRedraw(cells: List<Cell>) {
+        for (cell in cells) {
+            if (cell.coordinates.h == state.player.coordinates.h) {
+
+            }
+        }
+    }
+
     private fun clearMonstersNotSeen(prevPosition: Coordinates) {
         state.level.bfs(prevPosition, state.player.visibilityDepth) {
             if (it is Floor) {
