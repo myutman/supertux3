@@ -1,5 +1,7 @@
 package ru.hse.supertux3.ui
 
+import org.jline.reader.LineReader
+import org.jline.reader.LineReaderBuilder
 import ru.hse.supertux3.levels.LevelLoader
 import ru.hse.supertux3.logic.GameState
 import java.io.File
@@ -62,24 +64,36 @@ fun getRole(): MultiplayerRole {
 
 fun getHost(): String {
     println("Enter hostname: ")
-    return readLine()!!
+    val lineReader = LineReaderBuilder.builder().terminal(terminal).build()
+    while (true) {
+        val hostname: String? = lineReader.readLine()
+        if (hostname != null) {
+            return hostname
+        }
+    }
 }
 
 fun getPort(): Int {
+    val lineReader = LineReaderBuilder.builder().terminal(terminal).build()
     while (true) {
         println("Enter port number: ")
-        val portNumber: Int? = readLine()?.toIntOrNull()
+        val portNumber: Int? = lineReader.readLine()?.toIntOrNull()
         if (portNumber == null || portNumber < 1000 || portNumber > 65535) {
             println("Incorrect input!")
         } else {
             return portNumber
         }
-
     }
 }
 
 fun getId(): String {
     println("Enter gameId: ")
-    return readLine()!!
+    val lineReader = LineReaderBuilder.builder().terminal(terminal).build()
+    while (true) {
+        val id: String? = lineReader.readLine()
+        if (id != null) {
+            return id
+        }
+    }
 }
 

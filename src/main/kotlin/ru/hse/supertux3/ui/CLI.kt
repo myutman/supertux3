@@ -10,6 +10,8 @@ import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.ui.commands.*
 import java.io.File
 import io.grpc.ManagedChannelBuilder
+import org.jline.reader.LineReader
+import org.jline.reader.LineReaderBuilder
 import ru.hse.supertux3.CommandOuterClass
 import ru.hse.supertux3.SuperTux3Grpc
 import ru.hse.supertux3.SuperTux3Proto
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit
 
 val saveName = ".save"
 var reader: NonBlockingReader? = null
+lateinit var lineReader: LineReader
 
 /*
  * Reads key press from keyboard.
@@ -64,8 +67,9 @@ fun main() {
     terminal.enterRawMode()
 
     reader = terminal.reader()
+    lineReader = LineReaderBuilder.builder().terminal(terminal).build()
 
-    val gameType = getGameType();
+    val gameType = getGameType()
     if (gameType == GameType.SINGLEPLAYER) {
         processSinglePlayer(terminal)
     } else {
