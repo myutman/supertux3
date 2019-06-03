@@ -223,7 +223,12 @@ fun processMultiPlayer(terminal: Terminal) {
                     MoveCommand(model, Direction.RIGHT)
                 }
                 'q' -> QuitCommand(state, saveName)
-                ' ' -> MoveLadderCommand(model)
+                ' ' -> {
+                    currentCommandBuilder.setMoveLadder(
+                        CommandOuterClass.MoveLadderCommand.newBuilder()
+                    )
+                    MoveLadderCommand(model)
+                }
                 '.' -> {
                     currentCommandBuilder.setStay(
                         CommandOuterClass.StayCommand.newBuilder()
