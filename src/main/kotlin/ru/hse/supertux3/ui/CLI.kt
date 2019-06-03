@@ -153,7 +153,7 @@ fun processMultiPlayer(terminal: Terminal) {
     val host = getHost()
     val port = getPort()
 
-    val channel = ManagedChannelBuilder.forAddress(host, port).build()
+    val channel = ManagedChannelBuilder.forAddress(host, port).usePlaintext().build()
     val stub = SuperTux3Grpc.newBlockingStub(channel)
 
     val userNumber: Int
