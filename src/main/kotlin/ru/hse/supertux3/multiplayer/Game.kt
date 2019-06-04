@@ -23,8 +23,8 @@ class Game(val id: String) {
     private var nextId = 0
 
     private val joinCondition = Object()
-    private var takeTurnBarrier = CyclicBarrier(2)
-    private var makeTurnBarrier = CyclicBarrier(2)
+    private var takeTurnBarrier = CyclicBarrier(1)
+    private var makeTurnBarrier = CyclicBarrier(1)
 
     private val usersPlay = mutableListOf<Int>()
 
@@ -122,6 +122,9 @@ class Game(val id: String) {
         return changed
     }
 
+    /**
+     * Returns true if player with userId is dead
+     */
     fun isPlayerDead(userId: Int): Boolean = !usersPlay.contains(userId)
 
     /**
@@ -138,6 +141,7 @@ class Game(val id: String) {
         if (level.players.size != oldPlayersCount) {
             usersPlay.clear()
             usersPlay.addAll(level.players.map { it.userId })
+            usersPlay.sort()
             takeTurnBarrier = CyclicBarrier(usersPlay.size)
             makeTurnBarrier = CyclicBarrier(usersPlay.size)
         }
@@ -168,6 +172,7 @@ class Game(val id: String) {
             println("Starting next cycle")
             curTurnPlayer = 0
             usersPlay.addAll(usersJoin)
+            usersPlay.sort()
             usersJoin.forEach { level.createPlayer(it) }
             usersJoin.clear()
             takeTurnBarrier = CyclicBarrier(usersPlay.size)
