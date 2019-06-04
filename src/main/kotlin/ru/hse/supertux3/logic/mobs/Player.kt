@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.items.Inventory
@@ -10,6 +11,7 @@ import ru.hse.supertux3.logic.mobs.strategy.Move
  */
 class Player(
     cell: Cell,
+    val userId: Int = 0,
     override var hp: Int = 100,
     override var damage: Int = 15,
     override var resistChance: Int = 10,
@@ -52,5 +54,28 @@ class Player(
         resistChance += 5
         armor += 1
         criticalChance += 5
+    }
+
+
+    override fun toProto(): LevelOuterClass.Mob {
+        val mob = super.toProto()
+        val player = LevelOuterClass.Player.newBuilder()
+            .setInventory(inventory.toProto())
+            .setLevel(level)
+            .setXp(xp)
+            .setUserId(userId)
+            .build()
+        return mob.toBuilder().setPlayer(player).build()
+    }
+
+    fun copyFrom(stander: Player) {
+        hp = stander.hp
+        damage = stander.damage
+        resistChance = stander.resistChance
+        armor = stander.armor
+        criticalChance = stander.criticalChance
+        xp = stander.xp
+        level = stander.level
+        cell = stander.cell
     }
 }

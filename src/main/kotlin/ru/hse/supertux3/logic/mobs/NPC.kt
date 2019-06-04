@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.Cell
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.MoveData
@@ -29,4 +30,14 @@ abstract class NPC(cell: Cell, id: String) : Mob(cell, id) {
      * Items, that will drop on the floor after mob's death
      */
     abstract val drop: MutableList<Item>
+
+    override fun toProto(): LevelOuterClass.Mob {
+        val mob = super.toProto()
+        val npc = LevelOuterClass.NPC.newBuilder()
+            .setLevel(level)
+            .setStrategy(moveStrategy.toProto())
+            .addAllDrop(drop.map { it.toProto() })
+            .build()
+        return mob.toBuilder().setNpc(npc).build()
+    }
 }

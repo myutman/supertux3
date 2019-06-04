@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.mobs
 
+import ru.hse.supertux3.LevelOuterClass
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.MoveData
 import ru.hse.supertux3.logic.MoveResult
@@ -13,7 +14,11 @@ import java.lang.Integer.max
  * - player
  * - non-playable characters.
  */
-abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
+abstract class Mob(var cell: Cell, val id: String){
+
+    val coordinates: Coordinates
+        get() = cell.coordinates
+
     /**
      * Base health points of creature.
      */
@@ -60,8 +65,8 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
         var baseDamage = damage
         if (criticalChance < n1) {
             baseDamage *= 2
-            if (this is Player) {
-                val decorator = MobDecorator(mob as NPC, level)
+            if (this is Player && mob is NPC) {
+                val decorator = MobDecorator(mob, level)
                 val i = level.mobs.indexOf(mob)
                 level.mobs[i] = decorator
             }
@@ -121,5 +126,17 @@ abstract class Mob(cell: Cell, id: String) : CellStander(cell, id) {
 
         moveData.result = MoveResult.MOVED
         return moveData
+    }
+
+    open fun toProto(): LevelOuterClass.Mob {
+        return LevelOuterClass.Mob.newBuilder()
+            .setArmor(armor)
+            .setCriticalChance(criticalChance)
+            .setHp(hp)
+            .setVisibilityDepth(visibilityDepth)
+            .setDamage(damage)
+            .setResistChance(resistChance)
+            .setId(id)
+            .build()
     }
 }

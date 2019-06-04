@@ -1,5 +1,6 @@
 package ru.hse.supertux3.logic.items
 
+import ru.hse.supertux3.InventoryOuterClass
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.mobs.Player
 
@@ -17,6 +18,14 @@ abstract class Item(val description: String, val name: String, val id: String) {
 
     override fun toString(): String {
         return name
+    }
+
+    open fun toProto(): InventoryOuterClass.Item {
+        return InventoryOuterClass.Item.newBuilder()
+            .setDescription(description)
+            .setId(id)
+            .setName(name)
+            .build()
     }
 }
 
@@ -67,6 +76,18 @@ abstract class Wearable(
 
     override fun toString(): String {
         return super.toString() + ", $type"
+    }
+
+    override fun toProto(): InventoryOuterClass.Item {
+        val item = super.toProto()
+        val wearable = InventoryOuterClass.Wearable.newBuilder()
+            .setArmor(armor)
+            .setCriticalChance(criticalChance)
+            .setDamage(damage)
+            .setResistChance(resistChance)
+            .setType(type.toString())
+            .build()
+        return item.toBuilder().setWearable(wearable).build()
     }
 }
 

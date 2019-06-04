@@ -18,7 +18,7 @@ class LevelLoader {
      */
     fun loadGameState(fileName: String): GameState {
         val level = Level.load(fileName)
-        return GameState(level, level.player!!) //TODO
+        return GameState(level, level.player!!)
     }
 
     /**

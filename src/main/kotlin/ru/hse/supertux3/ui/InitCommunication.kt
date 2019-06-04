@@ -1,5 +1,7 @@
 package ru.hse.supertux3.ui
 
+import org.jline.reader.LineReader
+import org.jline.reader.LineReaderBuilder
 import ru.hse.supertux3.levels.LevelLoader
 import ru.hse.supertux3.logic.GameState
 import java.io.File
@@ -39,3 +41,74 @@ fun requestGameState(): GameState {
         }
     }
 }
+
+fun getGameType(): GameType {
+    clearScreen()
+
+    println("Press s to play in singleplayer mode or m to start multiplayer session.")
+
+    while (true) {
+        val input = readChar()
+        if (input == 'm') {
+            return GameType.MULTIPLAYER
+        }
+        if (input == 's') {
+            return GameType.SINGLEPLAYER
+        }
+    }
+}
+
+fun getRole(): MultiplayerRole {
+    println("Press 'c' to create game, 'j' to join or l to join in lobby.")
+    while (true) {
+        val input = readChar()
+        if (input == 'c') {
+            return MultiplayerRole.CREATOR
+        }
+        if (input == 'j') {
+            return MultiplayerRole.JOINER
+        }
+        if (input == 'l') {
+            return MultiplayerRole.LOBBYIST
+        }
+    }
+}
+
+fun getHost(): String {
+    println("Enter hostname: ")
+    while (true) {
+        val hostname: String? = lineReader.readLine()
+        if (hostname.isNullOrBlank()) {
+            println("127.0.0.1")
+            return "127.0.0.1"
+        }
+        return hostname
+    }
+}
+
+fun getPort(): Int {
+    while (true) {
+        println("Enter port number: ")
+        val portNumber: Int? = lineReader.readLine()?.toIntOrNull()
+        if (portNumber == null) {
+            println(9805)
+            return 9805
+        }
+        if (portNumber < 1000 || portNumber > 65535) {
+            println("Incorrect input!")
+        } else {
+            return portNumber
+        }
+    }
+}
+
+fun getId(): String {
+    println("Enter gameId: ")
+    while (true) {
+        val id: String? = lineReader.readLine()
+        if (id != null) {
+            return id
+        }
+    }
+}
+

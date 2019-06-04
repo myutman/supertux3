@@ -1,5 +1,6 @@
 package ru.hse.supertux3.levels
 
+import org.junit.AfterClass
 import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
@@ -11,24 +12,26 @@ import java.io.File
 
 class LevelTest {
 
-    var level1 = Level.load("src/test/resources/testLevel1.kek")
-    var arena = Level.load("src/test/resources/arena.kek")
+    var arena = loadArena()
 
     @Before
     fun load() {
-        level1 = Level.load("src/test/resources/testLevel1.kek")
-        arena = Level.load("src/test/resources/arena.kek")
+        arena = loadArena()
+    }
+    companion object {
+        @JvmStatic
+        @AfterClass
+        fun deleteArena() {
+            File("src/test/resources/arena.kek").delete()
+        }
     }
 
-    @Test
-    fun bfsWorks() {
-        val bfsStart = level1.getCell(2, 2, 0).coordinates
-        level1.bfs(bfsStart, 15) {
-            if (it is Floor && it !is Door) {
-                it.stander = Snowball(it)
-            }
+    private fun loadArena(): Level {
+        if (!File("src/test/resources/arena.kek").exists()) {
+            val level = Level(1, 16, 16)
+            level.save("src/test/resources/arena.kek")
         }
-        println(level1)
+        return Level.load("src/test/resources/arena.kek")
     }
 
     @Test
@@ -41,7 +44,9 @@ class LevelTest {
     fun saveWorks() {
         val generator = LevelLoader()
         val level = generator.generateLevel()
-        level.save("src/test/resources/testLevel1.kek")
+        val testFile = "src/test/resources/testLevel1.kek"
+        level.save(testFile)
+        File(testFile).delete()
     }
 
 
@@ -49,8 +54,10 @@ class LevelTest {
     fun loadWorks() {
         val generator = LevelLoader()
         val level = generator.generateLevel()
-        level.save("src/test/resources/testLevel1.kek")
-        Level.load("src/test/resources/testLevel1.kek")
+        val testFile = "src/test/resources/testLevel1.kek"
+        level.save(testFile)
+        Level.load(testFile)
+        File(testFile).delete()
     }
 
     @Test
@@ -59,8 +66,9 @@ class LevelTest {
         val width = 10
         val height = 10
         val level = LevelGenerator.generate(depth, height, width)
-        level.save("src/test/resources/testLevel1.kek")
-        val loadedLevel = Level.load("src/test/resources/testLevel1.kek")
+        val testFile = "src/test/resources/testLevel1.kek"
+        level.save(testFile)
+        val loadedLevel = Level.load(testFile)
         for (h in 0 until depth - 1) {
             for (i in 0 until height) {
                 for (j in 0 until width) {
@@ -71,42 +79,32 @@ class LevelTest {
                 }
             }
         }
+        File(testFile).delete()
     }
 
     @Test
     fun mobsStrategy() {
-        val cell1 = level1.getCell(1, 1, 0)
+        val cell1 = arena.getCell(1, 1, 0)
         val player = Player(cell1)
         (cell1 as Floor).stander = player
-        val cell2 = level1.getCell(1 + player.visibilityDepth, 1, 0)
+        val cell2 = arena.getCell(1 + player.visibilityDepth, 1, 0)
         val mob = Snowball(cell2)
         (cell2 as Floor).stander = mob
-        println(level1)
-        assertEquals(Move(Direction.UP, 1), AggressiveStrategy().move(level1, mob))
+        println(arena)
+        assertEquals(Move(Direction.UP, 1), AggressiveStrategy().move(arena, mob))
     }
 
     @Test
     fun mobsStop() {
-        val cell1 = level1.getCell(1, 1, 0)
+        val cell1 = arena.getCell(1, 1, 0)
         val player = Player(cell1)
         (cell1 as Floor).stander = player
-        val cell2 = level1.getCell(1 + player.visibilityDepth + 1, 1, 0)
+        val cell2 = arena.getCell(1 + player.visibilityDepth + 1, 1, 0)
         val mob = Snowball(cell2)
         (cell2 as Floor).stander = mob
-        println(level1)
-        assertEquals(0, AggressiveStrategy().move(level1, mob).r)
+        println(arena)
+        assertEquals(0, AggressiveStrategy().move(arena, mob).r)
     }
 
-    @Test
-    fun arena() {
-        val cell = arena.getCell(1, 1, 0)
-        val mob = Snowball(cell)
-        (cell as Floor).stander = mob
-        println(arena)
-        val testFile = "src/test/resources/arenaTest.kek"
-        arena.save(testFile)
-        println(Level.load(testFile))
-        File(testFile).delete()
-    }
 
 }
