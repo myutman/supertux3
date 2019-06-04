@@ -122,6 +122,8 @@ class Game(val id: String) {
         return changed
     }
 
+    fun isPlayerDead(userId: Int): Boolean = !usersPlay.contains(userId)
+
     /**
      * Make turn using command
      */
@@ -132,6 +134,13 @@ class Game(val id: String) {
         }
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
+        val oldPlayersCount = level.players.size
+        if (level.players.size != oldPlayersCount) {
+            usersPlay.clear()
+            usersPlay.addAll(level.players.map { it.userId })
+            takeTurnBarrier = CyclicBarrier(usersPlay.size)
+            makeTurnBarrier = CyclicBarrier(usersPlay.size)
+        }
         val oldBarrier = makeTurnBarrier
         curTurnPlayer++
         if (curTurnPlayer == usersPlay.size) {

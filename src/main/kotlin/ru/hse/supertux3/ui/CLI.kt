@@ -317,7 +317,7 @@ fun processMultiPlayer(terminal: Terminal) {
 
         view.lazyRedraw(cellsList)
 
-        if (state.player.isDead()) {
+        if (updatesTurn.amIDead) {
             view.died()
             break
         }

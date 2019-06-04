@@ -73,8 +73,10 @@ class SuperTux3Service : SuperTux3Grpc.SuperTux3ImplBase() {
         responseObserver: StreamObserver<SuperTux3Proto.GetUpdateResponse>
     ) = withGame(request.gameId, responseObserver) { game ->
         val cells = game.getUpdate(request.userId)
+        val amIDead = game.isPlayerDead(request.userId)
         val turn = SuperTux3Proto.Turn.newBuilder()
             .addAllCells(cells.map { it.toProto() })
+            .setAmIDead(amIDead)
             .build()
         responseObserver.onNext(
             SuperTux3Proto.GetUpdateResponse.newBuilder()
@@ -90,8 +92,10 @@ class SuperTux3Service : SuperTux3Grpc.SuperTux3ImplBase() {
         responseObserver: StreamObserver<SuperTux3Proto.MakeTurnResponse>
     ) = withGame(request.gameId, responseObserver) { game ->
         val cells = game.makeTurn(request.userId, request.command)
+        val amIDead = game.isPlayerDead(request.userId)
         val turn = SuperTux3Proto.Turn.newBuilder()
             .addAllCells(cells.map { it.toProto() })
+            .setAmIDead(amIDead)
             .build()
         responseObserver.onNext(
             SuperTux3Proto.MakeTurnResponse.newBuilder()
