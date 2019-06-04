@@ -284,8 +284,8 @@ fun processMultiPlayer(terminal: Terminal) {
                 'h' -> HelpCommand(view)
                 else -> null
             }
-            cmd?.execute()
-            val command = currentCommandBuilder.build()
+            //cmd?.execute()
+            val command = currentCommandBuilder.setUserId(userId).build()
             val turnResponse = stub.makeTurn(SuperTux3Proto.MakeTurnRequest.newBuilder()
                 .setGameId(gameId)
                 .setUserId(userId)
@@ -306,7 +306,8 @@ fun processMultiPlayer(terminal: Terminal) {
             if (cell is Floor && cell.stander is Player) {
                 val cellPlayer = cell.stander as Player
                 if (cellPlayer.userId == userId) {
-                    state.player.copyFrom(cellPlayer)
+                    state.player = cellPlayer
+                    state.level.player = cellPlayer
                     // TODO: inventory
                 }
             }
@@ -315,7 +316,8 @@ fun processMultiPlayer(terminal: Terminal) {
             cellsList.add(cell)
         }
 
-        view.lazyRedraw(cellsList)
+        //view.lazyRedraw(cellsList) TODO: lazy draw doesn't fill so good
+        view.redraw() // TODO: npc still moves strange
 
         if (updatesTurn.amIDead) {
             view.died()

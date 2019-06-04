@@ -61,8 +61,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     /**
      * The one and only player in singleplayer
      */
-    val player: Player?
-        get() = if (players.isEmpty()) null else players.first()
+    var player: Player? = null
 
     /**
      * Just a 3D array representation of field,
@@ -193,6 +192,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         val cell = randomFloor()
         val player = Player(cell, userId = userId)
         players.add(player)
+        this.player = player
         return player
     }
 

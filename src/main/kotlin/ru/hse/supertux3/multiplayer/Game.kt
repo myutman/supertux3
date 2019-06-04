@@ -75,8 +75,11 @@ class Game(val id: String) {
 
     private fun applyCommand(command: CommandOuterClass.Command): List<Cell> {
         val userId = command.userId
-        val curPlayer = level.players[userId]
+        val curPlayer = level.players.find { it.userId == userId } ?: return emptyList()
+        println("CUR POS: (i, j, h)=${curPlayer.cell.coordinates}")
+        level.players.forEach { println("userId=" + it.userId.toString() + " " + it.cell.coordinates) }
         val changed = ArrayList<Cell>()
+        level.player = curPlayer
         val model = Model(GameState(level, curPlayer))
         model.view = FakeView()
         val modelCommand: Command = if (command.hasLoot()) {
@@ -91,8 +94,7 @@ class Game(val id: String) {
                 CommandOuterClass.Direction.RIGHT -> Direction.RIGHT
                 else -> null
             }
-            val data = curPlayer.processMove(direction!!, level)
-            changed.add(level.getCell(data.destination))
+            changed.add(level.getCell(curPlayer.coordinates, direction!!, 1))
             MoveCommand(model, direction)
         } else if (command.hasStay()) {
             StayCommand(model)
@@ -132,9 +134,6 @@ class Game(val id: String) {
      */
     fun makeTurn(userId: Int, command: CommandOuterClass.Command): List<Cell> {
         println("MAKE TURN userId=$userId")
-        if (usersPlay[curTurnPlayer] != userId) {
-            return emptyList()
-        }
         currentTurn.clear()
         currentTurn.addAll(applyCommand(command))
         val oldPlayersCount = level.players.size
@@ -159,10 +158,11 @@ class Game(val id: String) {
     private fun moveMobs(): List<Cell> {
         val changed = ArrayList<Cell>()
         for (mob in level.mobs) {
-            level.bfs(mob.coordinates, 1) {
-                changed.add(it)
-            }
+            val old = mob.cell
             mob.move(level)
+            val new = mob.cell
+            changed.add(old)
+            changed.add(new)
         }
         return changed
     }

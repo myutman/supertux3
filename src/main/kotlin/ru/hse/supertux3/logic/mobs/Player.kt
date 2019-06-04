@@ -76,5 +76,6 @@ class Player(
         criticalChance = stander.criticalChance
         xp = stander.xp
         level = stander.level
+        cell = stander.cell
     }
 }

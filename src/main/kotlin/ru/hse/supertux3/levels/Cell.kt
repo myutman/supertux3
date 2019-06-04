@@ -20,7 +20,7 @@ open class Cell(val coordinates: Coordinates, val id: String) {
     /**
      * Shows if this cell is visible by Player.
      */
-    var visibility = Visibility.Hidden
+    var visibility = Visibility.Visible
 
     open fun toProto(): LevelOuterClass.Cell {
         return LevelOuterClass.Cell.newBuilder()
