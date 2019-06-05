@@ -247,7 +247,6 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
                 if (cell.coordinates == state.player.coordinates) {
                     visual.run {
                         drawCell(cell, red("@"))
-                        print(cursorLeft(1))
                     }
                 } else {
                     drawCell(cell)
@@ -300,7 +299,6 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
                 visual.run {
                     print(cursorLeft(left))
                     print(cursorDown(down))
-
 
                     print(str)
                     print(cursorLeft(str.length))
