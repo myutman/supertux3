@@ -6,29 +6,15 @@ import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.ui.ViewLike
-import ru.hse.supertux3.ui.readChar
 
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
  */
-class Model(val state: GameState) {
+class Model(val state: GameState, val view: ViewLike) {
     /**
      * State of game, including level and player.
      */
     val level = state.level
-
-    /**
-     * View to request to redraw everything.
-     */
-    lateinit var view: ViewLike
-
-    private fun message(str: String) {
-        view.printMessage("$str${System.lineSeparator()}Press ESC to continue")
-        while (true) {
-            if (readChar().toInt() == 27) break
-        }
-        view.redraw()
-    }
 
     fun putOn(index: Int) {
         val equipped = state.player.inventory.equipped
@@ -154,46 +140,5 @@ class Model(val state: GameState) {
     fun handleDeath() {
         level.players.remove(level.player)
         view.died()
-    }
-
-    fun getSlotToPutOn(slotChar: Char): Int {
-        val equipped = state.player.inventory.equipped
-        val unequipped = state.player.inventory.unequipped
-        val info = try {
-             state.player.inventory.getItemInfoBySlot(slotChar)
-        } catch (e: RuntimeException) {
-            message(e.message!!)
-            return -1
-        }
-        if (info.isEquipped) {
-            message("Item is already equipped")
-            return -1
-        }
-        val item = unequipped[info.index]
-        if (item !is Wearable) {
-            message("Item is not wearable")
-            return -1
-        }
-        if (equipped.containsKey(item.type)) {
-            message("${item.type} is already equipped")
-            return -1
-        }
-        return info.index
-    }
-
-    fun getSlotToTakeOff(slotChar: Char): WearableType? {
-        val equipped = state.player.inventory.equipped
-        val entry = try {
-            val info = state.player.inventory.getItemInfoBySlot(slotChar)
-            if (!info.isEquipped) {
-                message("Item is not equipped")
-                return null
-            }
-            equipped.toList()[info.index]
-        } catch (e: RuntimeException) {
-            message(e.message!!)
-            return null
-        }
-        return entry.first
     }
 }

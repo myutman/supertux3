@@ -80,8 +80,7 @@ class Game(val id: String) {
         level.players.forEach { println("userId=" + it.userId.toString() + " " + it.cell.coordinates) }
         val changed = ArrayList<Cell>()
         level.player = curPlayer
-        val model = Model(GameState(level, curPlayer))
-        model.view = FakeView()
+        val model = Model(GameState(level, curPlayer), FakeView())
         val modelCommand: Command = if (command.hasLoot()) {
             changed.add(curPlayer.cell)
             LootCommand(model)

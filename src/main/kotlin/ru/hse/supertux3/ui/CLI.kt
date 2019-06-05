@@ -89,9 +89,8 @@ fun processSinglePlayer(terminal: Terminal) {
 
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
-    val model = Model(state)
     val view = View(state, visual, terminal)
-    model.view = view
+    val model = Model(state, view)
 
     val invoker = Invoker()
 
@@ -112,7 +111,7 @@ fun processSinglePlayer(terminal: Terminal) {
                 'o' -> {
                     view.printMessage("What do you want to put on")
                     val slotChar = readChar()
-                    val index = model.getSlotToPutOn(slotChar)
+                    val index = view.inventoryView.getSlotToPutOn(state.player.inventory, slotChar)
                     if (index == -1) {
                         EmptyCommand()
                     } else {
@@ -122,7 +121,7 @@ fun processSinglePlayer(terminal: Terminal) {
                 'p' -> {
                     view.printMessage("What do you want to take off")
                     val slotChar = readChar()
-                    val type = model.getSlotToTakeOff(slotChar)
+                    val type = view.inventoryView.getSlotToTakeOff(state.player.inventory, slotChar)
                     if (type == null) {
                         EmptyCommand()
                     } else {
@@ -171,7 +170,6 @@ fun processMultiPlayer(terminal: Terminal) {
 
         println("Enter the same id to start game.")
         val secondGameId = getId()
-        // TODO: do this better
         val response = stub.startGame(SuperTux3Proto.StartGameRequest.newBuilder().setGameId(gameId).build())
         level = Level.load(response.level)
         userId = response.userId
@@ -179,15 +177,13 @@ fun processMultiPlayer(terminal: Terminal) {
 
     val player = level.players.find { player -> player.userId == userId }
     if (player == null) {
-        println("ERROROR: server sent userId=${userId} that didn't match any userId in Level.")
+        println("ERROR: server sent userId=${userId} that didn't match any userId in Level.")
         return
     }
 
     val state = GameState(level, player)
     val visual = TermColors(TermColors.Level.TRUECOLOR)
     val view = View(state, visual, terminal)
-    val model = Model(state)
-    model.view = view
 
     while (true) {
         val isMyTurn = stub.isMyTurn(SuperTux3Proto.IsMyTurnRequest.newBuilder()
@@ -197,70 +193,58 @@ fun processMultiPlayer(terminal: Terminal) {
         val updatesTurn: SuperTux3Proto.Turn
         if (isMyTurn) {
             val currentCommandBuilder = CommandOuterClass.Command.newBuilder()
-            val cmd: Command? = when (readChar()) {
+            when (readChar()) {
                 'w' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.UP)
                     )
-                    MoveCommand(model, Direction.UP)
                 }
                 'a' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.LEFT)
                     )
-                    MoveCommand(model, Direction.LEFT)
                 }
                 's' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.DOWN)
                     )
-                    MoveCommand(model, Direction.DOWN)
                 }
                 'd' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.RIGHT)
                     )
-                    MoveCommand(model, Direction.RIGHT)
                 }
-                'q' -> QuitCommand(state, saveName)
+                'q' -> state.quit()
                 ' ' -> {
                     currentCommandBuilder.setMoveLadder(
                         CommandOuterClass.MoveLadderCommand.newBuilder()
                     )
-                    MoveLadderCommand(model)
                 }
                 '.' -> {
                     currentCommandBuilder.setStay(
                         CommandOuterClass.StayCommand.newBuilder()
                     )
-                    StayCommand(model)
                 }
                 'l' -> {
                     currentCommandBuilder.setLoot(
                         CommandOuterClass.LootCommand.newBuilder()
                     )
-                    LootCommand(model)
                 }
                 'o' -> {
                     view.printMessage("What do you want to put on")
                     val slotChar = readChar()
-                    val index = model.getSlotToPutOn(slotChar)
-                    if (index == -1) {
-                        EmptyCommand()
-                    } else {
+                    val index = view.inventoryView.getSlotToPutOn(state.player.inventory, slotChar)
+                    if (index != -1) {
                         currentCommandBuilder.setPutOn(
                             CommandOuterClass.PutOnCommand.newBuilder().setIndex(index)
                         )
-                        PutOnCommand(model, index)
                     }
                 }
                 'p' -> {
                     view.printMessage("What do you want to take off")
                     val slotChar = readChar()
-                    val type = model.getSlotToTakeOff(slotChar)
-                    if (type == null) {
-                        EmptyCommand()
-                    } else {
+                    val type = view.inventoryView.getSlotToTakeOff(state.player.inventory, slotChar)
+                    if (type != null) {
                         val protoType = when (type) {
                             WearableType.HAT -> CommandOuterClass.WearableType.HAT
                             WearableType.JACKET -> CommandOuterClass.WearableType.JACKET
@@ -268,12 +252,10 @@ fun processMultiPlayer(terminal: Terminal) {
                             WearableType.PANTS -> CommandOuterClass.WearableType.PANTS
                             WearableType.SHOES -> CommandOuterClass.WearableType.SHOES
                             WearableType.WEAPON -> CommandOuterClass.WearableType.WEAPON
-                            else -> null
                         }
                         currentCommandBuilder.setTakeOff(
                             CommandOuterClass.TakeOffCommand.newBuilder().setType(protoType!!)
                         )
-                        TakeOffCommand(model, type)
                     }
                 }
 
@@ -282,9 +264,8 @@ fun processMultiPlayer(terminal: Terminal) {
                 'k' -> SlideDownCommand(view)
                 '?' -> ShowItemInfoCommand(view)
                 'h' -> HelpCommand(view)
-                else -> null
             }
-            //cmd?.execute()
+
             val command = currentCommandBuilder.setUserId(userId).build()
             val turnResponse = stub.makeTurn(SuperTux3Proto.MakeTurnRequest.newBuilder()
                 .setGameId(gameId)
@@ -308,7 +289,6 @@ fun processMultiPlayer(terminal: Terminal) {
                 if (cellPlayer.userId == userId) {
                     state.player = cellPlayer
                     state.level.player = cellPlayer
-                    // TODO: inventory
                 }
             }
 
@@ -316,10 +296,10 @@ fun processMultiPlayer(terminal: Terminal) {
             cellsList.add(cell)
         }
 
-        //view.lazyRedraw(cellsList) TODO: lazy draw doesn't fill so good
-        view.redraw() // TODO: npc still moves strange
+        // view.lazyRedraw(cellsList) TODO: lazy draw doesn't fill so good
+        view.redraw()
 
-        if (updatesTurn.amIDead) {
+        if (updatesTurn.amIDead || state.isGameFinished()) {
             view.died()
             break
         }

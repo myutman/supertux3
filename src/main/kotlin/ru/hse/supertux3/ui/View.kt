@@ -3,11 +3,8 @@ package ru.hse.supertux3.ui
 import com.github.ajalt.mordant.TermColors
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
-import ru.hse.supertux3.logic.mobs.Mob
-import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.items.Inventory
 import org.jline.terminal.Terminal
-import kotlin.math.max
 import kotlin.math.min
 
 interface ViewLike {
@@ -75,6 +72,7 @@ class FakeView: ViewLike {
     }
 }
 
+
 /*
  * Class for moving cursor commands.
  * @param state current game state consists of level and player information
@@ -85,6 +83,8 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     init {
         redraw()
     }
+
+    val inventoryView = InventoryView(this)
 
     /*
      * Move up or down the ladder.
@@ -229,12 +229,25 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printInventoryInfo()
     }
 
+    // TODO: перенести туда, где это должно быть
+    var prevPosition = state.player.position()
+    // TODO: help!
     override fun lazyRedraw(cells: List<Cell>) {
+        val position = state.player.position()
+
+        clearMonstersNotSeen(prevPosition)
+        prevPosition = position
+
+        drawBeingSeen()
+
+        printPos()
+
         for (cell in cells) {
-            if (cell.coordinates.h == state.player.coordinates.h) {
+            if (cell.visibility == Visibility.Visible) {
                 if (cell.coordinates == state.player.coordinates) {
                     visual.run {
                         drawCell(cell, red("@"))
+                        print(cursorLeft(1))
                     }
                 } else {
                     drawCell(cell)
@@ -256,8 +269,8 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     private fun drawBeingSeen() {
         val cur = state.player.position()
         state.level.bfs(cur, state.player.visibilityDepth) {
-            drawCell(it)
             it.visibility = Visibility.Visible
+            drawCell(it)
         }
     }
 
@@ -374,7 +387,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
             val slotName = Inventory.unwornSlotNames[i]
             if (state.player.inventory.inventoryCur + i < inventory.unequipped.size) {
                 val item = inventory.unequipped[state.player.inventory.inventoryCur + i]
-                line += printStrInLineRight("[$slotName] " + item.toString(), line)
+                line += printStrInLineRight("[$slotName] $item", line)
             } else {
                 line += printStrInLineRight("[$slotName] --", line)
             }
