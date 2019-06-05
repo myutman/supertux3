@@ -231,18 +231,17 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
     // TODO: перенести туда, где это должно быть
     var prevPosition = state.player.position()
-    // TODO: help!
+
     override fun lazyRedraw(cells: List<Cell>) {
         val position = state.player.position()
 
         clearMonstersNotSeen(prevPosition)
         prevPosition = position
 
-        drawBeingSeen()
+        redraw()
 
-        printPos()
-
-        for (cell in cells) {
+        // TODO: help!
+        /*for (cell in cells) {
             if (cell.visibility == Visibility.Visible) {
                 if (cell.coordinates == state.player.coordinates) {
                     visual.run {
@@ -252,7 +251,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
                     drawCell(cell)
                 }
             }
-        }
+        }*/
     }
 
     private fun clearMonstersNotSeen(prevPosition: Coordinates) {

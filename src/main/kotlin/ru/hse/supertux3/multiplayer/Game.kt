@@ -1,10 +1,7 @@
 package ru.hse.supertux3.multiplayer
 
 import ru.hse.supertux3.CommandOuterClass
-import ru.hse.supertux3.levels.Cell
-import ru.hse.supertux3.levels.Direction
-import ru.hse.supertux3.levels.Ladder
-import ru.hse.supertux3.levels.LevelLoader
+import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.Model
 import ru.hse.supertux3.logic.items.WearableType
@@ -38,7 +35,7 @@ class Game(val id: String) {
         return userId
     }
 
-    private val currentTurn = mutableListOf<Cell>()
+    private val currentTurn = mutableListOf<Coordinates>()
 
     /**
      * Starting created game with all joined users
@@ -73,19 +70,19 @@ class Game(val id: String) {
         return userId == usersPlay[curTurnPlayer]
     }
 
-    private fun applyCommand(command: CommandOuterClass.Command): List<Cell> {
+    private fun applyCommand(command: CommandOuterClass.Command): List<Coordinates> {
         val userId = command.userId
         val curPlayer = level.players.find { it.userId == userId } ?: return emptyList()
         println("CUR POS: (i, j, h)=${curPlayer.cell.coordinates}")
         level.players.forEach { println("userId=" + it.userId.toString() + " " + it.cell.coordinates) }
-        val changed = ArrayList<Cell>()
+        val changed = ArrayList<Coordinates>()
         level.player = curPlayer
         val model = Model(GameState(level, curPlayer), FakeView())
         val modelCommand: Command = if (command.hasLoot()) {
-            changed.add(curPlayer.cell)
+            changed.add(curPlayer.cell.coordinates)
             LootCommand(model)
         } else if (command.hasMove()) {
-            changed.add(curPlayer.cell)
+            changed.add(curPlayer.cell.coordinates)
             val direction = when (command.move.direction) {
                 CommandOuterClass.Direction.UP -> Direction.UP
                 CommandOuterClass.Direction.DOWN -> Direction.DOWN
@@ -93,16 +90,16 @@ class Game(val id: String) {
                 CommandOuterClass.Direction.RIGHT -> Direction.RIGHT
                 else -> null
             }
-            changed.add(level.getCell(curPlayer.coordinates, direction!!, 1))
+            changed.add(level.getCell(curPlayer.coordinates, direction!!, 1).coordinates)
             MoveCommand(model, direction)
         } else if (command.hasStay()) {
             StayCommand(model)
         } else if (command.hasMoveLadder()) {
-            changed.add(curPlayer.cell)
-            changed.add(level.getCell((curPlayer.cell as Ladder).destination))
+            changed.add(curPlayer.cell.coordinates)
+            changed.add(level.getCell((curPlayer.cell as Ladder).destination).coordinates)
             MoveLadderCommand(model)
         } else if (command.hasPutOn()) {
-            changed.add(curPlayer.cell)
+            changed.add(curPlayer.cell.coordinates)
             PutOnCommand(model, command.putOn.index)
         } else if (command.hasTakeOff()) {
             val type = when (command.takeOff.type) {
@@ -114,7 +111,7 @@ class Game(val id: String) {
                 CommandOuterClass.WearableType.WEAPON -> WearableType.WEAPON
                 else -> null
             }
-            changed.add(curPlayer.cell)
+            changed.add(curPlayer.cell.coordinates)
             TakeOffCommand(model, type!!)
         } else {
             EmptyCommand()
@@ -151,15 +148,15 @@ class Game(val id: String) {
             curTurnPlayer = 0
         }
         oldBarrier.await()
-        return currentTurn
+        return currentTurn.map { level.getCell(it) }
     }
 
-    private fun moveMobs(): List<Cell> {
-        val changed = ArrayList<Cell>()
+    private fun moveMobs(): List<Coordinates> {
+        val changed = ArrayList<Coordinates>()
         for (mob in level.mobs) {
-            val old = mob.cell
+            val old = mob.cell.coordinates
             mob.move(level)
-            val new = mob.cell
+            val new = mob.cell.coordinates
             changed.add(old)
             changed.add(new)
         }
@@ -186,6 +183,6 @@ class Game(val id: String) {
     fun getUpdate(userId: Int): List<Cell> {
         println("GET UPDATE userId=$userId")
         makeTurnBarrier.await()
-        return currentTurn
+        return currentTurn.map { level.getCell(it) }
     }
 }

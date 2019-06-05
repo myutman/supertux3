@@ -296,8 +296,7 @@ fun processMultiPlayer(terminal: Terminal) {
             cellsList.add(cell)
         }
 
-        // view.lazyRedraw(cellsList) TODO: lazy draw doesn't fill so good
-        view.redraw()
+        view.lazyRedraw(cellsList) // TODO: lazy draw doesn't fill so good
 
         if (updatesTurn.amIDead || state.isGameFinished()) {
             view.died()
