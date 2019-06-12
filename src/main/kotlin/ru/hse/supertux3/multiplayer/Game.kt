@@ -4,6 +4,7 @@ import ru.hse.supertux3.CommandOuterClass
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
 import ru.hse.supertux3.logic.Model
+import ru.hse.supertux3.logic.MoveResult
 import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.ui.FakeView
 import ru.hse.supertux3.ui.commands.*
@@ -152,10 +153,21 @@ class Game(val id: String) {
 
     private fun moveMobs(): List<Coordinates> {
         val changed = ArrayList<Coordinates>()
-        for (mob in level.mobs) {
-            val old = mob.cell.coordinates
-            mob.move(level)
-            val new = mob.cell.coordinates
+        for (i in level.mobs.indices) {
+            val mob = level.mobs[i]
+            val old = mob.cell.coordinates.copy()
+            val moveResult = mob.move(level).result
+            val new = mob.cell.coordinates.copy()
+            if (moveResult == MoveResult.ATTACKED) {
+                println("Result = $moveResult")
+                println("Mob #$i old c = $old")
+                println("Mob #$i new c = $new")
+            }
+            if (new != old) {
+                println("Mob moved")
+                println("Mob #$i old c = $old")
+                println("Mob #$i new c = $new")
+            }
             changed.add(old)
             changed.add(new)
         }

@@ -114,9 +114,9 @@ abstract class Mob(var cell: Cell, val id: String){
         }
 
         val newCell = level.getCell(newPosition)
-        if (newCell is Floor && newCell.stander != null && newCell.stander is Mob) {
-            moveData.affected = newCell.stander as Mob
-            moveData.result = attack(newCell.stander as Mob, level)
+        if (newCell is Floor && newCell.stander != null) {
+            moveData.affected = newCell.stander!!
+            moveData.result = attack(newCell.stander!!, level)
             return moveData
         }
 
