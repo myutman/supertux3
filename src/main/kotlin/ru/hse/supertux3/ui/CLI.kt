@@ -282,6 +282,7 @@ fun processMultiPlayer(terminal: Terminal) {
         val cellsList = ArrayList<Cell>()
         for (proto in updatesTurn.cellsList) {
             val cell = Level.loadCell(state.level, proto)
+            cell.visibility = level.getCell(cell.coordinates).visibility
 
             // check if our player; if yes then update player
             if (cell is Floor && cell.stander is Player) {
