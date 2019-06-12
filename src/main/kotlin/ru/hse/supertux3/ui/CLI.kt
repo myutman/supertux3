@@ -288,7 +288,6 @@ fun processMultiPlayer(terminal: Terminal) {
                 val cellPlayer = cell.stander as Player
                 if (cellPlayer.userId == userId) {
                     state.player = cellPlayer
-                    state.level.player = cellPlayer
                 }
             }
 

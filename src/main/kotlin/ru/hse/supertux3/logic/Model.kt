@@ -138,7 +138,7 @@ class Model(val state: GameState, val view: ViewLike) {
      * Functions to be done when player was killed
      */
     fun handleDeath() {
-        level.players.remove(level.player)
+        level.players.remove(state.player)
         view.died()
     }
 }

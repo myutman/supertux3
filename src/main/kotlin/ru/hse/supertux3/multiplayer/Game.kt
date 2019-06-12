@@ -76,7 +76,6 @@ class Game(val id: String) {
         println("CUR POS: (i, j, h)=${curPlayer.cell.coordinates}")
         level.players.forEach { println("userId=" + it.userId.toString() + " " + it.cell.coordinates) }
         val changed = ArrayList<Coordinates>()
-        level.player = curPlayer
         val model = Model(GameState(level, curPlayer), FakeView())
         val modelCommand: Command = if (command.hasLoot()) {
             changed.add(curPlayer.cell.coordinates)
