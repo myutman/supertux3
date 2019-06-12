@@ -194,42 +194,52 @@ fun processMultiPlayer(terminal: Terminal) {
         val updatesTurn: SuperTux3Proto.Turn
         if (isMyTurn) {
             val currentCommandBuilder = CommandOuterClass.Command.newBuilder()
-            when (readChar()) {
+            val isTurn: Boolean = when (readChar()) {
                 'w' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.UP)
                     )
+                    true
                 }
                 'a' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.LEFT)
                     )
+                    true
                 }
                 's' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.DOWN)
                     )
+                    true
                 }
                 'd' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.RIGHT)
                     )
+                    true
                 }
-                'q' -> state.quit()
+                'q' -> {
+                    state.quit()
+                    true
+                }
                 ' ' -> {
                     currentCommandBuilder.setMoveLadder(
                         CommandOuterClass.MoveLadderCommand.newBuilder()
                     )
+                    true
                 }
                 '.' -> {
                     currentCommandBuilder.setStay(
                         CommandOuterClass.StayCommand.newBuilder()
                     )
+                    true
                 }
                 'l' -> {
                     currentCommandBuilder.setLoot(
                         CommandOuterClass.LootCommand.newBuilder()
                     )
+                    true
                 }
                 'o' -> {
                     view.printMessage("What do you want to put on")
@@ -240,6 +250,7 @@ fun processMultiPlayer(terminal: Terminal) {
                             CommandOuterClass.PutOnCommand.newBuilder().setIndex(index)
                         )
                     }
+                    true
                 }
                 'p' -> {
                     view.printMessage("What do you want to take off")
@@ -258,15 +269,33 @@ fun processMultiPlayer(terminal: Terminal) {
                             CommandOuterClass.TakeOffCommand.newBuilder().setType(protoType!!)
                         )
                     }
+                    true
                 }
 
-                'r' -> RedrawCommand(view)
-                'j' -> SlideUpCommand(view)
-                'k' -> SlideDownCommand(view)
-                '?' -> ShowItemInfoCommand(view)
-                'h' -> HelpCommand(view)
+                'r' -> {
+                    RedrawCommand(view).execute()
+                    false
+                }
+                'j' -> {
+                    SlideUpCommand(view).execute()
+                    false
+                }
+                'k' -> {
+                    SlideDownCommand(view).execute()
+                    false
+                }
+                '?' -> {
+                    ShowItemInfoCommand(view).execute()
+                    false
+                }
+                'h' -> {
+                    HelpCommand(view).execute()
+                    false
+                }
+                else -> false
             }
-
+            if (!isTurn)
+                continue
             val command = currentCommandBuilder.setUserId(userId).build()
             val turnResponse = stub.makeTurn(SuperTux3Proto.MakeTurnRequest.newBuilder()
                 .setGameId(gameId)

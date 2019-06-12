@@ -240,9 +240,6 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
         redraw()
 
-        val s = cells.map { it.coordinates }.joinToString("\n");
-        printStrInLine(s, 15)
-        
         /*for (cell in cells) {
             if (cell.visibility == Visibility.Visible) {
                 if (cell.coordinates == state.player.coordinates) {
