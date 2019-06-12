@@ -145,34 +145,12 @@ class Game(val id: String) {
         if (curTurnPlayer == usersPlay.size) {
             goNextCycle()
             currentTurn.addAll(moveMobs())
-            curTurnPlayer = 0
         }
         oldBarrier.await()
         return currentTurn.map { level.getCell(it) }
     }
 
-    private fun moveMobs(): List<Coordinates> {
-        val changed = ArrayList<Coordinates>()
-        for (i in level.mobs.indices) {
-            val mob = level.mobs[i]
-            val old = mob.cell.coordinates.copy()
-            val moveResult = mob.move(level).result
-            val new = mob.cell.coordinates.copy()
-            if (moveResult == MoveResult.ATTACKED) {
-                println("Result = $moveResult")
-                println("Mob #$i old c = $old")
-                println("Mob #$i new c = $new")
-            }
-            if (new != old) {
-                println("Mob moved")
-                println("Mob #$i old c = $old")
-                println("Mob #$i new c = $new")
-            }
-            changed.add(old)
-            changed.add(new)
-        }
-        return changed
-    }
+    private fun moveMobs() = Model(GameState(level, level.players[curTurnPlayer]), FakeView()).afterAction()
 
     private fun goNextCycle() {
         synchronized(joinCondition) {

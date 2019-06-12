@@ -19,6 +19,7 @@ import ru.hse.supertux3.levels.Cell
 import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.SinglePlayerModel
 import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.Player
 import java.util.concurrent.TimeUnit
@@ -90,7 +91,7 @@ fun processSinglePlayer(terminal: Terminal) {
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
     val view = View(state, visual, terminal)
-    val model = Model(state, view)
+    val model = SinglePlayerModel(state, view)
 
     val invoker = Invoker()
 

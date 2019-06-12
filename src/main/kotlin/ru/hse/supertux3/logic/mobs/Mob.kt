@@ -98,7 +98,6 @@ abstract class Mob(var cell: Cell, val id: String){
             Direction.LEFT to { position -> position.copy(j = position.j - move.r) },
             Direction.RIGHT to { position -> position.copy(j = position.j + move.r) }
         )
-
         val newPositionFunction = directionToMove[move.direction] ?: { position -> position }
         val newPosition = newPositionFunction(position())
 

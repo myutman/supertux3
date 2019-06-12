@@ -10,13 +10,13 @@ import ru.hse.supertux3.ui.ViewLike
 /**
  * Class that changes game state according to given actions and asks view to redraw field.
  */
-class Model(val state: GameState, val view: ViewLike) {
+open class Model(val state: GameState, val view: ViewLike) {
     /**
      * State of game, including level and player.
      */
     val level = state.level
 
-    fun putOn(index: Int) {
+    open fun putOn(index: Int) {
         val equipped = state.player.inventory.equipped
         val unequipped = state.player.inventory.unequipped
 
@@ -25,11 +25,9 @@ class Model(val state: GameState, val view: ViewLike) {
         unequipped.removeAt(index)
         equipped.put(item.type, item)
         view.redraw()
-
-        afterAction()
     }
 
-    fun putOff(type: WearableType) {
+    open fun putOff(type: WearableType) {
         val equipped = state.player.inventory.equipped
         val unequipped = state.player.inventory.unequipped
         val item = equipped[type]!!
@@ -37,23 +35,21 @@ class Model(val state: GameState, val view: ViewLike) {
         equipped.remove(type)
         unequipped.add(state.player.inventory.inventoryCur, item)
         view.redraw()
-        afterAction()
     }
 
-    fun loot() {
+    open fun loot() {
         val floor = state.level.getCell(state.player.position()) as Floor
         if (floor.items.isEmpty()) return
         state.player.inventory.unequipped.addAll(floor.items)
         floor.items.clear()
 
         view.redraw()
-        afterAction()
     }
 
     /**
      * Move player in given direction (if possible).
      */
-    fun move(direction: Direction) {
+    open fun move(direction: Direction) {
         val moveData = state.player.processMove(direction, level)
 
         when (moveData.result) {
@@ -65,14 +61,12 @@ class Model(val state: GameState, val view: ViewLike) {
             }
             MoveResult.DIED -> handleDeath()
         }
-
-        afterAction()
     }
 
     /**
      * Reduces player's health.
      */
-    fun selfHarm() {
+    open fun selfHarm() {
         val npc = Snowball(Cell(Coordinates(0, 0, 0, 0), ""))
         npc.damage = 20
         npc.attack(state.player, level)
@@ -82,14 +76,12 @@ class Model(val state: GameState, val view: ViewLike) {
         } else {
             view.attacked()
         }
-
-        afterAction()
     }
 
     /**
      * Function that moves player deeper by ladder.
      */
-    fun moveLadder() {
+    open fun moveLadder() {
         val level = state.level
         val position = state.player.position()
 
@@ -107,13 +99,18 @@ class Model(val state: GameState, val view: ViewLike) {
     /**
      * Process everything that happens after player's move.
      */
-    fun afterAction() {
+    fun afterAction(): List<Coordinates> {
+        val changed = ArrayList<Coordinates>()
         level.mobs.forEach { mob ->
             if (!mob.isDead()) {
+                val old = mob.cell.coordinates.copy()
                 val result = mob.move(level)
+                val new = mob.cell.coordinates.copy()
                 if (result.affected is Player) {
                     view.attacked()
                 }
+                changed.add(old)
+                changed.add(new)
             }
         }
 
@@ -132,6 +129,7 @@ class Model(val state: GameState, val view: ViewLike) {
         if (state.player.isDead()) {
             handleDeath()
         }
+        return changed
     }
 
     /**
