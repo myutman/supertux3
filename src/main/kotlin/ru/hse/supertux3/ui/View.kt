@@ -115,10 +115,6 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         redraw()
     }
 
-    /**
-     * Go to the given direction.
-     * @param direction direction to go to
-     */
     override fun move(direction: Direction) {
         val prevPosition = state.level.getCell(state.player.position(), direction, -1)
         visual.run {
@@ -200,9 +196,6 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
     }
 
-    /**
-     * Redraw all the field.
-     */
     override fun redraw() {
         clearScreen()
 
