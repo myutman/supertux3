@@ -7,87 +7,100 @@ import ru.hse.supertux3.logic.items.Inventory
 import org.jline.terminal.Terminal
 import kotlin.math.min
 
+/**
+ * Interface for all ViewLike classes.
+ */
 interface ViewLike {
+    /**
+     * Graphical representation of moving up or down the ladder.
+     */
     fun moveLadder()
+
+    /**
+     * Graphical representation of moving to the adjacent cell.
+     * @param direction direction of move
+     */
     fun move(direction: Direction)
+
+    /**
+     * Graphical representation of moving mobs and all other stuff happening after player's move.
+     */
     fun afterAction()
+
+    /**
+     * Graphical representation of attacking other mobs.
+     */
     fun attack()
+
+    /**
+     * Graphical representation of being attacked.
+     */
     fun attacked()
+
+    /**
+     * Graphical representation of dying.
+     */
     fun died()
+
+    /**
+     * Prints specific message below the game field.
+     */
     fun printMessage(str: String)
+
+    /**
+     * Redraws all the graphic information.
+     */
     fun redraw()
+
+    /**
+     * Redraws given subset of cells.
+     * @param cells cells to be redrawn
+     */
     fun lazyRedraw(cells: List<Cell>)
+
+    /**
+     * Graphical representation of sliding unworn inventory down.
+     */
     fun slideDown()
+
+    /**
+     * Graphical representation of sliding unworn inventory up.
+     */
     fun slideUp()
-    fun showInventoryMessage()
+
+    /**
+     * Prints information about inventory.
+     */
     fun printInventoryInfo()
 
+    /**
+     * Clears information about inventory.
+     */
     fun clearInventoryInfo()
 }
 
 class FakeView: ViewLike {
-    override fun printInventoryInfo() {
-
-    }
-
-    override fun clearInventoryInfo() {
-
-    }
-
-    override fun moveLadder() {
-
-    }
-
-    override fun move(direction: Direction) {
-
-    }
-
-    override fun afterAction() {
-
-    }
-
-    override fun attack() {
-
-    }
-
-    override fun attacked() {
-
-    }
-
-    override fun died() {
-
-    }
-
-    override fun printMessage(str: String) {
-
-    }
-
-    override fun redraw() {
-
-    }
-
-    override fun lazyRedraw(cells: List<Cell>) {
-
-    }
-
-    override fun slideDown() {
-
-    }
-
-    override fun slideUp() {
-
-    }
-
-    override fun showInventoryMessage() {
-
-    }
+    override fun printInventoryInfo() {}
+    override fun clearInventoryInfo() {}
+    override fun moveLadder() {}
+    override fun move(direction: Direction) {}
+    override fun afterAction() {}
+    override fun attack() {}
+    override fun attacked() {}
+    override fun died() {}
+    override fun printMessage(str: String) {}
+    override fun redraw() {}
+    override fun lazyRedraw(cells: List<Cell>) {}
+    override fun slideDown() {}
+    override fun slideUp() {}
 }
 
 
-/*
+/**
  * Class for moving cursor commands.
  * @param state current game state consists of level and player information
  * @param visual object for moving cursor and coloring symbols
+ * @param terminal object for enquiring terminal information
  */
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal): ViewLike {
 
@@ -97,14 +110,12 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
     val inventoryView = InventoryView(this)
 
-    /*
-     * Move up or down the ladder.
-     */
+
     override fun moveLadder() {
         redraw()
     }
 
-    /*
+    /**
      * Go to the given direction.
      * @param direction direction to go to
      */
@@ -189,7 +200,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
     }
 
-    /*
+    /**
      * Redraw all the field.
      */
     override fun redraw() {
@@ -397,11 +408,6 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
             clearInventoryInfo()
         }
         printInventoryInfo()
-    }
-
-    override fun showInventoryMessage() {
-        val str = "What item do you want to know about?"
-        printStrInLine(str, 4)
     }
 
     private fun String.toSpaces(): String {
