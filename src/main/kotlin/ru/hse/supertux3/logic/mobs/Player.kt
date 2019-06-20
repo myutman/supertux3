@@ -16,7 +16,7 @@ class Player(
     override var damage: Int = 15,
     override var resistChance: Int = 10,
     override var armor: Int = 5,
-    override var criticalChance: Int = 10,
+    override var criticalChance: Int = 30,
     val inventory: Inventory = Inventory()
 ) : Mob(cell, "@") {
     var xp: Int = 0
