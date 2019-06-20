@@ -115,7 +115,6 @@ class WearableBuilder(private val description: String, private val name: String,
             override fun doTakeOff(player: Player) {
 
             }
-
         }
 
         item.resistChance = resistChance

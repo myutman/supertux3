@@ -1,7 +1,6 @@
 package ru.hse.supertux3.mob
 
 import org.junit.AfterClass
-import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -10,8 +9,6 @@ import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.logic.mobs.decorators.MobDecorator
-import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
-import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
 import ru.hse.supertux3.logic.mobs.strategy.Move
 import ru.hse.supertux3.logic.mobs.strategy.NeutralStrategy
 import java.io.File
