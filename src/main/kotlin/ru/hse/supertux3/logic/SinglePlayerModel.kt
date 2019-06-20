@@ -25,8 +25,8 @@ class SinglePlayerModel(state: GameState, view: ViewLike): Model(state, view) {
         afterAction()
     }
 
-    override fun putOff(type: WearableType) {
-        super.putOff(type)
+    override fun takeOff(type: WearableType) {
+        super.takeOff(type)
         afterAction()
     }
 

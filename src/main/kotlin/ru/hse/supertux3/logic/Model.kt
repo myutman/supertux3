@@ -16,6 +16,10 @@ open class Model(val state: GameState, val view: ViewLike) {
      */
     val level = state.level
 
+    /**
+     * Puts on selected unworn item.
+     * @param index index of unworn item to put on
+     */
     open fun putOn(index: Int) {
         val equipped = state.player.inventory.equipped
         val unequipped = state.player.inventory.unequipped
@@ -30,7 +34,11 @@ open class Model(val state: GameState, val view: ViewLike) {
         view.printInventoryInfo()
     }
 
-    open fun putOff(type: WearableType) {
+    /**
+     * Takes off selected worn item.
+     * @param type type of worn item to take off
+     */
+    open fun takeOff(type: WearableType) {
         val equipped = state.player.inventory.equipped
         val unequipped = state.player.inventory.unequipped
 
@@ -44,6 +52,9 @@ open class Model(val state: GameState, val view: ViewLike) {
         view.printInventoryInfo()
     }
 
+    /**
+     * Loots all the items in current cell.
+     */
     open fun loot() {
         val floor = state.level.getCell(state.player.position()) as Floor
         if (floor.items.isEmpty()) return
