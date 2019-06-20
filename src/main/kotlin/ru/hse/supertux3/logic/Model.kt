@@ -24,8 +24,6 @@ open class Model(val state: GameState, val view: ViewLike) {
         val equipped = state.player.inventory.equipped
         val unequipped = state.player.inventory.unequipped
 
-        view.clearInventoryInfo()
-
         val item: Wearable = unequipped[index] as Wearable
         item.putOn(state.player)
         unequipped.removeAt(index)
@@ -42,8 +40,6 @@ open class Model(val state: GameState, val view: ViewLike) {
         val equipped = state.player.inventory.equipped
         val unequipped = state.player.inventory.unequipped
 
-        view.clearInventoryInfo()
-
         val item = equipped[type]!!
         item.takeOff(state.player)
         equipped.remove(type)
@@ -58,8 +54,6 @@ open class Model(val state: GameState, val view: ViewLike) {
     open fun loot() {
         val floor = state.level.getCell(state.player.position()) as Floor
         if (floor.items.isEmpty()) return
-
-        view.clearInventoryInfo()
 
         state.player.inventory.unequipped.addAll(floor.items)
         floor.items.clear()

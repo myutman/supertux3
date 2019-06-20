@@ -76,12 +76,12 @@ interface ViewLike {
     /**
      * Clears information about inventory.
      */
-    fun clearInventoryInfo()
+    //fun clearInventoryInfo()
 }
 
 class FakeView: ViewLike {
     override fun printInventoryInfo() {}
-    override fun clearInventoryInfo() {}
+    //override fun clearInventoryInfo() {}
     override fun moveLadder() {}
     override fun move(direction: Direction) {}
     override fun afterAction() {}
@@ -104,7 +104,16 @@ class FakeView: ViewLike {
  */
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal): ViewLike {
 
+    private var inventoryInfo: String
+    private var message: String
+    private var posInfo: String
+    private var usrInfo: String
+
     init {
+        inventoryInfo = ""
+        message = ""
+        posInfo = ""
+        usrInfo = ""
         redraw()
     }
 
@@ -172,8 +181,14 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         readChar()
     }
 
+    fun clearMessage() {
+        printStrInLine(message.toSpaces(), 5)
+    }
+
     override fun printMessage(str: String) {
-        printStrInLine(str, 5)
+        clearMessage()
+        message = str
+        printStrInLine(message, 5)
     }
 
     private fun drawCell(new: Cell, str: String = "") {
@@ -342,31 +357,38 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         return printStr(toPrint, lineNumber, state.level.width + 20)
     }
 
+
+
     private fun printPos() {
         val level = state.level
         val position = state.player.position()
 
+        printStrInLine(posInfo.toSpaces(), 1)
+
         val str = buildString {
             append(
-                "pos(i,j,h) = ",
+                "i = ",
                 position.i,
-                ", ",
+                ", j = ",
                 position.j,
-                ", ",
+                ", floor = ",
                 position.h,
                 " height = ",
                 level.height,
                 " width = ",
-                level.width,
-                "      "
+                level.width
             )
         }
 
-        printStrInLine(str, 1)
+        posInfo = str
+
+        printStrInLine(posInfo, 1)
     }
 
     private fun printUsrInfo() {
         val player = state.player
+
+        printStrInLine(usrInfo.toSpaces(), 0)
 
         val str = buildString {
             append(
@@ -386,21 +408,20 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
             )
         }
 
-        printStrInLine(str, 0)
+        usrInfo = str
+        printStrInLine(usrInfo, 0)
     }
 
     override fun slideDown() {
-        state.player.inventory.slideDown {
-            clearInventoryInfo()
+        if (state.player.inventory.slideDown()) {
+            printInventoryInfo()
         }
-        printInventoryInfo()
     }
 
     override fun slideUp() {
-        state.player.inventory.slideUp {
-            clearInventoryInfo()
+        if (state.player.inventory.slideUp()) {
+            printInventoryInfo()
         }
-        printInventoryInfo()
     }
 
     private fun String.toSpaces(): String {
@@ -433,13 +454,10 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
     }
 
     override fun printInventoryInfo() {
-        val stringToPrint = getInventoryInfo()
-        printStrInLineRight(stringToPrint, 0)
-    }
-
-    override fun clearInventoryInfo() {
-        val stringToPrint = getInventoryInfo()
-        printStrInLineRight(stringToPrint.toSpaces(), 0)
+        printStrInLineRight(inventoryInfo.toSpaces(), 0)
+        val str = getInventoryInfo()
+        inventoryInfo = str
+        printStrInLineRight(inventoryInfo, 0)
     }
 
     private fun printAttacked() {

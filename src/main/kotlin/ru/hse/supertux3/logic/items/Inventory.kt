@@ -20,18 +20,16 @@ class Inventory {
 
     data class ItemInfo(val item: Item, val isEquipped: Boolean, val index: Int)
 
-    fun slideDown(ifTrue: () -> Unit = {}): Boolean {
+    fun slideDown(): Boolean {
         if (inventoryIndex + unwornSlotNames.size < unequipped.size) {
-            ifTrue()
             inventoryIndex++
             return true
         }
         return false
     }
 
-    fun slideUp(ifTrue: () -> Unit = {}): Boolean {
+    fun slideUp(): Boolean {
         if (inventoryIndex > 0) {
-            ifTrue()
             inventoryIndex--
             return true
         }
