@@ -66,7 +66,7 @@ abstract class Mob(var cell: Cell, val id: String){
         if (n1 < criticalChance) {
             baseDamage *= 2
             if (this is Player && mob is NPC) {
-                val decorator = MobDecorator(mob, level)
+                val decorator = MobDecorator(mob)
                 val i = level.mobs.indexOf(mob)
                 level.mobs[i] = decorator
             }

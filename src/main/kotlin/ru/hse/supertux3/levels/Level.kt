@@ -316,7 +316,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                     mob.drop.add(processItem(item))
                 }
                 if (npc.isConfused) {
-                    return MobDecorator(mob, level)
+                    return MobDecorator(mob)
                 }
             }
             if (mob is Player) {
