@@ -17,7 +17,7 @@ class AggressiveStrategy : MoveStrategy() {
         var playerCoordinates: Coordinates? = null
 
         level.bfs(mob.coordinates, mob.visibilityDepth) {
-            if (it is Floor && it.stander != null && it.stander is Player) {
+            if (it is Floor && it.stander != null && it.stander is Player && playerCoordinates == null) {
                 playerCoordinates = it.coordinates
             }
         }
