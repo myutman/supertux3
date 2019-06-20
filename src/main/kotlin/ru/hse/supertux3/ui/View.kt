@@ -43,7 +43,13 @@ interface ViewLike {
     fun died()
 
     /**
+     * Clears message below the game field.
+     */
+    fun clearMessage()
+
+    /**
      * Prints specific message below the game field.
+     * @param str message
      */
     fun printMessage(str: String)
 
@@ -73,15 +79,10 @@ interface ViewLike {
      */
     fun printInventoryInfo()
 
-    /**
-     * Clears information about inventory.
-     */
-    //fun clearInventoryInfo()
 }
 
 class FakeView: ViewLike {
     override fun printInventoryInfo() {}
-    //override fun clearInventoryInfo() {}
     override fun moveLadder() {}
     override fun move(direction: Direction) {}
     override fun afterAction() {}
@@ -89,6 +90,7 @@ class FakeView: ViewLike {
     override fun attacked() {}
     override fun died() {}
     override fun printMessage(str: String) {}
+    override fun clearMessage() {}
     override fun redraw() {}
     override fun lazyRedraw(cells: List<Cell>) {}
     override fun slideDown() {}
@@ -181,7 +183,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         readChar()
     }
 
-    fun clearMessage() {
+    override fun clearMessage() {
         printStrInLine(message.toSpaces(), 5)
     }
 
@@ -217,8 +219,18 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         val level = state.level
         val position = state.player.position()
 
+        val twidth = terminal.width - 1
+        val theight = terminal.height - 1
+
+        visual.run {
+            print(cursorUp(theight))
+            print(cursorLeft(twidth))
+        }
+
         for (i in 0 until level.height) {
+            if (i >= theight) break
             for (j in 0 until level.width) {
+                if (j >= twidth) break
                 val cell = level.getCell(i, j, position.h)
                 val symb = cell.toString()
                 visual.run {
@@ -295,9 +307,13 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
     private fun drawBeingSeen() {
         val cur = state.player.position()
+        val theight = terminal.height - 1
+        val twidth = terminal.width - 1
         state.level.bfs(cur, state.player.visibilityDepth) {
             it.visibility = Visibility.Visible
-            drawCell(it)
+            if (it.coordinates.i < theight && it.coordinates.j < twidth) {
+                drawCell(it)
+            }
         }
     }
 
@@ -307,7 +323,14 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         var i = 0
         val toPrintList = toPrint.split(System.lineSeparator())
 
-        val len = terminal.width - col
+        val twidth = terminal.width - 1
+        val theight = terminal.height - 1
+
+        if (row >= theight || col >= twidth) {
+            return 0
+        }
+
+        val len = twidth - col - 2
 
         val down = row - position.i
         val right = col - position.j
@@ -318,26 +341,24 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
 
         for (line in toPrintList) {
-            if (line.isEmpty()) {
-                i++
-                visual.run {
-                    print(cursorDown(1))
-                }
-                continue
-            }
-            var rest = line
-            while (rest.length > 0) {
-                val myLen = min(len, rest.length)
-                val str = rest.substring(0, myLen)
-                rest = rest.substring(myLen)
+            if (!line.isEmpty()) {
+                val myLen = min(len, line.length)
+                val str = line.substring(0, myLen)
 
                 visual.run {
                     print(str)
                     print(cursorLeft(str.length))
-                    print(cursorDown(1))
                 }
+            }
 
-                i++
+
+            if (row + i + 1 >= theight) {
+                break
+            }
+            
+            i++
+            visual.run {
+                print(cursorDown(1))
             }
         }
 
