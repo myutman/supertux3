@@ -11,7 +11,7 @@ import ru.hse.supertux3.logic.mobs.Player
 /**
  * Strategy that makes npc run towards player, if npc sees him.
  */
-class AggressiveStrategy : MoveStrategy("A") {
+class AggressiveStrategy : MoveStrategy() {
 
     override fun move(level: Level, mob: Mob): Move {
         var playerCoordinates: Coordinates? = null
