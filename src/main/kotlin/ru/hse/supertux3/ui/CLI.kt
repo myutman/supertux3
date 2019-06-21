@@ -41,6 +41,9 @@ fun readChar(): Char {
     return buffer[0]
 }
 
+/**
+ * Deletes save file
+ */
 fun deleteSave(saveName: String) {
     File(saveName).delete()
 }
@@ -52,6 +55,9 @@ fun clearScreen() {
     print("\u001Bc")
 }
 
+/**
+ * Main function for client
+ */
 fun main() {
     println("Welcome to Super Tux 3!")
 
@@ -79,6 +85,9 @@ fun main() {
     }
 }
 
+/**
+ * Work with model in single player mode
+ */
 fun processSinglePlayer(terminal: Terminal) {
     val state = try {
         requestGameState()
@@ -147,7 +156,9 @@ fun processSinglePlayer(terminal: Terminal) {
     }
 }
 
-
+/**
+ * Work with model in multiplayer mode
+ */
 fun processMultiPlayer(terminal: Terminal) {
     val role = getRole()
 
