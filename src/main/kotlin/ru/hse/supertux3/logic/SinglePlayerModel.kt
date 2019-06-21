@@ -4,6 +4,9 @@ import ru.hse.supertux3.levels.Direction
 import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.ui.ViewLike
 
+/**
+ * Single player representation of model - it calls afterAction method
+ */
 class SinglePlayerModel(state: GameState, view: ViewLike): Model(state, view) {
     override fun loot() {
         super.loot()

@@ -11,6 +11,10 @@ import io.grpc.ServerBuilder
  */
 class SuperTux3Server(port: Int, service: SuperTux3Service) {
     private val server: Server = ServerBuilder.forPort(port).addService(service).build()
+
+    /**
+     * Starts server
+     */
     fun start() {
         this.server.start()
         println("Server started")
@@ -27,6 +31,9 @@ class SuperTux3Server(port: Int, service: SuperTux3Service) {
     }
 }
 
+/**
+ * Main function for server
+ */
 fun main(args: Array<String>) = mainBody {
     val parser = ArgParser(args)
     val arg = SuperTux3ServerArgs(parser)
@@ -36,6 +43,9 @@ fun main(args: Array<String>) = mainBody {
     server.start()
 }
 
+/**
+ * Class for parsing server arguments
+ */
 class SuperTux3ServerArgs(parser: ArgParser) {
     val port: Int by parser.storing(
         "--port", "-p",

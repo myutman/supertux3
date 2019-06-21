@@ -42,6 +42,9 @@ fun requestGameState(): GameState {
     }
 }
 
+/**
+ * Getting from user game mode(singleplayer or multiplayer)
+ */
 fun getGameType(): GameType {
     clearScreen()
 
@@ -58,6 +61,9 @@ fun getGameType(): GameType {
     }
 }
 
+/**
+ * Getting from user his role(creator, joiner)
+ */
 fun getRole(): MultiplayerRole {
     println("Press 'c' to create game, 'j' to join or l to join in lobby.")
     while (true) {
@@ -74,6 +80,9 @@ fun getRole(): MultiplayerRole {
     }
 }
 
+/**
+ * Getting from user server host
+ */
 fun getHost(): String {
     println("Enter hostname: ")
     while (true) {
@@ -86,6 +95,9 @@ fun getHost(): String {
     }
 }
 
+/**
+ * Getting from user server port
+ */
 fun getPort(): Int {
     while (true) {
         println("Enter port number: ")
@@ -102,6 +114,9 @@ fun getPort(): Int {
     }
 }
 
+/**
+ * Getting from user game id
+ */
 fun getId(): String {
     println("Enter gameId: ")
     while (true) {

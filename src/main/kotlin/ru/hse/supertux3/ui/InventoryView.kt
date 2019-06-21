@@ -4,6 +4,9 @@ import ru.hse.supertux3.logic.items.Inventory
 import ru.hse.supertux3.logic.items.Wearable
 import ru.hse.supertux3.logic.items.WearableType
 
+/**
+ * Class that handles view for player inventory
+ */
 class InventoryView(private val view: View) {
     private fun message(str: String) {
         view.printMessage("$str${System.lineSeparator()}Press ESC to continue")
@@ -13,6 +16,9 @@ class InventoryView(private val view: View) {
         view.redraw()
     }
 
+    /**
+     * Get number of slot to put on item from choosen by player, checks that it is correct
+     */
     fun getSlotToPutOn(inventory: Inventory, slotChar: Char): Int {
         val equipped = inventory.equipped
         val unequipped = inventory.unequipped
@@ -38,6 +44,9 @@ class InventoryView(private val view: View) {
         return info.index
     }
 
+    /**
+     * Get number of slot to take off item from choosen by player, checks that it is correct
+     */
     fun getSlotToTakeOff(inventory: Inventory, slotChar: Char): WearableType? {
         val equipped = inventory.equipped
         val entry = try {

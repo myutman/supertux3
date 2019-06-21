@@ -159,6 +159,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         id
     )
 
+    /**
+     * Returns floor in random position
+     */
     fun randomFloor(): Floor {
         var maybeFloor = randomCell()
         while (maybeFloor !is Floor) {
@@ -167,6 +170,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         return maybeFloor
     }
 
+    /**
+     * Puts mob in random floor
+     */
     fun putMob(mob: Mob) {
         var floor = randomFloor()
         while (floor.stander != null) {
@@ -178,6 +184,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         }
     }
 
+    /**
+     * Puts mob in coordinates
+     */
     fun putMob(mob: Mob, c: Coordinates): Boolean {
         val maybeFloor = getCell(c)
         if (maybeFloor is Floor && maybeFloor.stander == null) {
@@ -189,6 +198,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         }
     }
 
+    /**
+     * Creating new player with id
+     */
     fun createPlayer(userId: Int = 0): Player {
         val cell = randomFloor()
         val player = Player(cell, userId = userId)
@@ -260,6 +272,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
             return level
         }
 
+        /**
+         * Loading 1 cell from proto, it affects level if there are standers
+         */
         fun loadCell(level: Level, cellProto: LevelOuterClass.Cell): Cell {
             val id = cellProto.id
             val c = Coordinates.fromProto(level.id, cellProto.coordinates)
@@ -373,6 +388,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     }
 
 
+    /**
+     * Bfs from start cell to with max depth, in every cell it runs function that you passed
+     */
     fun bfs(start: Coordinates, maxDepth: Int, runLogic: (Cell) -> Unit): Map<Coordinates, Int> {
         val distance = mutableMapOf<Coordinates, Int>()
         distance[start] = 1
