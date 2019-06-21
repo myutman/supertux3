@@ -1,0 +1,70 @@
+syntax = "proto3";
+import "inventory.proto";
+
+option java_package = "ru.hse.supertux3";
+
+message Coordinates {
+    int32 i = 1;
+    int32 j = 2;
+    int32 h = 3;
+}
+
+message Player {
+    int32 level = 1;
+    int32 xp = 2;
+    Inventory inventory = 3;
+    int32 userId = 4;
+}
+
+enum MoveStrategy {
+    NEUTRAL = 0;
+    COWARD = 1;
+    AGGRESSIVE = 2;
+}
+
+message NPC {
+    int32 level = 1;
+    MoveStrategy strategy = 2;
+    repeated Item drop = 3;
+    bool isConfused = 4;
+}
+
+
+message Mob {
+    int32 hp = 1;
+    int32 resistChance = 2;
+    int32 armor = 3;
+    int32 damage = 4;
+    int32 criticalChance = 5;
+    int32 visibilityDepth = 6;
+
+    oneof Additional {
+        NPC npc = 7;
+        Player player = 8;
+    }
+    string id = 9;
+}
+
+message Ladder {
+    Coordinates destinationCoordinates = 1;
+    int32 levelId = 2;
+}
+
+message Cell {
+    string id = 1;
+    Coordinates coordinates = 2;
+    oneof maybeStander {
+        Mob stander = 3;
+    }
+    oneof Additional {
+        Ladder ladder = 4;
+    }
+}
+
+message Level {
+    repeated Cell cells = 1; // cell contains coordinates so we can just pass w * h * d cells
+    int32 id = 2;
+    int32 height = 3;
+    int32 width = 4;
+    int32 depth = 5;
+}

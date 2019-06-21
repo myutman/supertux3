@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+option java_package = "ru.hse.supertux3";
+
+message Wearable {
+    int32 resistChance = 1;
+    int32 armor = 2;
+    int32 damage = 3;
+    int32 criticalChance = 4;
+    string type = 5;
+}
+
+message Item {
+    string id = 1;
+    string name = 2;
+    string description = 3;
+    oneof Additional {
+        Wearable wearable = 4;
+    }
+}
+
+message Inventory {
+    repeated Item equipped = 1;     // Must be Wearable (or else)
+                                    // Or else what?
+                                    // Exactly
+    repeated Item unequipped = 2;
+}
