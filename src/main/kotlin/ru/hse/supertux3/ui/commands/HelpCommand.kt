@@ -3,6 +3,9 @@ package ru.hse.supertux3.ui.commands
 import ru.hse.supertux3.ui.View
 import ru.hse.supertux3.ui.readChar
 
+/**
+ * Command that represents listing help.
+ */
 class HelpCommand(val view: View) : Command {
     override fun execute() {
         val str =
@@ -16,7 +19,7 @@ class HelpCommand(val view: View) : Command {
                 |'q' -> save and quit the game
                 |' ' -> walk up or down the ladder
                 |'r' -> redraw
-                |'x' -> self harm
+                |'x' -> self harm (only available in single player mode)
                 |'l' -> loot the drop here
                 |'o' -> put on
                 |'p' -> take off

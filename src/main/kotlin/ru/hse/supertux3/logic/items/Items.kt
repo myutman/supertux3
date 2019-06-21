@@ -96,6 +96,9 @@ abstract class Wearable(
  */
 enum class WearableType { HAT, JACKET, GLOVES, PANTS, SHOES, WEAPON }
 
+/**
+ * Classic builder for Wearable item
+ */
 class WearableBuilder(private val description: String, private val name: String, private val type: WearableType) {
 
     var resistChance: Int = 0
@@ -106,6 +109,9 @@ class WearableBuilder(private val description: String, private val name: String,
 
     var criticalChance: Int = 0
 
+    /**
+     * Creates new wearable from current stats
+     */
     fun build(): Wearable {
         val item = object : Wearable(description, name, type, "B") {
             override fun doPutOn(player: Player) {
@@ -115,7 +121,6 @@ class WearableBuilder(private val description: String, private val name: String,
             override fun doTakeOff(player: Player) {
 
             }
-
         }
 
         item.resistChance = resistChance

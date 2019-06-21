@@ -1,6 +1,8 @@
 package ru.hse.supertux3.logic.items
 
-
+/**
+ * Class contains static map of items names, types and descriptions
+ */
 class ItemsDictionary {
     companion object {
         val dictionary = mapOf(

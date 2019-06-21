@@ -13,7 +13,7 @@ import ru.hse.supertux3.logic.mobs.strategy.MoveStrategy
 /**
  * Decorator for npc class that allows to change npc's behaviour.
  */
-class MobDecorator(val npc: NPC, level: Level) : NPC(npc.cell, "c") {
+class MobDecorator(val npc: NPC) : NPC(npc.cell, "c") {
 
     init {
         redecorate()

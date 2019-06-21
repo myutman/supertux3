@@ -4,9 +4,12 @@ import ru.hse.supertux3.ui.View
 import ru.hse.supertux3.ui.readChar
 import java.lang.RuntimeException
 
+/**
+ * Command that represents showing item about item.
+ */
 class ShowItemInfoCommand(val view: View) : Command {
     override fun execute() {
-        view.showInventoryMessage()
+        view.printMessage("What item do you want to know about?")
         val slot = readChar()
         view.redraw()
         val str: String = try {

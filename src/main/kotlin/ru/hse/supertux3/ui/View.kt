@@ -3,100 +3,129 @@ package ru.hse.supertux3.ui
 import com.github.ajalt.mordant.TermColors
 import ru.hse.supertux3.levels.*
 import ru.hse.supertux3.logic.GameState
-import ru.hse.supertux3.logic.mobs.Mob
-import ru.hse.supertux3.logic.mobs.NPC
 import ru.hse.supertux3.logic.items.Inventory
 import org.jline.terminal.Terminal
-import kotlin.math.max
 import kotlin.math.min
 
+/**
+ * Interface for all ViewLike classes.
+ */
 interface ViewLike {
+    /**
+     * Graphical representation of moving up or down the ladder.
+     */
     fun moveLadder()
+
+    /**
+     * Graphical representation of moving to the adjacent cell.
+     * @param direction direction of move
+     */
     fun move(direction: Direction)
+
+    /**
+     * Graphical representation of moving mobs and all other stuff happening after player's move.
+     */
     fun afterAction()
+
+    /**
+     * Graphical representation of attacking other mobs.
+     */
     fun attack()
+
+    /**
+     * Graphical representation of being attacked.
+     */
     fun attacked()
+
+    /**
+     * Graphical representation of dying.
+     */
     fun died()
+
+    /**
+     * Clears message below the game field.
+     */
+    fun clearMessage()
+
+    /**
+     * Prints specific message below the game field.
+     * @param str message
+     */
     fun printMessage(str: String)
+
+    /**
+     * Redraws all the graphic information.
+     */
     fun redraw()
+
+    /**
+     * Redraws given subset of cells.
+     * @param cells cells to be redrawn
+     */
     fun lazyRedraw(cells: List<Cell>)
+
+    /**
+     * Graphical representation of sliding unworn inventory down.
+     */
     fun slideDown()
+
+    /**
+     * Graphical representation of sliding unworn inventory up.
+     */
     fun slideUp()
-    fun showInventoryMessage()
+
+    /**
+     * Prints information about inventory.
+     */
+    fun printInventoryInfo()
+
 }
 
 class FakeView: ViewLike {
-    override fun moveLadder() {
-
-    }
-
-    override fun move(direction: Direction) {
-
-    }
-
-    override fun afterAction() {
-
-    }
-
-    override fun attack() {
-
-    }
-
-    override fun attacked() {
-
-    }
-
-    override fun died() {
-
-    }
-
-    override fun printMessage(str: String) {
-
-    }
-
-    override fun redraw() {
-
-    }
-
-    override fun lazyRedraw(cells: List<Cell>) {
-
-    }
-
-    override fun slideDown() {
-
-    }
-
-    override fun slideUp() {
-
-    }
-
-    override fun showInventoryMessage() {
-
-    }
+    override fun printInventoryInfo() {}
+    override fun moveLadder() {}
+    override fun move(direction: Direction) {}
+    override fun afterAction() {}
+    override fun attack() {}
+    override fun attacked() {}
+    override fun died() {}
+    override fun printMessage(str: String) {}
+    override fun clearMessage() {}
+    override fun redraw() {}
+    override fun lazyRedraw(cells: List<Cell>) {}
+    override fun slideDown() {}
+    override fun slideUp() {}
 }
 
-/*
+
+/**
  * Class for moving cursor commands.
  * @param state current game state consists of level and player information
  * @param visual object for moving cursor and coloring symbols
+ * @param terminal object for enquiring terminal information
  */
 class View(val state: GameState, val visual: TermColors, val terminal: Terminal): ViewLike {
 
+    private var inventoryInfo: String
+    private var message: String
+    private var posInfo: String
+    private var usrInfo: String
+
     init {
+        inventoryInfo = ""
+        message = ""
+        posInfo = ""
+        usrInfo = ""
         redraw()
     }
 
-    /*
-     * Move up or down the ladder.
-     */
+    val inventoryView = InventoryView(this)
+
+
     override fun moveLadder() {
         redraw()
     }
 
-    /*
-     * Go to the given direction.
-     * @param direction direction to go to
-     */
     override fun move(direction: Direction) {
         val prevPosition = state.level.getCell(state.player.position(), direction, -1)
         visual.run {
@@ -154,8 +183,14 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         readChar()
     }
 
+    override fun clearMessage() {
+        printStrInLine(message.toSpaces(), 5)
+    }
+
     override fun printMessage(str: String) {
-        printStrInLine(str, 5)
+        clearMessage()
+        message = str
+        printStrInLine(message, 5)
     }
 
     private fun drawCell(new: Cell, str: String = "") {
@@ -178,17 +213,24 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         }
     }
 
-    /*
-     * Redraw all the field.
-     */
     override fun redraw() {
         clearScreen()
 
         val level = state.level
         val position = state.player.position()
 
+        val twidth = terminal.width - 1
+        val theight = terminal.height - 1
+
+        visual.run {
+            print(cursorUp(theight))
+            print(cursorLeft(twidth))
+        }
+
         for (i in 0 until level.height) {
+            if (i >= theight) break
             for (j in 0 until level.width) {
+                if (j >= twidth) break
                 val cell = level.getCell(i, j, position.h)
                 val symb = cell.toString()
                 visual.run {
@@ -229,9 +271,19 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
         printInventoryInfo()
     }
 
+    // TODO: перенести туда, где это должно быть
+    var prevPosition = state.player.position()
+
     override fun lazyRedraw(cells: List<Cell>) {
-        for (cell in cells) {
-            if (cell.coordinates.h == state.player.coordinates.h) {
+        val position = state.player.position()
+
+        clearMonstersNotSeen(prevPosition)
+        prevPosition = position
+
+        redraw()
+
+        /*for (cell in cells) {
+            if (cell.visibility == Visibility.Visible) {
                 if (cell.coordinates == state.player.coordinates) {
                     visual.run {
                         drawCell(cell, red("@"))
@@ -240,7 +292,7 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
                     drawCell(cell)
                 }
             }
-        }
+        }*/
     }
 
     private fun clearMonstersNotSeen(prevPosition: Coordinates) {
@@ -255,79 +307,109 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
 
     private fun drawBeingSeen() {
         val cur = state.player.position()
+        val theight = terminal.height - 1
+        val twidth = terminal.width - 1
         state.level.bfs(cur, state.player.visibilityDepth) {
-            drawCell(it)
             it.visibility = Visibility.Visible
+            if (it.coordinates.i < theight && it.coordinates.j < twidth) {
+                drawCell(it)
+            }
         }
     }
 
-    private fun printStrInLine(toPrint: String, lineNumber: Int): Int {
-        val level = state.level
+    private fun printStr(toPrint: String, row: Int, col: Int): Int {
         val position = state.player.position()
-        val offset = 20
 
         var i = 0
         val toPrintList = toPrint.split(System.lineSeparator())
 
-        val len = terminal.width - level.width - offset
+        val twidth = terminal.width - 1
+        val theight = terminal.height - 1
+
+        if (row >= theight || col >= twidth) {
+            return 0
+        }
+
+        val len = twidth - col - 2
+
+        val down = row - position.i
+        val right = col - position.j
+
+        visual.run {
+            print(cursorDown(down))
+            print(cursorRight(right))
+        }
 
         for (line in toPrintList) {
-            if (line.isEmpty()) {
-                i++
-                continue
-            }
-            var rest = line
-            while (rest.length > 0) {
-                val myLen = min(len, rest.length)
-                val str = rest.substring(0, myLen)
-                rest = rest.substring(myLen)
-                val down = level.height - position.i + lineNumber + i
-                val left = position.j
+            if (!line.isEmpty()) {
+                val myLen = min(len, line.length)
+                val str = line.substring(0, myLen)
 
                 visual.run {
-                    print(cursorLeft(left))
-                    print(cursorDown(down))
-
-
                     print(str)
                     print(cursorLeft(str.length))
-
-                    print(cursorUp(down))
-                    print(cursorRight(left))
                 }
-
-                i++
             }
+
+
+            if (row + i + 1 >= theight) {
+                break
+            }
+            
+            i++
+            visual.run {
+                print(cursorDown(1))
+            }
+        }
+
+        visual.run {
+            print(cursorLeft(right))
+            print(cursorUp(down + i))
         }
 
         return i
     }
 
+    fun printStrInLine(toPrint: String, lineNumber: Int): Int {
+        return printStr(toPrint, state.level.height + lineNumber, 0)
+    }
+
+    fun printStrInLineRight(toPrint: String, lineNumber: Int): Int {
+        return printStr(toPrint, lineNumber, state.level.width + 20)
+    }
+
+
+
     private fun printPos() {
         val level = state.level
         val position = state.player.position()
 
+        printStrInLine(posInfo.toSpaces(), 1)
+
         val str = buildString {
             append(
-                "pos(i,j,h) = ",
+                "i = ",
                 position.i,
-                ", ",
+                ", j = ",
                 position.j,
-                ", ",
+                ", floor = ",
                 position.h,
                 " height = ",
                 level.height,
                 " width = ",
-                level.width,
-                "      "
+                level.width
             )
         }
 
-        printStrInLine(str, 1)
+        posInfo = str
+
+        printStrInLine(posInfo, 1)
     }
 
     private fun printUsrInfo() {
         val player = state.player
+
+        printStrInLine(usrInfo.toSpaces(), 0)
 
         val str = buildString {
             append(
@@ -347,88 +429,56 @@ class View(val state: GameState, val visual: TermColors, val terminal: Terminal)
             )
         }
 
-        printStrInLine(str, 0)
+        usrInfo = str
+        printStrInLine(usrInfo, 0)
     }
 
     override fun slideDown() {
-        if (state.player.inventory.slideDown())
-            redraw()
+        if (state.player.inventory.slideDown()) {
+            printInventoryInfo()
+        }
     }
 
     override fun slideUp() {
-        if (state.player.inventory.slideUp())
-            redraw()
-    }
-
-    override fun showInventoryMessage() {
-        val str = "What item do you want to know about?"
-        printStrInLine(str, 4)
-    }
-
-    private fun printInventoryInfo() {
-        var line = 0
-        line += printStrInLineRight("Inventory", line)
-        line += printStrInLineRight("Unequipped:", line)
-        val inventory = state.player.inventory
-        for (i in 0..Inventory.unwornSlotNames.size - 1) {
-            val slotName = Inventory.unwornSlotNames[i]
-            if (state.player.inventory.inventoryCur + i < inventory.unequipped.size) {
-                val item = inventory.unequipped[state.player.inventory.inventoryCur + i]
-                line += printStrInLineRight("[$slotName] " + item.toString(), line)
-            } else {
-                line += printStrInLineRight("[$slotName] --", line)
-            }
-        }
-        line += printStrInLineRight("To slide up press j. To slide down press k.", line)
-        line++
-        line += printStrInLineRight("Equipped:", line)
-        val worns = inventory.equipped.toList()
-        for (i in 0..worns.size - 1) {
-            val entry = worns[i]
-            val slotName = Inventory.wornSlotNames[i]
-            line += printStrInLineRight("[$slotName] ${entry.second} (being worn)", line)
+        if (state.player.inventory.slideUp()) {
+            printInventoryInfo()
         }
     }
 
-    private fun printStrInLineRight(toPrint: String, lineNumber: Int): Int {
-        val level = state.level
-        val position = state.player.position()
-        val offset = 20
+    private fun String.toSpaces(): String {
+        return this.replace(Regex("\\S"), " ")
+    }
 
-        var i = 0
-        val toPrintList = toPrint.split(System.lineSeparator())
+    private fun getInventoryInfo(inventory: Inventory = state.player.inventory): String {
+        return buildString {
+            append("Inventory", System.lineSeparator())
+            append("Unequipped:", System.lineSeparator())
 
-        val len = terminal.width - level.width - offset
-
-        for (line in toPrintList) {
-            if (line.isEmpty()) {
-                i++
-                continue
-            }
-            var rest = line
-            while (rest.length > 0) {
-                val myLen = min(len, rest.length)
-                val str = rest.substring(0, myLen)
-                rest = rest.substring(myLen)
-                val down = lineNumber + i - position.i
-                val right = level.width + offset - position.j
-
-                visual.run {
-                    print(cursorRight(right))
-                    print(cursorDown(down))
-
-                    print(str)
-                    print(cursorLeft(str.length))
-
-                    print(cursorUp(down))
-                    print(cursorLeft(right))
+            for (i in 0..Inventory.unwornSlotNames.size - 1) {
+                val slotName = Inventory.unwornSlotNames[i]
+                if (inventory.inventoryCur + i < inventory.unequipped.size) {
+                    val item = inventory.unequipped[inventory.inventoryCur + i]
+                    append("[$slotName] $item", System.lineSeparator())
+                } else {
+                    append("[$slotName] --", System.lineSeparator())
                 }
-
-                i++
+            }
+            append("To slide up press j. To slide down press k.", System.lineSeparator(), System.lineSeparator())
+            append("Equipped:", System.lineSeparator())
+            val worns = inventory.equipped.toList()
+            for (i in 0..worns.size - 1) {
+                val entry = worns[i]
+                val slotName = Inventory.wornSlotNames[i]
+                append("[$slotName] ${entry.second} (being worn)", System.lineSeparator())
             }
         }
+    }
 
-        return i
+    override fun printInventoryInfo() {
+        printStrInLineRight(inventoryInfo.toSpaces(), 0)
+        val str = getInventoryInfo()
+        inventoryInfo = str
+        printStrInLineRight(inventoryInfo, 0)
     }
 
     private fun printAttacked() {

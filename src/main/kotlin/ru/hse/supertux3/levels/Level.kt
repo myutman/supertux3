@@ -61,7 +61,8 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     /**
      * The one and only player in singleplayer
      */
-    var player: Player? = null
+    val player: Player
+        get() = players.first()
 
     /**
      * Just a 3D array representation of field,
@@ -131,7 +132,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
      */
     fun canGo(c: Coordinates, direction: Direction, r: Int): Boolean {
         val (i, j) = getNewCoordinate(c, direction, r)
-        return i >= 0 || j >= 0 || i < height || j < width
+        return i >= 0 && j >= 0 && i < height && j < width
     }
 
     private fun getNewCoordinate(c: Coordinates, direction: Direction, r: Int): Pair<Int, Int> {
@@ -158,6 +159,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         id
     )
 
+    /**
+     * Returns floor in random position
+     */
     fun randomFloor(): Floor {
         var maybeFloor = randomCell()
         while (maybeFloor !is Floor) {
@@ -166,6 +170,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         return maybeFloor
     }
 
+    /**
+     * Puts mob in random floor
+     */
     fun putMob(mob: Mob) {
         var floor = randomFloor()
         while (floor.stander != null) {
@@ -177,6 +184,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         }
     }
 
+    /**
+     * Puts mob in coordinates
+     */
     fun putMob(mob: Mob, c: Coordinates): Boolean {
         val maybeFloor = getCell(c)
         if (maybeFloor is Floor && maybeFloor.stander == null) {
@@ -188,11 +198,13 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
         }
     }
 
+    /**
+     * Creating new player with id
+     */
     fun createPlayer(userId: Int = 0): Player {
         val cell = randomFloor()
         val player = Player(cell, userId = userId)
         players.add(player)
-        this.player = player
         return player
     }
 
@@ -260,6 +272,9 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
             return level
         }
 
+        /**
+         * Loading 1 cell from proto, it affects level if there are standers
+         */
         fun loadCell(level: Level, cellProto: LevelOuterClass.Cell): Cell {
             val id = cellProto.id
             val c = Coordinates.fromProto(level.id, cellProto.coordinates)
@@ -316,7 +331,7 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
                     mob.drop.add(processItem(item))
                 }
                 if (npc.isConfused) {
-                    return MobDecorator(mob, level)
+                    return MobDecorator(mob)
                 }
             }
             if (mob is Player) {
@@ -373,34 +388,34 @@ class Level(val depth: Int, val height: Int, val width: Int, val id: Int = Level
     }
 
 
-    fun bfs(start: Coordinates, maxDepth: Int, runLogic: (Cell) -> Unit) {
-        val used = Array(height) {
-            Array(width) {
-                0
-            }
-        }
-        used[start.i][start.j] = 1
+    /**
+     * Bfs from start cell to with max depth, in every cell it runs function that you passed
+     */
+    fun bfs(start: Coordinates, maxDepth: Int, runLogic: (Cell) -> Unit): Map<Coordinates, Int> {
+        val distance = mutableMapOf<Coordinates, Int>()
+        distance[start] = 1
         val queue = LinkedList<Cell>()
         queue.add(getCell(start))
         while (queue.isNotEmpty()) {
             val curCell = queue.pollFirst()
-            val curDepth = used[curCell.coordinates.i][curCell.coordinates.j]
-            runLogic(curCell) // It can be a wall, but only one wall near floor
-            if (curCell !is Floor || curCell is Door) {
-                continue
-            } else {
-                if (curDepth <= maxDepth) {
-                    for (direction in Direction.values()) {
-                        if (canGo(curCell.coordinates, direction, 1)) {
-                            val next = getCell(curCell.coordinates, direction, 1)
-                            if (used[next.coordinates.i][next.coordinates.j] == 0) {
-                                used[next.coordinates.i][next.coordinates.j] = curDepth + 1
-                                queue.add(next)
+            val curDepth = distance[curCell.coordinates] ?: 1
+            if (curDepth <= maxDepth) {
+                for (direction in Direction.values()) {
+                    if (canGo(curCell.coordinates, direction, 1)) {
+                        val next = getCell(curCell.coordinates, direction, 1)
+                        if (distance[next.coordinates] == null) {
+                            runLogic(next) // It can be a wall, but only one wall near floor
+                            if (next !is Floor || next is Door) {
+                                continue
                             }
+                            distance[next.coordinates] = curDepth + 1
+                            queue.add(next)
                         }
                     }
                 }
             }
+
         }
+        return distance
     }
 }

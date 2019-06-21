@@ -7,6 +7,7 @@ import org.junit.Test
 import ru.hse.supertux3.logic.mobs.Player
 import ru.hse.supertux3.logic.mobs.Snowball
 import ru.hse.supertux3.logic.mobs.strategy.AggressiveStrategy
+import ru.hse.supertux3.logic.mobs.strategy.CowardStrategy
 import ru.hse.supertux3.logic.mobs.strategy.Move
 import java.io.File
 
@@ -104,6 +105,34 @@ class LevelTest {
         (cell2 as Floor).stander = mob
         println(arena)
         assertEquals(0, AggressiveStrategy().move(arena, mob).r)
+    }
+
+    @Test
+    fun mobsAggressiveStrategyNearTheWall() {
+        val cell1 = arena.getCell(1, 1, 0)
+        val player = Player(cell1)
+        (cell1 as Floor).stander = player
+        val cell2 = arena.getCell(3, 1, 0)
+        val mob = Snowball(cell2)
+        (cell2 as Floor).stander = mob
+        val wallCoordinates = cell2.coordinates.copy(i = cell2.coordinates.i - 1)
+        arena.setCell(wallCoordinates, Wall(wallCoordinates))
+        println(arena)
+        assertEquals(Move(Direction.RIGHT, 1), AggressiveStrategy().move(arena, mob))
+    }
+
+    @Test
+    fun mobsCowardStrategyNearTheWall() {
+        val cell1 = arena.getCell(1, 1, 0)
+        val player = Player(cell1)
+        (cell1 as Floor).stander = player
+        val cell2 = arena.getCell(3, 1, 0)
+        val mob = Snowball(cell2)
+        (cell2 as Floor).stander = mob
+        val wallCoordinates = cell2.coordinates.copy(i = cell2.coordinates.i + 1)
+        arena.setCell(wallCoordinates, Wall(wallCoordinates))
+        println(arena)
+        assertEquals(Move(Direction.RIGHT, 1), CowardStrategy().move(arena, mob))
     }
 
 

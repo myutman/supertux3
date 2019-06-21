@@ -294,7 +294,7 @@ class LevelGenerator(private val depth: Int, private val heightWithWalls: Int, p
                 3 -> CowardStrategy()
                 else -> AggressiveStrategy()
             }
-            val playerLevel = level.player?.level ?: 0
+            val playerLevel = if (level.players.isEmpty()) 0 else level.player.level
             mob.level = playerLevel
             mob.moveStrategy = strategy
             val itemsCount = Random.nextInt(1, 4)

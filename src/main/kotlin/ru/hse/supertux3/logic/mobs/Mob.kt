@@ -63,16 +63,16 @@ abstract class Mob(var cell: Cell, val id: String){
         val n2 = (0..100).random()
 
         var baseDamage = damage
-        if (criticalChance < n1) {
+        if (n1 < criticalChance) {
             baseDamage *= 2
             if (this is Player && mob is NPC) {
-                val decorator = MobDecorator(mob, level)
+                val decorator = MobDecorator(mob)
                 val i = level.mobs.indexOf(mob)
                 level.mobs[i] = decorator
             }
         }
 
-        if (mob.resistChance < n2) {
+        if (n2 < mob.resistChance) {
             baseDamage /= 2
         }
 
@@ -98,7 +98,6 @@ abstract class Mob(var cell: Cell, val id: String){
             Direction.LEFT to { position -> position.copy(j = position.j - move.r) },
             Direction.RIGHT to { position -> position.copy(j = position.j + move.r) }
         )
-
         val newPositionFunction = directionToMove[move.direction] ?: { position -> position }
         val newPosition = newPositionFunction(position())
 
@@ -114,9 +113,9 @@ abstract class Mob(var cell: Cell, val id: String){
         }
 
         val newCell = level.getCell(newPosition)
-        if (newCell is Floor && newCell.stander != null && newCell.stander is Mob) {
-            moveData.affected = newCell.stander as Mob
-            moveData.result = attack(newCell.stander as Mob, level)
+        if (newCell is Floor && newCell.stander != null) {
+            moveData.affected = newCell.stander!!
+            moveData.result = attack(newCell.stander!!, level)
             return moveData
         }
 

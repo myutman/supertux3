@@ -19,6 +19,7 @@ import ru.hse.supertux3.levels.Cell
 import ru.hse.supertux3.levels.Floor
 import ru.hse.supertux3.levels.Level
 import ru.hse.supertux3.logic.GameState
+import ru.hse.supertux3.logic.SinglePlayerModel
 import ru.hse.supertux3.logic.items.WearableType
 import ru.hse.supertux3.logic.mobs.Player
 import java.util.concurrent.TimeUnit
@@ -40,6 +41,9 @@ fun readChar(): Char {
     return buffer[0]
 }
 
+/**
+ * Deletes save file
+ */
 fun deleteSave(saveName: String) {
     File(saveName).delete()
 }
@@ -51,6 +55,9 @@ fun clearScreen() {
     print("\u001Bc")
 }
 
+/**
+ * Main function for client
+ */
 fun main() {
     println("Welcome to Super Tux 3!")
 
@@ -78,6 +85,9 @@ fun main() {
     }
 }
 
+/**
+ * Work with model in single player mode
+ */
 fun processSinglePlayer(terminal: Terminal) {
     val state = try {
         requestGameState()
@@ -89,9 +99,8 @@ fun processSinglePlayer(terminal: Terminal) {
 
     val visual = TermColors(TermColors.Level.TRUECOLOR)
 
-    val model = Model(state)
     val view = View(state, visual, terminal)
-    model.view = view
+    val model = SinglePlayerModel(state, view)
 
     val invoker = Invoker()
 
@@ -112,7 +121,7 @@ fun processSinglePlayer(terminal: Terminal) {
                 'o' -> {
                     view.printMessage("What do you want to put on")
                     val slotChar = readChar()
-                    val index = model.getSlotToPutOn(slotChar)
+                    val index = view.inventoryView.getSlotToPutOn(state.player.inventory, slotChar)
                     if (index == -1) {
                         EmptyCommand()
                     } else {
@@ -122,7 +131,7 @@ fun processSinglePlayer(terminal: Terminal) {
                 'p' -> {
                     view.printMessage("What do you want to take off")
                     val slotChar = readChar()
-                    val type = model.getSlotToTakeOff(slotChar)
+                    val type = view.inventoryView.getSlotToTakeOff(state.player.inventory, slotChar)
                     if (type == null) {
                         EmptyCommand()
                     } else {
@@ -147,7 +156,9 @@ fun processSinglePlayer(terminal: Terminal) {
     }
 }
 
-
+/**
+ * Work with model in multiplayer mode
+ */
 fun processMultiPlayer(terminal: Terminal) {
     val role = getRole()
 
@@ -171,7 +182,6 @@ fun processMultiPlayer(terminal: Terminal) {
 
         println("Enter the same id to start game.")
         val secondGameId = getId()
-        // TODO: do this better
         val response = stub.startGame(SuperTux3Proto.StartGameRequest.newBuilder().setGameId(gameId).build())
         level = Level.load(response.level)
         userId = response.userId
@@ -179,15 +189,13 @@ fun processMultiPlayer(terminal: Terminal) {
 
     val player = level.players.find { player -> player.userId == userId }
     if (player == null) {
-        println("ERROROR: server sent userId=${userId} that didn't match any userId in Level.")
+        println("ERROR: server sent userId=${userId} that didn't match any userId in Level.")
         return
     }
 
     val state = GameState(level, player)
     val visual = TermColors(TermColors.Level.TRUECOLOR)
     val view = View(state, visual, terminal)
-    val model = Model(state)
-    model.view = view
 
     while (true) {
         val isMyTurn = stub.isMyTurn(SuperTux3Proto.IsMyTurnRequest.newBuilder()
@@ -197,70 +205,69 @@ fun processMultiPlayer(terminal: Terminal) {
         val updatesTurn: SuperTux3Proto.Turn
         if (isMyTurn) {
             val currentCommandBuilder = CommandOuterClass.Command.newBuilder()
-            val cmd: Command? = when (readChar()) {
+            val isTurn: Boolean = when (readChar()) {
                 'w' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.UP)
                     )
-                    MoveCommand(model, Direction.UP)
+                    true
                 }
                 'a' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.LEFT)
                     )
-                    MoveCommand(model, Direction.LEFT)
+                    true
                 }
                 's' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.DOWN)
                     )
-                    MoveCommand(model, Direction.DOWN)
+                    true
                 }
                 'd' -> {
                     currentCommandBuilder.setMove(
                         CommandOuterClass.MoveCommand.newBuilder().setDirection(CommandOuterClass.Direction.RIGHT)
                     )
-                    MoveCommand(model, Direction.RIGHT)
+                    true
                 }
-                'q' -> QuitCommand(state, saveName)
+                'q' -> {
+                    state.quit()
+                    true
+                }
                 ' ' -> {
                     currentCommandBuilder.setMoveLadder(
                         CommandOuterClass.MoveLadderCommand.newBuilder()
                     )
-                    MoveLadderCommand(model)
+                    true
                 }
                 '.' -> {
                     currentCommandBuilder.setStay(
                         CommandOuterClass.StayCommand.newBuilder()
                     )
-                    StayCommand(model)
+                    true
                 }
                 'l' -> {
                     currentCommandBuilder.setLoot(
                         CommandOuterClass.LootCommand.newBuilder()
                     )
-                    LootCommand(model)
+                    true
                 }
                 'o' -> {
                     view.printMessage("What do you want to put on")
                     val slotChar = readChar()
-                    val index = model.getSlotToPutOn(slotChar)
-                    if (index == -1) {
-                        EmptyCommand()
-                    } else {
+                    val index = view.inventoryView.getSlotToPutOn(state.player.inventory, slotChar)
+                    if (index != -1) {
                         currentCommandBuilder.setPutOn(
                             CommandOuterClass.PutOnCommand.newBuilder().setIndex(index)
                         )
-                        PutOnCommand(model, index)
                     }
+                    true
                 }
                 'p' -> {
                     view.printMessage("What do you want to take off")
                     val slotChar = readChar()
-                    val type = model.getSlotToTakeOff(slotChar)
-                    if (type == null) {
-                        EmptyCommand()
-                    } else {
+                    val type = view.inventoryView.getSlotToTakeOff(state.player.inventory, slotChar)
+                    if (type != null) {
                         val protoType = when (type) {
                             WearableType.HAT -> CommandOuterClass.WearableType.HAT
                             WearableType.JACKET -> CommandOuterClass.WearableType.JACKET
@@ -268,23 +275,38 @@ fun processMultiPlayer(terminal: Terminal) {
                             WearableType.PANTS -> CommandOuterClass.WearableType.PANTS
                             WearableType.SHOES -> CommandOuterClass.WearableType.SHOES
                             WearableType.WEAPON -> CommandOuterClass.WearableType.WEAPON
-                            else -> null
                         }
                         currentCommandBuilder.setTakeOff(
                             CommandOuterClass.TakeOffCommand.newBuilder().setType(protoType!!)
                         )
-                        TakeOffCommand(model, type)
                     }
+                    true
                 }
 
-                'r' -> RedrawCommand(view)
-                'j' -> SlideUpCommand(view)
-                'k' -> SlideDownCommand(view)
-                '?' -> ShowItemInfoCommand(view)
-                'h' -> HelpCommand(view)
-                else -> null
+                'r' -> {
+                    RedrawCommand(view).execute()
+                    false
+                }
+                'j' -> {
+                    SlideUpCommand(view).execute()
+                    false
+                }
+                'k' -> {
+                    SlideDownCommand(view).execute()
+                    false
+                }
+                '?' -> {
+                    ShowItemInfoCommand(view).execute()
+                    false
+                }
+                'h' -> {
+                    HelpCommand(view).execute()
+                    false
+                }
+                else -> false
             }
-            //cmd?.execute()
+            if (!isTurn)
+                continue
             val command = currentCommandBuilder.setUserId(userId).build()
             val turnResponse = stub.makeTurn(SuperTux3Proto.MakeTurnRequest.newBuilder()
                 .setGameId(gameId)
@@ -301,14 +323,13 @@ fun processMultiPlayer(terminal: Terminal) {
         val cellsList = ArrayList<Cell>()
         for (proto in updatesTurn.cellsList) {
             val cell = Level.loadCell(state.level, proto)
+            cell.visibility = level.getCell(cell.coordinates).visibility
 
             // check if our player; if yes then update player
             if (cell is Floor && cell.stander is Player) {
                 val cellPlayer = cell.stander as Player
                 if (cellPlayer.userId == userId) {
                     state.player = cellPlayer
-                    state.level.player = cellPlayer
-                    // TODO: inventory
                 }
             }
 
@@ -316,10 +337,9 @@ fun processMultiPlayer(terminal: Terminal) {
             cellsList.add(cell)
         }
 
-        //view.lazyRedraw(cellsList) TODO: lazy draw doesn't fill so good
-        view.redraw() // TODO: npc still moves strange
+        view.lazyRedraw(cellsList) // TODO: lazy draw doesn't fill so good
 
-        if (updatesTurn.amIDead) {
+        if (updatesTurn.amIDead || state.isGameFinished()) {
             view.died()
             break
         }

@@ -16,7 +16,7 @@ class Player(
     override var damage: Int = 15,
     override var resistChance: Int = 10,
     override var armor: Int = 5,
-    override var criticalChance: Int = 10,
+    override var criticalChance: Int = 30,
     val inventory: Inventory = Inventory()
 ) : Mob(cell, "@") {
     var xp: Int = 0
@@ -66,16 +66,5 @@ class Player(
             .setUserId(userId)
             .build()
         return mob.toBuilder().setPlayer(player).build()
-    }
-
-    fun copyFrom(stander: Player) {
-        hp = stander.hp
-        damage = stander.damage
-        resistChance = stander.resistChance
-        armor = stander.armor
-        criticalChance = stander.criticalChance
-        xp = stander.xp
-        level = stander.level
-        cell = stander.cell
     }
 }

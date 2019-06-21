@@ -11,27 +11,29 @@ import ru.hse.supertux3.logic.mobs.Player
 /**
  * Strategy that makes npc run away from player, if npc sees him.
  */
-class CowardStrategy : MoveStrategy("C") {
+class CowardStrategy : MoveStrategy() {
     override fun move(level: Level, mob: Mob): Move {
         var playerCoordinates: Coordinates? = null
+
         level.bfs(mob.coordinates, mob.visibilityDepth) {
-            if (it is Floor && it.stander != null && it.stander is Player) {
+            if (it is Floor && it.stander != null && it.stander is Player && playerCoordinates == null) {
                 playerCoordinates = it.coordinates
             }
         }
         if (playerCoordinates == null) {
             return Move(Direction.RIGHT, 0)
         } else {
-            val mob = mob.coordinates
-            val player: Coordinates = playerCoordinates as Coordinates
-            return when {
-                player.i < mob.i -> Move(Direction.DOWN, 1)
-                player.i > mob.i -> Move(Direction.UP, 1)
-                player.j < mob.j -> Move(Direction.RIGHT, 1)
-                else -> Move(Direction.LEFT, 1)
+            val distance = level.bfs(playerCoordinates!!, mob.visibilityDepth + 1) {}
+            for (direction in Direction.values()) {
+                if (level.canGo(mob.coordinates, direction, 1)) {
+                    val next = level.getCell(mob.coordinates, direction, 1)
+                    if (next.coordinates in distance && distance[next.coordinates]!! > distance[mob.coordinates]!!) {
+                        return Move(direction, 1)
+                    }
+                }
             }
+            return Move(Direction.RIGHT, 0)
         }
-
     }
 
     override fun toProto(): LevelOuterClass.MoveStrategy {
